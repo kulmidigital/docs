@@ -1,7 +1,7 @@
 {
   "projectType": "saas",
-  "projectName": "KulmiPay",
-  "projectDescription": "KulmiPay is a payment infrastructure platform that enables businesses to collect payments and disburse money via M-Pesa, bank transfers, cards, and more across Kenya and beyond.",
+  "projectName": "Kulmi Pay",
+  "projectDescription": "Kulmi Pay is a payment infrastructure platform for African businesses, with current live money movement support focused on Kenya and broader regional expansion planned over time.",
   "theme": "luma",
   "primaryColor": "#f47625",
   "lightColor": "#757575",

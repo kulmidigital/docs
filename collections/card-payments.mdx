@@ -1,9 +1,10 @@
 ---
-title: "Accept Card and Digital Wallet Payments"
-description: "Accept Visa, Mastercard, Apple Pay, and Google Pay using the KulmiPay collect endpoint. Includes billing address requirements and PCI compliance guidance."
+title: "Card Payments"
+sidebarTitle: "Card Payments"
+description: "Accept Visa, Mastercard, Apple Pay, and Google Pay using the Kulmi Pay collect endpoint. Includes billing address requirements and PCI compliance guidance."
 ---
 
-KulmiPay supports card and digital wallet payments through the `POST /api/v1/collect/` endpoint. You can accept Visa and Mastercard credit and debit cards, as well as Apple Pay and Google Pay. Card payments process through a PCI-compliant gateway — KulmiPay handles the sensitive card data so your servers never need to.
+Kulmi Pay supports card and digital wallet payments through the `POST /api/v1/collect/` endpoint. You can accept Visa and Mastercard credit and debit cards, as well as Apple Pay and Google Pay. Card payments process through a PCI-compliant gateway — Kulmi Pay handles the sensitive card data so your servers never need to.
 
 ## Supported methods
 
@@ -108,5 +109,5 @@ print(response.json())
 </Note>
 
 <Note>
-  KulmiPay is PCI DSS compliant. Card data is encrypted before it leaves the client and is never stored in plain text. If you are building a custom checkout UI, contact KulmiPay to learn about the hosted fields integration that keeps raw card data off your servers entirely.
+  Kulmi Pay is PCI DSS compliant. Card data is encrypted before it leaves the client and is never stored in plain text. If you are building a custom checkout UI, contact Kulmi Pay to learn about the hosted fields integration that keeps raw card data off your servers entirely.
 </Note>

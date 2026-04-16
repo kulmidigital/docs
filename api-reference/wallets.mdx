@@ -1,9 +1,10 @@
 ---
 title: "GET/POST /api/v1/wallets — Manage Wallets"
-description: "List all wallets on your KulmiPay account and create new working wallets to separate funds by purpose, currency, or disbursement use case."
+sidebarTitle: "Wallets"
+description: "List all wallets on your Kulmi Pay account and create new working wallets to separate funds by purpose, currency, or disbursement use case."
 ---
 
-Use these endpoints to retrieve your KulmiPay wallets and create new working wallets. Settlement wallets are provisioned automatically when you activate a currency — you only need the `POST` endpoint to create additional working wallets for fund separation or specific disbursement flows.
+Use these endpoints to retrieve your Kulmi Pay wallets and create new working wallets. Settlement wallets are provisioned automatically when you activate a currency — you only need the `POST` endpoint to create additional working wallets for fund separation or specific disbursement flows.
 
 **Base URL:** `https://app.kulmipay.com`
 
@@ -37,7 +38,7 @@ print(response.json())
 
 **`POST /api/v1/wallets/`**
 
-Creates a new working wallet on your account. You cannot create `SETTLEMENT` wallets — those are managed by KulmiPay automatically.
+Creates a new working wallet on your account. You cannot create `SETTLEMENT` wallets — those are managed by Kulmi Pay automatically.
 
 ### Request parameters
 

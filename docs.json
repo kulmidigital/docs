@@ -1,18 +1,26 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "luma",
-  "name": "Kulmi",
-  "favicon": "https://media.brand.dev/683b63da-9d8b-4e88-ba27-c8adc9f3c41d.png",
-  "colors": {
-    "primary": "#f47625",
-    "light": "#757575"
+  "name": "Kulmi Pay",
+  "logo": {
+    "light": "/logo.png",
+    "dark": "/logo.png",
+    "href": "https://www.kulmipay.com"
   },
-  "font": {
-    "headings": {
-      "family": "Inter"
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#F56E0F",
+    "light": "#F8923D",
+    "dark": "#D45A00"
+  },
+  "fonts": {
+    "heading": {
+      "family": "DM Sans",
+      "weight": 700
     },
     "body": {
-      "family": "Inter"
+      "family": "DM Sans",
+      "weight": 400
     }
   },
   "navbar": {
@@ -20,6 +28,19 @@
       "type": "button",
       "label": "Sign Up",
       "href": "https://app.kulmipay.com"
+    },
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://www.kulmipay.com"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/kulmipay",
+      "linkedin": "https://www.linkedin.com/company/kulmipay",
+      "github": "https://github.com/kulmipay"
     }
   },
   "navigation": {

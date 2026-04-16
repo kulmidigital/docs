@@ -1,18 +1,19 @@
 ---
-title: "Receive Real-Time Payment Notifications"
-description: "Learn how to configure a KulmiPay webhook endpoint to receive instant notifications whenever a payment, disbursement, or subscription changes state."
+title: "Webhooks Overview"
+sidebarTitle: "Overview"
+description: "Learn how to configure a Kulmi Pay webhook endpoint to receive instant notifications whenever a payment, disbursement, or subscription changes state."
 ---
 
-Webhooks let KulmiPay push notifications to your server the moment something happens — a payment completes, a disbursement is processed, or a subscription billing cycle runs. Instead of polling the API for status updates, you register an HTTPS endpoint and KulmiPay delivers a JSON payload to it whenever a subscribed event occurs.
+Webhooks let Kulmi Pay push notifications to your server the moment something happens — a payment completes, a disbursement is processed, or a subscription billing cycle runs. Instead of polling the API for status updates, you register an HTTPS endpoint and Kulmi Pay delivers a JSON payload to it whenever a subscribed event occurs.
 
 ## Set up a webhook
 
 <Steps>
   <Step title="Add your endpoint in the dashboard">
-    Go to **Settings → Webhooks** in your KulmiPay dashboard and click **Add Webhook**. Enter the full URL of the endpoint on your server that will receive events. The URL must use HTTPS — plain HTTP endpoints are rejected.
+    Go to **Settings → Webhooks** in your Kulmi Pay dashboard and click **Add Webhook**. Enter the full URL of the endpoint on your server that will receive events. The URL must use HTTPS — plain HTTP endpoints are rejected.
   </Step>
   <Step title="Set a challenge secret">
-    Enter a secret string in the **Challenge** field. KulmiPay includes this value in every webhook request as an `X-Challenge` header so you can verify that the request genuinely came from KulmiPay. Store this secret securely and never expose it in client-side code.
+    Enter a secret string in the **Challenge** field. Kulmi Pay includes this value in every webhook request as an `X-Challenge` header so you can verify that the request genuinely came from Kulmi Pay. Store this secret securely and never expose it in client-side code.
   </Step>
   <Step title="Subscribe to events">
     Select which event types you want to receive. Each flag maps to a specific activity on your account:
@@ -28,7 +29,7 @@ Webhooks let KulmiPay push notifications to your server the moment something hap
     You can subscribe to one or more events on a single webhook endpoint, or use separate endpoints for different event types.
   </Step>
   <Step title="Handle incoming payloads">
-    Your endpoint must accept `POST` requests with a JSON body. Respond with an HTTP `200` status code as quickly as possible — do any heavy processing asynchronously. KulmiPay considers any non-200 response a delivery failure.
+    Your endpoint must accept `POST` requests with a JSON body. Respond with an HTTP `200` status code as quickly as possible — do any heavy processing asynchronously. Kulmi Pay considers any non-200 response a delivery failure.
 
     Every webhook payload follows this structure:
 
@@ -52,7 +53,7 @@ Webhooks let KulmiPay push notifications to your server the moment something hap
 
 ## Verify the challenge secret
 
-Before processing any webhook payload, confirm that the request came from KulmiPay by comparing the `X-Challenge` header against your stored secret.
+Before processing any webhook payload, confirm that the request came from Kulmi Pay by comparing the `X-Challenge` header against your stored secret.
 
 <CodeGroup>
 
@@ -126,10 +127,10 @@ echo json_encode(['received' => true]);
 
 ## Retry behavior and failure handling
 
-When your endpoint returns a non-200 response or is unreachable, KulmiPay marks the event as `FAILED` and increments the failure counter for that webhook. As the failure count rises, KulmiPay sends email warnings to your account's support address.
+When your endpoint returns a non-200 response or is unreachable, Kulmi Pay marks the event as `FAILED` and increments the failure counter for that webhook. As the failure count rises, Kulmi Pay sends email warnings to your account's support address.
 
 <Warning>
-  Your webhook endpoint must use HTTPS with a valid, verifiable TLS certificate. Endpoints that cannot be verified are rejected. If your webhook accumulates too many consecutive failures, KulmiPay automatically disables it to prevent further delivery attempts. You will receive an email notification before this happens. To re-enable your webhook, fix the underlying issue and toggle it back on in the dashboard.
+  Your webhook endpoint must use HTTPS with a valid, verifiable TLS certificate. Endpoints that cannot be verified are rejected. If your webhook accumulates too many consecutive failures, Kulmi Pay automatically disables it to prevent further delivery attempts. You will receive an email notification before this happens. To re-enable your webhook, fix the underlying issue and toggle it back on in the dashboard.
 </Warning>
 
 Failed events are not lost. You can replay any event from the **Webhooks → Events** log in your dashboard, or via the API. See [Webhook event types](/webhooks/events) for details on replaying events.

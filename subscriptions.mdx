@@ -1,9 +1,10 @@
 ---
-title: "Automate Recurring Billing with Subscriptions"
-description: "Automate recurring billing with KulmiPay. Create billing plans, register customers, link them in subscriptions, and track payments across every billing cycle."
+title: "Subscriptions"
+sidebarTitle: "Subscriptions"
+description: "Automate recurring billing with Kulmi Pay. Create billing plans, register customers, link them in subscriptions, and track payments across every billing cycle."
 ---
 
-The KulmiPay Subscriptions API lets you automate recurring card billing for your customers. You define a billing plan, register the customers you want to bill, and create subscriptions that link each customer to a plan. KulmiPay then handles automatic charge attempts on the billing schedule, retries on failure, and fires webhook events as each billing cycle completes.
+The Kulmi Pay Subscriptions API lets you automate recurring card billing for your customers. You define a billing plan, register the customers you want to bill, and create subscriptions that link each customer to a plan. Kulmi Pay then handles automatic charge attempts on the billing schedule, retries on failure, and fires webhook events as each billing cycle completes.
 
 Subscriptions work with three entities that you manage via the API:
 
@@ -52,7 +53,7 @@ A plan defines what you charge, how often, and for how long.
 }
 ```
 
-If you `POST` a plan with a name that already exists on your account, KulmiPay updates the existing plan instead of creating a duplicate.
+If you `POST` a plan with a name that already exists on your account, Kulmi Pay updates the existing plan instead of creating a duplicate.
 
 ---
 
@@ -89,7 +90,7 @@ A customer record stores the details of the person you want to bill.
 }
 ```
 
-If you create a customer with an email that already exists on your account, KulmiPay updates the existing record rather than returning an error.
+If you create a customer with an email that already exists on your account, Kulmi Pay updates the existing record rather than returning an error.
 
 ---
 
@@ -134,7 +135,7 @@ Link a customer to a plan to start the billing cycle.
 }
 ```
 
-The subscription starts in `PENDING` status. Once the customer completes the initial card enrollment step, the status moves to `ACTIVE` and KulmiPay begins billing automatically on the plan's schedule.
+The subscription starts in `PENDING` status. Once the customer completes the initial card enrollment step, the status moves to `ACTIVE` and Kulmi Pay begins billing automatically on the plan's schedule.
 
 **Subscription statuses:**
 
@@ -210,5 +211,5 @@ Cancellation is immediate and irreversible via the API. To resume billing you wo
 | `/api/v1/subscriptions/subscriptions/{id}/transactions/` | `GET` | List payment history |
 
 <Note>
-  KulmiPay fires a `subscription_event` webhook each time a subscription's status changes or a billing cycle completes. Enable this event on your webhook to stay in sync without polling. See [Webhook event types](/webhooks/events) for payload details.
+  Kulmi Pay fires a `subscription_event` webhook each time a subscription's status changes or a billing cycle completes. Enable this event on your webhook to stay in sync without polling. See [Webhook event types](/webhooks/events) for payload details.
 </Note>

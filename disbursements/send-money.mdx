@@ -1,16 +1,17 @@
 ---
-title: "Send Money via M-Pesa, PesaLink, and Bank Transfer"
+title: "Send Money"
+sidebarTitle: "Send Money"
 description: "Initiate a disbursement to mobile wallets or bank accounts using M-Pesa B2C, M-Pesa B2B, PesaLink, and other supported providers in Kenya."
 ---
 
-To send money, you initiate a disbursement request with one or more recipient transactions. KulmiPay validates your request, creates a payment file, and either waits for your approval or processes the payment immediately — depending on how you configure `requires_approval`.
+To send money, you initiate a disbursement request with one or more recipient transactions. Kulmi Pay validates your request, creates a payment file, and either waits for your approval or processes the payment immediately — depending on how you configure `requires_approval`.
 
 <Steps>
   <Step title="Initiate the disbursement">
-    Call `POST /api/v1/send-money/initiation/` with your currency, provider, and a list of transactions. KulmiPay creates a payment file and returns a `file_id` and `tracking_id`.
+    Call `POST /api/v1/send-money/initiation/` with your currency, provider, and a list of transactions. Kulmi Pay creates a payment file and returns a `file_id` and `tracking_id`.
   </Step>
   <Step title="Review and approve">
-    If `requires_approval` is `"YES"` (the default), call `POST /api/v1/send-money/approve/` with the `file_id` to release the payment. If `requires_approval` is `"NO"`, KulmiPay approves and queues the payment automatically — no second call needed.
+    If `requires_approval` is `"YES"` (the default), call `POST /api/v1/send-money/approve/` with the `file_id` to release the payment. If `requires_approval` is `"NO"`, Kulmi Pay approves and queues the payment automatically — no second call needed.
   </Step>
   <Step title="Monitor status">
     Call `POST /api/v1/send-money/status/` with your `tracking_id` to check the payment file status and see the result for each individual transaction.
@@ -245,7 +246,7 @@ print(response.json())
 
 ## Idempotency
 
-To protect against duplicate payments (for example, if a network timeout causes you to retry a request), include a unique `idempotency_key` per transaction. If KulmiPay receives a second request with the same key for your business, it will reject it with an error rather than processing the payment twice.
+To protect against duplicate payments (for example, if a network timeout causes you to retry a request), include a unique `idempotency_key` per transaction. If Kulmi Pay receives a second request with the same key for your business, it will reject it with an error rather than processing the payment twice.
 
 ```json
 {

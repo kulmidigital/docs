@@ -1,11 +1,12 @@
 ---
-title: "KulmiPay: Accept Payments and Send Money in Africa"
-description: "KulmiPay is a REST API for African businesses — collect M-Pesa, card, and bank payments, and disburse money to mobile wallets and bank accounts."
+title: "Introduction"
+sidebarTitle: "Introduction"
+description: "Kulmi Pay is a REST API for African businesses, with current live collections and disbursements focused on Kenya."
 ---
 
-KulmiPay is a payment platform built for businesses operating in Africa. With a single API integration you can accept payments from customers, send money to mobile wallets and bank accounts, manage multi-currency balances, and receive real-time transaction notifications — all without stitching together multiple providers.
+Kulmi Pay is a payment platform built for African businesses. With a single API integration you can accept payments from customers, send money to mobile wallets and bank accounts, manage multi-currency balances, and receive real-time transaction notifications — all without stitching together multiple providers. Live operational coverage is currently focused on Kenya, with broader African expansion planned over time.
 
-## What you can do with KulmiPay
+## What you can do with Kulmi Pay
 
 <CardGroup cols={2}>
   <Card title="Collections" icon="arrow-down-to-line" href="/collections/overview">
@@ -32,11 +33,11 @@ KulmiPay is a payment platform built for businesses operating in Africa. With a 
 - **Payment links** — Generate a shareable URL to collect payments without writing any frontend code.
 - **Sandbox environment** — Test every integration with simulated transactions before going live.
 
-## How KulmiPay works
+## How Kulmi Pay works
 
 Every request is authenticated using a Bearer token obtained from the `/api/token/` endpoint. You create an API application in your dashboard to get the credentials needed to generate that token. From there, every collection, disbursement, or wallet operation is a standard REST call with a JSON body.
 
-KulmiPay notifies your server of transaction outcomes via webhooks, so your application can update records and trigger downstream actions without polling for status.
+Kulmi Pay notifies your server of transaction outcomes via webhooks, so your application can update records and trigger downstream actions without polling for status.
 
 <CardGroup cols={2}>
   <Card title="Quick start" icon="rocket" href="/quickstart">

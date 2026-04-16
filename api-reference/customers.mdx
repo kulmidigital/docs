@@ -1,6 +1,7 @@
 ---
 title: "GET/POST /api/v1/subscriptions/customers"
-description: "Create and manage subscription customers on KulmiPay. Posting with an existing email updates the customer record instead of creating a duplicate."
+sidebarTitle: "Customers"
+description: "Create and manage subscription customers on Kulmi Pay. Posting with an existing email updates the customer record instead of creating a duplicate."
 ---
 
 Use these endpoints to create and manage subscription customers on your account. A customer record stores the billing contact information needed for card-based recurring payments. You must create a customer before you can create a subscription for them.
@@ -32,7 +33,7 @@ The `POST` endpoint performs an **upsert**: if a customer with the given `email`
 </ParamField>
 
 <ParamField body="reference" type="string">
-  Your internal reference ID for this customer, up to 45 characters. Useful for linking the KulmiPay customer record to your own database.
+  Your internal reference ID for this customer, up to 45 characters. Useful for linking the Kulmi Pay customer record to your own database.
 </ParamField>
 
 <ParamField body="address" type="string">

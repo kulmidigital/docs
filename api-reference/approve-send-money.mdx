@@ -4,7 +4,7 @@ sidebarTitle: "Approve payout"
 description: "Approve a disbursement payment file in PREVIEW-AND-APPROVE state to release it for processing. Accepts file_id or tracking_id from the initiation response."
 ---
 
-After you initiate a disbursement with `requires_approval` set to `"YES"` (or omitted), the file waits in the `PREVIEW-AND-APPROVE` state. Calling this endpoint confirms the transactions and releases the file for processing. KulmiPay then debits your wallet and routes each payment through the selected provider.
+After you initiate a disbursement with `requires_approval` set to `"YES"` (or omitted), the file waits in the `PREVIEW-AND-APPROVE` state. Calling this endpoint confirms the transactions and releases the file for processing. Kulmi Pay then debits your wallet and routes each payment through the selected provider.
 
 You must have the `change_files` permission on your API token to call this endpoint.
 

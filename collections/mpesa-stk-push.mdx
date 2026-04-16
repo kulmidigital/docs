@@ -1,5 +1,6 @@
 ---
-title: "Collect M-Pesa Payments with STK Push"
+title: "M-Pesa STK Push"
+sidebarTitle: "M-Pesa STK Push"
 description: "Send a Lipa Na M-Pesa Express payment prompt directly to a customer's phone. Minimum KES 10, maximum KES 150,000. Supports both server and client-side flows."
 ---
 
@@ -18,7 +19,7 @@ M-Pesa STK Push (also called Lipa Na M-Pesa Express) lets you initiate a payment
     The customer opens the prompt and enters their M-Pesa PIN to authorise the payment.
   </Step>
   <Step title="Webhook fires">
-    KulmiPay sends a `collection_event` webhook to your configured endpoint with the invoice's final state (`COMPLETE` or `FAILED`). You can also poll the payment status endpoint to check the result.
+    Kulmi Pay sends a `collection_event` webhook to your configured endpoint with the invoice's final state (`COMPLETE` or `FAILED`). You can also poll the payment status endpoint to check the result.
   </Step>
 </Steps>
 

@@ -1,9 +1,10 @@
 ---
-title: "Embed KulmiPay Checkout in Your App"
-description: "Create a hosted checkout session with your KulmiPay public key and embed or redirect customers to a branded payment page. Supports M-Pesa, cards, and more."
+title: "Checkout"
+sidebarTitle: "Checkout"
+description: "Create a hosted checkout session with your Kulmi Pay public key and embed or redirect customers to a branded payment page. Supports M-Pesa, cards, and more."
 ---
 
-KulmiPay Checkout lets you create a payment session on your server and display a pre-built, branded checkout UI in your app — without building a payment form from scratch. You initialise the session with your public key and the amount, then embed the checkout in your page or redirect the customer to it. KulmiPay handles card tokenisation, M-Pesa prompts, and payment state for you.
+Kulmi Pay Checkout lets you create a payment session on your server and display a pre-built, branded checkout UI in your app — without building a payment form from scratch. You initialise the session with your public key and the amount, then embed the checkout in your page or redirect the customer to it. Kulmi Pay handles card tokenisation, M-Pesa prompts, and payment state for you.
 
 ## Create a checkout session
 
@@ -57,7 +58,7 @@ checkout_url = data["url"]
 | `api_ref` | string | No | Your internal reference for this transaction. |
 | `card_tarrif` | string | No | Who pays card transaction fees. `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
 | `mobile_tarrif` | string | No | Who pays mobile money fees. `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
-| `unique_api_ref` | boolean | No | When `true`, if a checkout already exists for this `api_ref`, KulmiPay returns the existing session instead of creating a new one. Use this for idempotency. |
+| `unique_api_ref` | boolean | No | When `true`, if a checkout already exists for this `api_ref`, Kulmi Pay returns the existing session instead of creating a new one. Use this for idempotency. |
 
 ### Success response
 
@@ -75,7 +76,7 @@ checkout_url = data["url"]
 
 ## Embed checkout in JavaScript or React
 
-You can redirect the customer to the `url` from the response, or embed the checkout inside your app using an iframe or KulmiPay's JavaScript widget.
+You can redirect the customer to the `url` from the response, or embed the checkout inside your app using an iframe or Kulmi Pay's JavaScript widget.
 
 <CodeGroup>
 
@@ -143,7 +144,7 @@ export function CheckoutButton({ amount, orderRef }) {
         width="100%"
         height="600"
         style={{ border: "none" }}
-        title="KulmiPay Checkout"
+        title="Kulmi Pay Checkout"
       />
     );
   }
@@ -156,7 +157,7 @@ export function CheckoutButton({ amount, orderRef }) {
 
 ## Idempotency with unique_api_ref
 
-If your user navigates away and returns, or your server retries a failed request, you may not want to create a duplicate checkout session. Set `unique_api_ref: true` and include a consistent `api_ref` value (such as your order ID). KulmiPay returns the existing checkout session if one already exists for that reference, rather than creating a new one.
+If your user navigates away and returns, or your server retries a failed request, you may not want to create a duplicate checkout session. Set `unique_api_ref: true` and include a consistent `api_ref` value (such as your order ID). Kulmi Pay returns the existing checkout session if one already exists for that reference, rather than creating a new one.
 
 ```json
 {

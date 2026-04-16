@@ -1,5 +1,6 @@
 ---
-title: "Create No-Code Payment Links in KulmiPay"
+title: "Payment Links"
+sidebarTitle: "Payment Links"
 description: "Generate and share payment URLs that customers open to pay in KES, USD, EUR, or GBP. Create links from the dashboard or programmatically via the API."
 ---
 
@@ -11,7 +12,7 @@ Log in to [app.kulmipay.com](https://app.kulmipay.com), navigate to **Collection
 
 ## Create a payment link via the API
 
-Send a `POST` request to `/api/v1/payment/collection/pay-requests/` to create a payment link programmatically. KulmiPay sends an email to the customer with the payment URL and returns the link details in the response.
+Send a `POST` request to `/api/v1/payment/collection/pay-requests/` to create a payment link programmatically. Kulmi Pay sends an email to the customer with the payment URL and returns the link details in the response.
 
 <CodeGroup>
 
@@ -57,7 +58,7 @@ print(response.json())
 |-------|------|----------|-------------|
 | `amount` | number | Yes | Amount to request, in the specified currency. |
 | `currency` | string | Yes | Currency code: `KES`, `USD`, `EUR`, or `GBP`. |
-| `email` | string | Yes | Customer's email address. KulmiPay sends the payment link here. |
+| `email` | string | Yes | Customer's email address. Kulmi Pay sends the payment link here. |
 | `first_name` | string | Yes | Customer's first name, used in the email greeting. |
 | `last_name` | string | Yes | Customer's last name. |
 | `reason` | string | Yes | Description of what the payment is for, e.g. `Invoice #001`. |
@@ -83,7 +84,7 @@ print(response.json())
 }
 ```
 
-The `checkout.url` in the response is the URL you can share with your customer. KulmiPay also emails this link automatically to the `email` address you provided.
+The `checkout.url` in the response is the URL you can share with your customer. Kulmi Pay also emails this link automatically to the `email` address you provided.
 
 ## Retrieve all payment links
 

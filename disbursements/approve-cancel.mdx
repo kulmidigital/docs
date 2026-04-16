@@ -1,9 +1,10 @@
 ---
-title: "Approve or Cancel a Disbursement Before It Sends"
+title: "Approve & Cancel"
+sidebarTitle: "Approve & Cancel"
 description: "Release a payment file for processing, cancel it before it goes out, or check its status using the file_id or tracking_id returned at initiation."
 ---
 
-When you initiate a disbursement with `requires_approval: "YES"`, KulmiPay holds the payment in a `PREVIEW-AND-APPROVE` state until you explicitly approve it. This gives you a window to review the transactions before any money moves. Once you approve, KulmiPay queues the file for processing. You can also cancel a file at any point while it's still in `PREVIEW-AND-APPROVE`.
+When you initiate a disbursement with `requires_approval: "YES"`, Kulmi Pay holds the payment in a `PREVIEW-AND-APPROVE` state until you explicitly approve it. This gives you a window to review the transactions before any money moves. Once you approve, Kulmi Pay queues the file for processing. You can also cancel a file at any point while it's still in `PREVIEW-AND-APPROVE`.
 
 ## Payment file states
 
@@ -25,7 +26,7 @@ You can only approve or cancel a payment file while it is in the `PREVIEW-AND-AP
 
 ## Approve a disbursement
 
-Call `POST /api/v1/send-money/approve/` with the `file_id` and the full list of `transaction_id` values from the initiation response. KulmiPay checks that the number of transaction IDs you supply matches the number of transactions in the file — this acts as a confirmation that you have reviewed every recipient.
+Call `POST /api/v1/send-money/approve/` with the `file_id` and the full list of `transaction_id` values from the initiation response. Kulmi Pay checks that the number of transaction IDs you supply matches the number of transactions in the file — this acts as a confirmation that you have reviewed every recipient.
 
 <CodeGroup>
 ```bash cURL

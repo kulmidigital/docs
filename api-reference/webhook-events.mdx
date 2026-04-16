@@ -1,9 +1,10 @@
 ---
 title: "GET /api/v1/webhooks/events — Webhook Event Log"
+sidebarTitle: "Event Log"
 description: "Retrieve the full delivery history for all webhook events on your account, inspect failure reasons, and replay events that were not delivered."
 ---
 
-Use this endpoint to inspect every event KulmiPay attempted to deliver to your webhook endpoints. Each record shows the topic, payload, delivery status, and — for failed deliveries — the reason for failure. You can use this log to debug integration issues and trigger replays for undelivered events.
+Use this endpoint to inspect every event Kulmi Pay attempted to deliver to your webhook endpoints. Each record shows the topic, payload, delivery status, and — for failed deliveries — the reason for failure. You can use this log to debug integration issues and trigger replays for undelivered events.
 
 **Method:** `GET`  
 **URL:** `https://app.kulmipay.com/api/v1/webhooks/events/`
@@ -32,7 +33,7 @@ curl --request GET \
       The webhook configuration ID.
     </ResponseField>
     <ResponseField name="endpoint" type="string">
-      The URL KulmiPay attempted to deliver this event to.
+      The URL Kulmi Pay attempted to deliver this event to.
     </ResponseField>
     <ResponseField name="is_active" type="boolean">
       Whether the webhook endpoint is still active.
@@ -115,7 +116,7 @@ curl --request GET \
 
 ## Replaying events
 
-When an event has a `FAILED` status, KulmiPay supports replaying it to retry delivery. Replaying re-enqueues the original payload and sends it to the same webhook endpoint.
+When an event has a `FAILED` status, Kulmi Pay supports replaying it to retry delivery. Replaying re-enqueues the original payload and sends it to the same webhook endpoint.
 
 To replay an event, use the event's `id` with the replay endpoint:
 

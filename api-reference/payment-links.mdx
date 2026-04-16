@@ -1,9 +1,10 @@
 ---
 title: "POST /api/v1/payment/collection/pay-requests"
-description: "Create and retrieve payment request links. KulmiPay emails a hosted checkout URL to your customer and optionally sends a follow-up reminder."
+sidebarTitle: "Payment Links"
+description: "Create and retrieve payment request links. Kulmi Pay emails a hosted checkout URL to your customer and optionally sends a follow-up reminder."
 ---
 
-Pay requests let you generate a personalized payment link and email it directly to a customer. KulmiPay hosts the checkout page — your customer receives an email with a link they open to complete the payment at their convenience. You can optionally set an amount, a payment reason, and an automatic reminder.
+Pay requests let you generate a personalized payment link and email it directly to a customer. Kulmi Pay hosts the checkout page — your customer receives an email with a link they open to complete the payment at their convenience. You can optionally set an amount, a payment reason, and an automatic reminder.
 
 **Base URL:** `https://app.kulmipay.com/api/v1/payment/collection/pay-requests/`
 
@@ -31,7 +32,7 @@ Authorization: Bearer <secret_key>
 </ParamField>
 
 <ParamField body="email" type="string" required>
-  Customer's email address. KulmiPay sends the payment link to this address immediately after the pay request is created.
+  Customer's email address. Kulmi Pay sends the payment link to this address immediately after the pay request is created.
 </ParamField>
 
 <ParamField body="currency" type="string" required>
@@ -47,7 +48,7 @@ Authorization: Bearer <secret_key>
 </ParamField>
 
 <ParamField body="autosend_reminder" type="number" default="0">
-  Number of days after creation before KulmiPay automatically sends a reminder email to the customer. Accepted values: `0` (no reminder), `1`, `2`, `3`, or `7`. Defaults to `0`.
+  Number of days after creation before Kulmi Pay automatically sends a reminder email to the customer. Accepted values: `0` (no reminder), `1`, `2`, `3`, or `7`. Defaults to `0`.
 </ParamField>
 
 <ParamField body="card_tarrif" type="string" default="BUSINESS-PAYS">
@@ -229,5 +230,5 @@ payment_status = pay_request["payment_status"]  # "Pending" or "Paid"
 ```
 
 <Note>
-  KulmiPay sends the payment email immediately after the pay request is created, as long as the `sent_status` is not `FAILED`. If email delivery fails, the `failed_details` field contains the error description.
+  Kulmi Pay sends the payment email immediately after the pay request is created, as long as the `sent_status` is not `FAILED`. If email delivery fails, the `failed_details` field contains the error description.
 </Note>

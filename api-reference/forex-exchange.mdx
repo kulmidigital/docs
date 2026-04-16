@@ -1,6 +1,7 @@
 ---
 title: "POST /api/v1/wallets/{id}/exchange — Forex Exchange"
-description: "Get a live FX rate quote between two KulmiPay settlement wallets in different currencies, then execute the exchange to move funds at that rate."
+sidebarTitle: "Forex Exchange"
+description: "Get a live FX rate quote between two Kulmi Pay settlement wallets in different currencies, then execute the exchange to move funds at that rate."
 ---
 
 Use this endpoint to exchange funds between two settlement wallets in different currencies. The exchange operates in two steps: first request a `QUOTE` to preview the rate and converted amount, then submit an `EXCHANGE` request to execute the conversion. Both the source and destination must be **settlement wallets** on your account.

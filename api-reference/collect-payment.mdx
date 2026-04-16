@@ -1,9 +1,10 @@
 ---
 title: "POST /api/v1/collect — Collect a Payment"
+sidebarTitle: "Collect Payment"
 description: "Initiate a payment collection via M-Pesa, card, Apple Pay, Google Pay, or PesaLink. Returns an invoice ID and JWT signature for tracking payment status."
 ---
 
-Use this endpoint to initiate a payment from your customer. You specify the payment method, amount, currency, and customer details. KulmiPay creates an invoice, triggers the appropriate payment network, and returns an invoice ID and JWT signature you use to track the transaction status.
+Use this endpoint to initiate a payment from your customer. You specify the payment method, amount, currency, and customer details. Kulmi Pay creates an invoice, triggers the appropriate payment network, and returns an invoice ID and JWT signature you use to track the transaction status.
 
 **Method:** `POST`  
 **URL:** `https://app.kulmipay.com/api/v1/collect`
@@ -25,7 +26,7 @@ Authorization: Bearer <secret_key>
 </ParamField>
 
 <ParamField body="currency" type="string" required>
-  Transaction currency. One of: `KES`, `USD`, `EUR`, `GBP`. M-Pesa and PesaLink always settle in KES — if you pass a different currency, KulmiPay converts the amount using live exchange rates.
+  Transaction currency. One of: `KES`, `USD`, `EUR`, `GBP`. M-Pesa and PesaLink always settle in KES — if you pass a different currency, Kulmi Pay converts the amount using live exchange rates.
 </ParamField>
 
 <ParamField body="amount" type="string" required>

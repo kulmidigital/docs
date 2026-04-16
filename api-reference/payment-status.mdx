@@ -1,6 +1,7 @@
 ---
 title: "POST /api/v1/payment/collection/status"
-description: "Check the current state of a KulmiPay payment by invoice ID. Returns the invoice state (PENDING, PROCESSING, COMPLETE, or FAILED) with full invoice details."
+sidebarTitle: "Payment Status"
+description: "Check the current state of a Kulmi Pay payment by invoice ID. Returns the invoice state (PENDING, PROCESSING, COMPLETE, or FAILED) with full invoice details."
 ---
 
 Use this endpoint to check the status of a payment after initiating a collection. Pass the `invoice_id` returned by [collect payment](/api-reference/collect-payment) or [STK push](/api-reference/stk-push). For checkout-based payments, you can also pass `checkout_id` to validate that the invoice belongs to the correct session.
@@ -23,7 +24,7 @@ Authorization: Bearer <secret_key>
 </ParamField>
 
 <ParamField body="checkout_id" type="string">
-  The checkout session UUID. When provided, KulmiPay validates that the invoice belongs to this checkout session before returning status. Use this when polling from a hosted checkout flow.
+  The checkout session UUID. When provided, Kulmi Pay validates that the invoice belongs to this checkout session before returning status. Use this when polling from a hosted checkout flow.
 </ParamField>
 
 ## Response
@@ -183,5 +184,5 @@ else:
 ```
 
 <Tip>
-  For time-sensitive flows, use [webhooks](/webhooks/overview) instead of polling. KulmiPay sends an event to your endpoint the moment the payment state changes, which is faster and more reliable than a polling loop.
+  For time-sensitive flows, use [webhooks](/webhooks/overview) instead of polling. Kulmi Pay sends an event to your endpoint the moment the payment state changes, which is faster and more reliable than a polling loop.
 </Tip>

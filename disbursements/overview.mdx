@@ -1,9 +1,10 @@
 ---
-title: "Disburse Money to Mobile Wallets and Bank Accounts"
+title: "Disbursements Overview"
+sidebarTitle: "Overview"
 description: "Send money to M-Pesa wallets, bank accounts, and more from a single API. Supports bulk payments, approval workflows, and real-time status tracking."
 ---
 
-Disbursements let you send money from your KulmiPay wallet to recipients across Kenya — whether that's paying salaries, settling vendor invoices, distributing agent commissions, or topping up airtime. You submit one or more transactions in a single API call, and KulmiPay routes each payment through the appropriate provider.
+Disbursements let you send money from your Kulmi Pay wallet to recipients across Kenya — whether that's paying salaries, settling vendor invoices, distributing agent commissions, or topping up airtime. You submit one or more transactions in a single API call, and Kulmi Pay routes each payment through the appropriate provider.
 
 ## Supported providers
 
@@ -12,7 +13,7 @@ Disbursements let you send money from your KulmiPay wallet to recipients across 
 | M-Pesa B2C | `MPESA-B2C` | Send money directly to an M-Pesa mobile wallet |
 | M-Pesa B2B | `MPESA-B2B` | Pay to an M-Pesa PayBill or Till number |
 | PesaLink | `PESALINK` | Transfer to a Kenya bank account |
-| P2P | `P2P` | Transfer between KulmiPay wallets |
+| P2P | `P2P` | Transfer between Kulmi Pay wallets |
 | Airtime | `AIRTIME` | Top up airtime for a mobile number |
 | RTGS | `RTGS` | High-value real-time gross settlement transfers |
 
@@ -20,11 +21,11 @@ Disbursements let you send money from your KulmiPay wallet to recipients across 
 
 Every disbursement follows a two-step flow: initiate, then approve.
 
-**Step 1 — Initiate:** You call `POST /api/v1/send-money/initiation/` with your payment details. KulmiPay validates the request, creates a payment file, and returns a `file_id` and `tracking_id`. The file starts in the `PREVIEW-AND-APPROVE` state — nothing has been sent yet.
+**Step 1 — Initiate:** You call `POST /api/v1/send-money/initiation/` with your payment details. Kulmi Pay validates the request, creates a payment file, and returns a `file_id` and `tracking_id`. The file starts in the `PREVIEW-AND-APPROVE` state — nothing has been sent yet.
 
-**Step 2 — Approve:** You call `POST /api/v1/send-money/approve/` with the `file_id` to release the payment. KulmiPay then processes each transaction and updates the file status to `PROCESSING`, then `COMPLETED` or `FAILED`.
+**Step 2 — Approve:** You call `POST /api/v1/send-money/approve/` with the `file_id` to release the payment. Kulmi Pay then processes each transaction and updates the file status to `PROCESSING`, then `COMPLETED` or `FAILED`.
 
-If you want to skip the manual approval step, set `requires_approval: "NO"` in your initiation request. KulmiPay will approve and queue the payment automatically.
+If you want to skip the manual approval step, set `requires_approval: "NO"` in your initiation request. Kulmi Pay will approve and queue the payment automatically.
 
 ## Batch processing
 

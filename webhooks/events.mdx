@@ -1,9 +1,10 @@
 ---
-title: "KulmiPay Webhook Event Types Reference"
-description: "Reference for every KulmiPay webhook event type — when each fires, sample payloads for collection, disbursement, reversal, and subscription events."
+title: "Event Types"
+sidebarTitle: "Event Types"
+description: "Reference for every Kulmi Pay webhook event type — when each fires, sample payloads for collection, disbursement, reversal, and subscription events."
 ---
 
-KulmiPay fires webhook events whenever key resources on your account change state. Each event carries a `topic` field that identifies what happened, and a `data` object containing the full serialized resource at the time of the change. This page describes every event type, when it fires, and what its payload looks like.
+Kulmi Pay fires webhook events whenever key resources on your account change state. Each event carries a `topic` field that identifies what happened, and a `data` object containing the full serialized resource at the time of the change. This page describes every event type, when it fires, and what its payload looks like.
 
 ## Event status lifecycle
 
@@ -17,7 +18,7 @@ PENDING → PROCESSING → DELIVERED
 | Status | Meaning |
 |---|---|
 | `PENDING` | Event has been created and is queued for delivery |
-| `PROCESSING` | KulmiPay is actively attempting to deliver the event |
+| `PROCESSING` | Kulmi Pay is actively attempting to deliver the event |
 | `DELIVERED` | Your endpoint returned a `200` response |
 | `FAILED` | Delivery failed — your endpoint was unreachable or returned a non-200 response |
 
@@ -165,7 +166,7 @@ Fires whenever a subscription changes status or completes a billing cycle. Use t
 
 ## wallet_transfer_event
 
-Fires when a transfer occurs between your KulmiPay wallets — for example, moving funds from a USD wallet to a KES wallet.
+Fires when a transfer occurs between your Kulmi Pay wallets — for example, moving funds from a USD wallet to a KES wallet.
 
 **Enable this event** with the `wallet_transfer_event` flag on your webhook.
 

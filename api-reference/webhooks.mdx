@@ -1,9 +1,10 @@
 ---
 title: "GET /api/v1/webhooks — Manage Webhooks"
+sidebarTitle: "Webhooks"
 description: "Retrieve your registered webhook endpoints and configure which payment and subscription events trigger notifications to your server."
 ---
 
-Use this endpoint to retrieve the webhook configurations registered on your KulmiPay account. Each webhook endpoint subscribes to one or more event types. When a matching event occurs, KulmiPay sends an HTTP `POST` request to your endpoint containing the event payload.
+Use this endpoint to retrieve the webhook configurations registered on your Kulmi Pay account. Each webhook endpoint subscribes to one or more event types. When a matching event occurs, Kulmi Pay sends an HTTP `POST` request to your endpoint containing the event payload.
 
 **Method:** `GET`  
 **URL:** `https://app.kulmipay.com/api/v1/webhooks/`
@@ -25,11 +26,11 @@ curl --request GET \
 </ResponseField>
 
 <ResponseField name="endpoint" type="string">
-  The HTTPS URL where KulmiPay sends event payloads. Must include a valid, verifiable TLS certificate.
+  The HTTPS URL where Kulmi Pay sends event payloads. Must include a valid, verifiable TLS certificate.
 </ResponseField>
 
 <ResponseField name="is_active" type="boolean">
-  Whether this webhook is currently active. KulmiPay sets this to `false` automatically when the endpoint reaches the failure threshold.
+  Whether this webhook is currently active. Kulmi Pay sets this to `false` automatically when the endpoint reaches the failure threshold.
 </ResponseField>
 
 <ResponseField name="collection_event" type="boolean">
@@ -53,7 +54,7 @@ curl --request GET \
 </ResponseField>
 
 <ResponseField name="failures_count" type="number">
-  The number of consecutive delivery failures for this endpoint. KulmiPay will warn you by email when this reaches 50% of the failure threshold, and disable the endpoint at 100%.
+  The number of consecutive delivery failures for this endpoint. Kulmi Pay will warn you by email when this reaches 50% of the failure threshold, and disable the endpoint at 100%.
 </ResponseField>
 
 <ResponseField name="created_at" type="string">
@@ -88,11 +89,11 @@ curl --request GET \
 ```
 
 <Note>
-  The `challenge` secret used to verify incoming webhook payloads is not returned by this endpoint. Store your challenge secret securely at the time you register the webhook. Use it to validate the `X-KulmiPay-Signature` header on incoming requests.
+  The `challenge` secret used to verify incoming webhook payloads is not returned by this endpoint. Store your challenge secret securely at the time you register the webhook. Use it to validate the `X-Kulmi Pay-Signature` header on incoming requests.
 </Note>
 
 ## Verifying webhook payloads
 
-KulmiPay signs every outgoing webhook request. Verify the signature before processing any event to confirm the payload originated from KulmiPay and has not been tampered with.
+Kulmi Pay signs every outgoing webhook request. Verify the signature before processing any event to confirm the payload originated from Kulmi Pay and has not been tampered with.
 
-Use your `challenge` secret to compute an HMAC-SHA256 signature of the raw request body and compare it against the value in the `X-KulmiPay-Signature` header.
+Use your `challenge` secret to compute an HMAC-SHA256 signature of the raw request body and compare it against the value in the `X-Kulmi Pay-Signature` header.

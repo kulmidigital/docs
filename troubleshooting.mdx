@@ -1,6 +1,7 @@
 ---
-title: "Troubleshoot Common KulmiPay Integration Issues"
-description: "Diagnose and fix the most common errors when integrating KulmiPay — from authentication failures and invalid providers to webhook delivery problems."
+title: "Troubleshooting"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and fix the most common errors when integrating Kulmi Pay — from authentication failures and invalid providers to webhook delivery problems."
 ---
 
 Most integration issues fall into a small set of categories. This page walks through the errors you are most likely to encounter, explains what causes them, and shows you how to fix them.
@@ -16,7 +17,7 @@ Most integration issues fall into a small set of categories. This page walks thr
   <Accordion title="Authentication errors: Invalid credentials or expired token">
     **Error messages:** `Invalid credentials`, `Expired token`, `Authentication failed`
 
-    KulmiPay uses OAuth 2.0 password grant. Check the following:
+    Kulmi Pay uses OAuth 2.0 password grant. Check the following:
 
     - Confirm you are passing `"grant_type": "password"` in your token request body.
     - Verify your API caller `username` and `password` are correct and your `CLIENT-ID` and `CLIENT-SECRET` are passed as HTTP Basic auth credentials.
@@ -47,7 +48,7 @@ Most integration issues fall into a small set of categories. This page walks thr
   <Accordion title="Duplicate transaction: idempotency_key already used">
     **Error message:** `duplicate transaction detected. A transaction with similar idempotency_key already exists`
 
-    Every transaction in a disbursement batch can include an optional `idempotency_key` to prevent accidental duplicate payments. If you submit a transaction with a key you have already used, KulmiPay rejects the entire request.
+    Every transaction in a disbursement batch can include an optional `idempotency_key` to prevent accidental duplicate payments. If you submit a transaction with a key you have already used, Kulmi Pay rejects the entire request.
 
     - Use a unique value per transaction — a UUID or a value derived from your internal order or payment ID works well.
     - If you are retrying a failed request, generate a new `idempotency_key` unless you are certain the original transaction did not process.
@@ -67,7 +68,7 @@ Most integration issues fall into a small set of categories. This page walks thr
   <Accordion title="Amount below minimum">
     **Error message:** `Amount must be equal or more than KES. 10 for M-Pesa payments` or `Amount must be equal or more than KES. 100`
 
-    KulmiPay enforces minimum transaction amounts for certain providers:
+    Kulmi Pay enforces minimum transaction amounts for certain providers:
 
     | Provider | Minimum amount |
     |---|---|
@@ -80,7 +81,7 @@ Most integration issues fall into a small set of categories. This page walks thr
   <Accordion title="Webhook not receiving events">
     If your endpoint is not receiving webhook events, work through these checks:
 
-    1. **Verify your endpoint is publicly reachable.** KulmiPay cannot deliver to `localhost` or endpoints behind a firewall. Use a tool like [ngrok](https://ngrok.com) for local development.
+    1. **Verify your endpoint is publicly reachable.** Kulmi Pay cannot deliver to `localhost` or endpoints behind a firewall. Use a tool like [ngrok](https://ngrok.com) for local development.
     2. **Confirm the endpoint uses HTTPS** with a valid, trusted TLS certificate. Self-signed certificates are not accepted.
     3. **Check your webhook failure count** in **Settings → Webhooks**. If the count is high and `is_active` is `false`, your webhook has been automatically disabled. Fix the underlying issue, then re-enable it in the dashboard.
     4. **Confirm you have subscribed to the right event flags.** If you are not seeing collection events, check that `collection_event` is enabled on your webhook.
@@ -122,7 +123,7 @@ Most integration issues fall into a small set of categories. This page walks thr
   <Accordion title="can_transact is false: account not verified">
     **Error message:** `can_transact is false` or a verification-related error
 
-    Your business account has not completed identity verification (KYC). KulmiPay requires KYC before allowing live transactions.
+    Your business account has not completed identity verification (KYC). Kulmi Pay requires KYC before allowing live transactions.
 
     - Log in to your dashboard at [app.kulmipay.com](https://app.kulmipay.com) and navigate to **Settings → Business Verification**.
     - Complete all required verification steps, including uploading business registration documents and identity documents for the account owner.

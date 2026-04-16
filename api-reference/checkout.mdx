@@ -1,9 +1,10 @@
 ---
 title: "POST /api/v1/payment/collection/checkout"
-description: "Create a hosted checkout session and redirect your customer to a KulmiPay-hosted payment page. Authenticate with your publishable key."
+sidebarTitle: "Checkout"
+description: "Create a hosted checkout session and redirect your customer to a Kulmi Pay-hosted payment page. Authenticate with your publishable key."
 ---
 
-A checkout session gives you a hosted payment page you can redirect your customer to, or embed using KulmiPay's drop-in UI. You create the session on your server, receive a checkout ID and signature, then use those values to drive the customer-facing payment flow.
+A checkout session gives you a hosted payment page you can redirect your customer to, or embed using Kulmi Pay's drop-in UI. You create the session on your server, receive a checkout ID and signature, then use those values to drive the customer-facing payment flow.
 
 This endpoint is authenticated with your **publishable key** (`public_key`), making it safe to call from a client-side environment such as a browser or mobile app. You can also pass the key as an HTTP header instead of in the request body.
 
@@ -35,7 +36,7 @@ Do **not** use your secret key with this endpoint.
 </ParamField>
 
 <ParamField body="email" type="string">
-  Customer's email address. When provided and the customer has previously paid, KulmiPay pre-fills their billing details on the checkout page to reduce friction.
+  Customer's email address. When provided and the customer has previously paid, Kulmi Pay pre-fills their billing details on the checkout page to reduce friction.
 </ParamField>
 
 <ParamField body="api_ref" type="string">
@@ -51,7 +52,7 @@ Do **not** use your secret key with this endpoint.
 </ParamField>
 
 <ParamField body="unique_api_ref" type="boolean" default="false">
-  When `true`, KulmiPay looks for an existing checkout session with the same `api_ref` before creating a new one. If a match is found, the existing session is returned. Use this to prevent duplicate sessions when the user refreshes your page or retries a failed request.
+  When `true`, Kulmi Pay looks for an existing checkout session with the same `api_ref` before creating a new one. If a match is found, the existing session is returned. Use this to prevent duplicate sessions when the user refreshes your page or retries a failed request.
 </ParamField>
 
 ## Response
@@ -65,7 +66,7 @@ Do **not** use your secret key with this endpoint.
 </ResponseField>
 
 <ResponseField name="url" type="string">
-  The hosted checkout URL you can redirect your customer to directly. Opens a KulmiPay-branded payment page for this session.
+  The hosted checkout URL you can redirect your customer to directly. Opens a Kulmi Pay-branded payment page for this session.
 </ResponseField>
 
 <ResponseField name="currency" type="string">
@@ -129,7 +130,7 @@ signature = data["signature"]
 checkout_url = data["url"]
 
 # Redirect your customer to checkout_url, or use checkout_id + signature
-# with the KulmiPay drop-in to render inline.
+# with the Kulmi Pay drop-in to render inline.
 ```
 
 </CodeGroup>
@@ -170,5 +171,5 @@ Once you have a `checkout_id` and `signature`, pass them to the [collect payment
 ```
 
 <Note>
-  Use `unique_api_ref: true` in checkout-based e-commerce flows where users may navigate away and return. KulmiPay returns the same session rather than creating a new one, keeping your order reference consistent.
+  Use `unique_api_ref: true` in checkout-based e-commerce flows where users may navigate away and return. Kulmi Pay returns the same session rather than creating a new one, keeping your order reference consistent.
 </Note>

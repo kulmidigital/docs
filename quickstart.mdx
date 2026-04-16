@@ -1,12 +1,13 @@
 ---
-title: "Getting Started with KulmiPay: Your First API Call"
-description: "Create an account, generate an access token, and trigger your first M-Pesa STK push payment in under 10 minutes with the KulmiPay API."
+title: "Quick Start"
+sidebarTitle: "Quick Start"
+description: "Create an account, generate an access token, and trigger your first M-Pesa STK push payment in under 10 minutes with the Kulmi Pay API."
 ---
 
 This guide walks you through everything you need to make your first live API call — from creating an account to triggering an M-Pesa payment prompt on a real phone. If you want to test without real money first, use the [sandbox environment](/sandbox) and replace the base URL with `https://sandbox.kulmipay.com`.
 
 <Steps>
-  <Step title="Create a KulmiPay account">
+  <Step title="Create a Kulmi Pay account">
     Go to [app.kulmipay.com](https://app.kulmipay.com) and sign up for an account. Complete the business verification steps to unlock live payment processing.
 
     If you want to test first, you can skip verification and start with sandbox credentials at [sandbox.kulmipay.com](https://sandbox.kulmipay.com).
@@ -15,7 +16,7 @@ This guide walks you through everything you need to make your first live API cal
   <Step title="Create an API application">
     After logging in, navigate to **API Applications** in your dashboard and create a new application.
 
-    KulmiPay will generate three credentials for you:
+    Kulmi Pay will generate three credentials for you:
 
     | Credential | What it's for |
     |---|---|
@@ -146,7 +147,7 @@ This guide walks you through everything you need to make your first live API cal
     | `amount` | Amount in KES — minimum KES 10 |
     | `api_ref` | Your unique reference for this transaction — use it to look up the payment later |
 
-    KulmiPay will return a response confirming the STK push was initiated. The customer's phone will ring within a few seconds with the payment prompt. Configure a [webhook](/webhooks/overview) to receive the final payment status once the customer responds.
+    Kulmi Pay will return a response confirming the STK push was initiated. The customer's phone will ring within a few seconds with the payment prompt. Configure a [webhook](/webhooks/overview) to receive the final payment status once the customer responds.
   </Step>
 </Steps>
 

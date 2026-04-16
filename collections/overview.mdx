@@ -1,9 +1,10 @@
 ---
-title: "Collect Payments with KulmiPay"
-description: "Accept M-Pesa, Visa, Mastercard, Apple Pay, Google Pay, and PesaLink payments from customers using a single KulmiPay REST API endpoint. Choose who pays the fee."
+title: "Collections Overview"
+sidebarTitle: "Overview"
+description: "Accept M-Pesa, Visa, Mastercard, Apple Pay, Google Pay, and PesaLink payments from customers using a single Kulmi Pay REST API endpoint. Choose who pays the fee."
 ---
 
-KulmiPay gives you multiple ways to collect money from your customers. Whether you need to trigger a mobile money prompt, charge a card, send a shareable payment link, or embed a hosted checkout in your app, you can do it all through the same API. Every collection method returns an invoice ID you can use to track status in real time or via webhooks.
+Kulmi Pay gives you multiple ways to collect money from your customers. Whether you need to trigger a mobile money prompt, charge a card, send a shareable payment link, or embed a hosted checkout in your app, you can do it all through the same API. Every collection method returns an invoice ID you can use to track status in real time or via webhooks.
 
 ## Collection methods
 
@@ -35,7 +36,7 @@ The default for all methods is `BUSINESS-PAYS`. You can override this per reques
 
 ## Supported currencies
 
-KulmiPay supports collections in **KES**, **USD**, **EUR**, and **GBP**. When a customer pays in a currency that doesn't match the payment method's settlement currency (for example, paying USD via M-Pesa), KulmiPay automatically converts the amount using live exchange rates.
+Kulmi Pay supports collections in **KES**, **USD**, **EUR**, and **GBP**. When a customer pays in a currency that doesn't match the payment method's settlement currency (for example, paying USD via M-Pesa), Kulmi Pay automatically converts the amount using live exchange rates.
 
 <Note>
   M-Pesa and PesaLink always settle in KES. If you create a request in another currency, the amount is converted to KES before the transaction is sent to the customer.
