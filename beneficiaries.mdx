@@ -1,0 +1,111 @@
+---
+title: "Manage Saved Recipients for Faster Payouts"
+description: "Use the KulmiPay Beneficiaries API to retrieve saved recipients, filter by provider, and speed up bulk disbursements with pre-validated accounts."
+---
+
+Beneficiaries are recipients that KulmiPay automatically saves to your account whenever you successfully disburse money to them. Rather than re-entering account details for every disbursement, you can look up saved recipients by name, account number, or provider — and use their details to pre-fill your next payout batch. Beneficiary accounts are also pre-validated, which reduces rejection rates in bulk disbursements.
+
+---
+
+## List your beneficiaries
+
+Retrieve all saved recipients for your account.
+
+**GET /api/v1/transactions/beneficiaries/**
+
+```json Response
+[
+  {
+    "id": "ben_abc001",
+    "name": "Alice Wanjiru",
+    "account": "254712345678",
+    "provider": "MPESA-B2C",
+    "account_reference": null,
+    "is_active": true
+  },
+  {
+    "id": "ben_abc002",
+    "name": "Nairobi Supplies Ltd",
+    "account": "4012345",
+    "provider": "PESALINK",
+    "account_reference": "ACC-NBI-001",
+    "is_active": true
+  }
+]
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique beneficiary identifier |
+| `name` | string | Recipient's name |
+| `account` | string | Phone number or bank account number |
+| `provider` | string | Payment provider used (e.g. `MPESA-B2C`, `PESALINK`) |
+| `account_reference` | string | Optional reference for PayBill or business accounts |
+| `is_active` | boolean | Whether the beneficiary is available for use |
+
+### Filter by provider
+
+Add a `provider` query parameter to return only recipients for a specific payment channel.
+
+```
+GET /api/v1/transactions/beneficiaries/?provider=MPESA-B2C
+```
+
+### Search by name or account
+
+Use the `search` query parameter to find a recipient by name, account number, or account reference.
+
+```
+GET /api/v1/transactions/beneficiaries/?search=Alice
+```
+
+You can combine filters and search in a single request:
+
+```
+GET /api/v1/transactions/beneficiaries/?provider=MPESA-B2C&search=254712
+```
+
+---
+
+## Get your most frequently used recipients
+
+Retrieve the top 5 recipients you disburse to most often for a given provider. Use this endpoint to power a quick-select UI or to pre-populate a bulk disbursement batch.
+
+**GET /api/v1/transactions/beneficiaries/frequently_used/?provider=MPESA-B2C**
+
+The `provider` parameter is required. Replace `MPESA-B2C` with the provider you want to query.
+
+```json Response
+[
+  {
+    "id": "ben_abc001",
+    "name": "Alice Wanjiru",
+    "account": "254712345678",
+    "provider": "MPESA-B2C",
+    "account_reference": null,
+    "is_active": true
+  },
+  {
+    "id": "ben_abc005",
+    "name": "John Kamau",
+    "account": "254798765432",
+    "provider": "MPESA-B2C",
+    "account_reference": null,
+    "is_active": true
+  }
+]
+```
+
+Results are ordered by transaction frequency — the recipient you've paid most often appears first. Only active beneficiaries (`is_active: true`) are included.
+
+---
+
+## How beneficiaries speed up bulk disbursements
+
+When you include a beneficiary's account details in a disbursement request, KulmiPay skips the account validation step because the account has already been verified through a successful previous transaction. This means:
+
+- **Faster processing** — no additional validation round-trip for known accounts.
+- **Fewer rejections** — you are reusing an account that has received a payment before.
+- **Simpler batching** — query your frequently used beneficiaries to build disbursement payloads programmatically.
+
+To use a saved beneficiary in a disbursement, copy the `account`, `provider`, and `account_reference` fields from the beneficiary record directly into your transaction payload when calling `POST /api/v1/send-money/`. You can also pass `"validated_account": true` in the transaction to signal that the account has already been verified.

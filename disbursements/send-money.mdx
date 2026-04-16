@@ -1,0 +1,258 @@
+---
+title: "Send Money via M-Pesa, PesaLink, and Bank Transfer"
+description: "Initiate a disbursement to mobile wallets or bank accounts using M-Pesa B2C, M-Pesa B2B, PesaLink, and other supported providers in Kenya."
+---
+
+To send money, you initiate a disbursement request with one or more recipient transactions. KulmiPay validates your request, creates a payment file, and either waits for your approval or processes the payment immediately — depending on how you configure `requires_approval`.
+
+<Steps>
+  <Step title="Initiate the disbursement">
+    Call `POST /api/v1/send-money/initiation/` with your currency, provider, and a list of transactions. KulmiPay creates a payment file and returns a `file_id` and `tracking_id`.
+  </Step>
+  <Step title="Review and approve">
+    If `requires_approval` is `"YES"` (the default), call `POST /api/v1/send-money/approve/` with the `file_id` to release the payment. If `requires_approval` is `"NO"`, KulmiPay approves and queues the payment automatically — no second call needed.
+  </Step>
+  <Step title="Monitor status">
+    Call `POST /api/v1/send-money/status/` with your `tracking_id` to check the payment file status and see the result for each individual transaction.
+  </Step>
+</Steps>
+
+## Initiate a disbursement
+
+### M-Pesa B2C
+
+Use provider `MPESA-B2C` to send money directly to an M-Pesa mobile wallet. The `account` field must be the recipient's phone number in international format (e.g., `254712345678`).
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiation/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "MPESA-B2C",
+    "requires_approval": "YES",
+    "callback_url": "https://your-app.com/webhooks/disbursements",
+    "transactions": [
+      {
+        "account": "254712345678",
+        "amount": "500",
+        "name": "Jane Doe",
+        "narrative": "Salary payment"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiation/",
+    headers={"Authorization": "Bearer <token>"},
+    json={
+        "currency": "KES",
+        "provider": "MPESA-B2C",
+        "requires_approval": "YES",
+        "callback_url": "https://your-app.com/webhooks/disbursements",
+        "transactions": [
+            {
+                "account": "254712345678",
+                "amount": "500",
+                "name": "Jane Doe",
+                "narrative": "Salary payment",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+</CodeGroup>
+
+**Response**
+
+```json
+{
+  "file_id": "f1a2b3c4-0000-0000-0000-000000000001",
+  "tracking_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "PREVIEW-AND-APPROVE",
+  "status_code": null,
+  "batch_reference": null,
+  "transactions_count": 1,
+  "total_amount": "500.00",
+  "charge_estimate": "10.00",
+  "total_amount_estimate": "510.00",
+  "wallet": {
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT"
+  },
+  "transactions": [
+    {
+      "transaction_id": "t9z8y7x6-0000-0000-0000-000000000001",
+      "status": "PENDING",
+      "account": "254712345678",
+      "name": "Jane Doe",
+      "amount": "500",
+      "narrative": "Salary payment"
+    }
+  ],
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:30:00Z"
+}
+```
+
+<Note>
+The minimum transaction amount for M-Pesa B2C is **KES 10**. For PesaLink bank transfers, the minimum is **KES 100**. Requests below these thresholds will be rejected.
+</Note>
+
+---
+
+### PesaLink (bank transfer)
+
+Use provider `PESALINK` to transfer to a Kenyan bank account. You must include `bank_code` for each transaction. Find valid codes in the [bank codes reference](/disbursements/bank-codes).
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiation/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "PESALINK",
+    "requires_approval": "YES",
+    "transactions": [
+      {
+        "account": "1234567890",
+        "amount": "5000",
+        "name": "John Kamau",
+        "narrative": "Vendor payment",
+        "bank_code": "68"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiation/",
+    headers={"Authorization": "Bearer <token>"},
+    json={
+        "currency": "KES",
+        "provider": "PESALINK",
+        "requires_approval": "YES",
+        "transactions": [
+            {
+                "account": "1234567890",
+                "amount": "5000",
+                "name": "John Kamau",
+                "narrative": "Vendor payment",
+                "bank_code": "68",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+</CodeGroup>
+
+---
+
+### M-Pesa B2B
+
+Use provider `MPESA-B2B` to pay a PayBill or Till number. Set `account_type` to `"PayBill"` or `"Till"`. When paying a PayBill, you must also include `account_reference` (the customer account number associated with the bill).
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiation/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "MPESA-B2B",
+    "requires_approval": "YES",
+    "transactions": [
+      {
+        "account": "400200",
+        "amount": "10000",
+        "name": "Electricity Bill",
+        "narrative": "January invoice",
+        "account_type": "PayBill",
+        "account_reference": "ACC-00123"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiation/",
+    headers={"Authorization": "Bearer <token>"},
+    json={
+        "currency": "KES",
+        "provider": "MPESA-B2B",
+        "requires_approval": "YES",
+        "transactions": [
+            {
+                "account": "400200",
+                "amount": "10000",
+                "name": "Electricity Bill",
+                "narrative": "January invoice",
+                "account_type": "PayBill",
+                "account_reference": "ACC-00123",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+</CodeGroup>
+
+---
+
+## Request parameters
+
+### Top-level fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `currency` | string | Yes | Must be `"KES"` |
+| `provider` | string | Yes | Payment provider. See [supported providers](/disbursements/overview#supported-providers). |
+| `transactions` | array | Yes | List of recipient transactions (see below) |
+| `requires_approval` | string | No | `"YES"` (default) or `"NO"`. Set to `"NO"` to skip the manual approval step. |
+| `wallet_id` | string | No | ID of a specific wallet to debit. Defaults to your KES settlement wallet. |
+| `batch_reference` | string | No | Your own reference label for the batch |
+| `callback_url` | string | No | URL to receive webhook notifications when transactions complete |
+
+### Transaction fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `account` | string | Yes | Recipient identifier — phone number, bank account, or paybill/till number |
+| `amount` | string | Yes | Amount to send in KES |
+| `name` | string | Yes | Recipient's full name |
+| `narrative` | string | Yes | Payment description shown to the recipient |
+| `account_type` | string | Conditional | Required for M-Pesa B2B: `"PayBill"` or `"Till"` |
+| `account_reference` | string | Conditional | Required when `account_type` is `"PayBill"` |
+| `bank_code` | string | Conditional | Required for PesaLink transfers. See [bank codes](/disbursements/bank-codes). |
+| `id_number` | string | No | Recipient's national ID number |
+| `idempotency_key` | string | No | Unique key to prevent duplicate transactions. If a transaction with the same key already exists, the request is rejected. |
+
+---
+
+## Idempotency
+
+To protect against duplicate payments (for example, if a network timeout causes you to retry a request), include a unique `idempotency_key` per transaction. If KulmiPay receives a second request with the same key for your business, it will reject it with an error rather than processing the payment twice.
+
+```json
+{
+  "account": "254712345678",
+  "amount": "500",
+  "name": "Jane Doe",
+  "narrative": "Salary payment",
+  "idempotency_key": "payroll-jan-2024-jane-doe-001"
+}
+```

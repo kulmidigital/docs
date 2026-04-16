@@ -1,0 +1,135 @@
+---
+title: "Receive Real-Time Payment Notifications"
+description: "Learn how to configure a KulmiPay webhook endpoint to receive instant notifications whenever a payment, disbursement, or subscription changes state."
+---
+
+Webhooks let KulmiPay push notifications to your server the moment something happens — a payment completes, a disbursement is processed, or a subscription billing cycle runs. Instead of polling the API for status updates, you register an HTTPS endpoint and KulmiPay delivers a JSON payload to it whenever a subscribed event occurs.
+
+## Set up a webhook
+
+<Steps>
+  <Step title="Add your endpoint in the dashboard">
+    Go to **Settings → Webhooks** in your KulmiPay dashboard and click **Add Webhook**. Enter the full URL of the endpoint on your server that will receive events. The URL must use HTTPS — plain HTTP endpoints are rejected.
+  </Step>
+  <Step title="Set a challenge secret">
+    Enter a secret string in the **Challenge** field. KulmiPay includes this value in every webhook request as an `X-Challenge` header so you can verify that the request genuinely came from KulmiPay. Store this secret securely and never expose it in client-side code.
+  </Step>
+  <Step title="Subscribe to events">
+    Select which event types you want to receive. Each flag maps to a specific activity on your account:
+
+    | Event flag | Description |
+    |---|---|
+    | `collection_event` | Payment invoice state changes (e.g. pending → complete) |
+    | `send_money_event` | Disbursement file state changes |
+    | `reversal_event` | Chargebacks and reversals |
+    | `wallet_transfer_event` | Intra-wallet transfers |
+    | `subscription_event` | Subscription status and billing cycle changes |
+
+    You can subscribe to one or more events on a single webhook endpoint, or use separate endpoints for different event types.
+  </Step>
+  <Step title="Handle incoming payloads">
+    Your endpoint must accept `POST` requests with a JSON body. Respond with an HTTP `200` status code as quickly as possible — do any heavy processing asynchronously. KulmiPay considers any non-200 response a delivery failure.
+
+    Every webhook payload follows this structure:
+
+    ```json
+    {
+      "topic": "collection_event",
+      "data": {
+        "id": "inv_abc123",
+        "state": "COMPLETE",
+        "value": "1000.00",
+        "currency": "KES",
+        "provider": "M-PESA",
+        "api_ref": "ORDER-001"
+      }
+    }
+    ```
+
+    The `topic` field identifies the event type. The `data` object contains the full resource that changed — an invoice, a payment file, a chargeback, or a subscription depending on the topic.
+  </Step>
+</Steps>
+
+## Verify the challenge secret
+
+Before processing any webhook payload, confirm that the request came from KulmiPay by comparing the `X-Challenge` header against your stored secret.
+
+<CodeGroup>
+
+```javascript Node.js
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/webhooks/kulmipay', (req, res) => {
+  const challenge = req.headers['x-challenge'];
+
+  if (challenge !== process.env.KULMIPAY_WEBHOOK_SECRET) {
+    return res.status(401).json({ error: 'Invalid challenge' });
+  }
+
+  const { topic, data } = req.body;
+
+  // Process the event asynchronously
+  handleWebhookEvent(topic, data);
+
+  res.status(200).json({ received: true });
+});
+```
+
+```python Python
+from flask import Flask, request, jsonify
+import os
+
+app = Flask(__name__)
+
+@app.route('/webhooks/kulmipay', methods=['POST'])
+def handle_webhook():
+    challenge = request.headers.get('X-Challenge')
+
+    if challenge != os.environ.get('KULMIPAY_WEBHOOK_SECRET'):
+        return jsonify({'error': 'Invalid challenge'}), 401
+
+    payload = request.get_json()
+    topic = payload.get('topic')
+    data = payload.get('data')
+
+    # Process the event asynchronously
+    handle_webhook_event(topic, data)
+
+    return jsonify({'received': True}), 200
+```
+
+```php PHP
+<?php
+$payload = json_decode(file_get_contents('php://input'), true);
+$challenge = $_SERVER['HTTP_X_CHALLENGE'] ?? '';
+
+if ($challenge !== getenv('KULMIPAY_WEBHOOK_SECRET')) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Invalid challenge']);
+    exit;
+}
+
+$topic = $payload['topic'];
+$data = $payload['data'];
+
+// Process the event asynchronously
+handleWebhookEvent($topic, $data);
+
+http_response_code(200);
+echo json_encode(['received' => true]);
+```
+
+</CodeGroup>
+
+## Retry behavior and failure handling
+
+When your endpoint returns a non-200 response or is unreachable, KulmiPay marks the event as `FAILED` and increments the failure counter for that webhook. As the failure count rises, KulmiPay sends email warnings to your account's support address.
+
+<Warning>
+  Your webhook endpoint must use HTTPS with a valid, verifiable TLS certificate. Endpoints that cannot be verified are rejected. If your webhook accumulates too many consecutive failures, KulmiPay automatically disables it to prevent further delivery attempts. You will receive an email notification before this happens. To re-enable your webhook, fix the underlying issue and toggle it back on in the dashboard.
+</Warning>
+
+Failed events are not lost. You can replay any event from the **Webhooks → Events** log in your dashboard, or via the API. See [Webhook event types](/webhooks/events) for details on replaying events.

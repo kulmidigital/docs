@@ -1,0 +1,119 @@
+---
+title: "GET /api/v1/send-money/bank-codes/ke"
+sidebarTitle: "Bank codes"
+description: "Retrieve the complete list of supported Kenyan bank codes required when initiating PesaLink disbursements to bank accounts. No authentication needed."
+---
+
+This endpoint returns all bank codes supported for PesaLink transfers in Kenya. When you initiate a disbursement with `provider: "PESALINK"`, every transaction must include a `bank_code` identifying the recipient's bank. Use this endpoint to look up the correct code.
+
+This is a public endpoint — no authentication is required.
+
+## Request
+
+**`GET https://app.kulmipay.com/api/v1/send-money/bank-codes/ke/`**
+
+No request body or query parameters are needed.
+
+## Response
+
+A successful request returns HTTP `200` with an array of bank objects.
+
+<ResponseField name="bank_name" type="string">
+  The full name of the bank.
+</ResponseField>
+
+<ResponseField name="bank_code" type="string">
+  The numeric code used to identify this bank in a PesaLink transaction. Pass this value as `bank_code` in your transaction objects.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://app.kulmipay.com/api/v1/send-money/bank-codes/ke/
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://app.kulmipay.com/api/v1/send-money/bank-codes/ke/"
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Sample response
+
+```json
+[
+  { "bank_name": "KCB", "bank_code": "1" },
+  { "bank_name": "Standard Charted Bank KE", "bank_code": "2" },
+  { "bank_name": "Absa Bank Kenya", "bank_code": "3" },
+  { "bank_name": "NCBA Bank Kenya", "bank_code": "7" },
+  { "bank_name": "Cooperative Bank", "bank_code": "11" },
+  { "bank_name": "National Bank", "bank_code": "12" },
+  { "bank_name": "Stanbic Bank", "bank_code": "31" },
+  { "bank_name": "Eco Bank", "bank_code": "43" },
+  { "bank_name": "I&M Bank", "bank_code": "57" },
+  { "bank_name": "DTB", "bank_code": "63" },
+  { "bank_name": "Equity Bank", "bank_code": "68" },
+  { "bank_name": "Family Bank", "bank_code": "70" }
+]
+```
+
+## Full bank list
+
+The following banks are supported for PesaLink transfers:
+
+| Bank name | Code |
+|---|---|
+| KCB | `1` |
+| Standard Charted Bank KE | `2` |
+| Absa Bank Kenya | `3` |
+| Bank of Baroda | `6` |
+| NCBA Bank Kenya | `7` |
+| Prime Bank | `10` |
+| Cooperative Bank | `11` |
+| National Bank | `12` |
+| M-Oriental | `14` |
+| Citibank | `16` |
+| Habib Bank AG Zurich | `17` |
+| Middle East Bank | `18` |
+| Bank of Africa | `19` |
+| Consolidated Bank | `23` |
+| Credit Bank Ltd | `25` |
+| Stanbic Bank | `31` |
+| Unaitas Sacco | `32` |
+| ABC Bank | `35` |
+| Choice Microfinance Bank | `36` |
+| Eco Bank | `43` |
+| Caritas Microfinance Bank | `48` |
+| Spire Bank | `49` |
+| Paramount Universal Bank | `50` |
+| Kingdom Bank | `51` |
+| Guaranty Bank | `53` |
+| Victoria Commercial Bank | `54` |
+| Guardian Bank | `55` |
+| I&M Bank | `57` |
+| SBM | `60` |
+| Housing Finance Company Limited (HFCK) | `61` |
+| DTB | `63` |
+| CIB Bank Kenya | `65` |
+| Sidian Bank | `66` |
+| Equity Bank | `68` |
+| Family Bank | `70` |
+| Gulf African Bank | `72` |
+| Premier Bank | `74` |
+| DIB | `75` |
+| UBA | `76` |
+| KWFT Bank | `78` |
+| Faulu Bank | `79` |
+| Stima SACCO | `89` |
+| Telkom Kenya | `97` |
+
+<Note>
+  Always fetch bank codes dynamically using this endpoint rather than hardcoding them in your integration. The list may be updated as new banks are added.
+</Note>

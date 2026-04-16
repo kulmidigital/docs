@@ -1,0 +1,187 @@
+---
+title: "POST /api/v1/payment/collection/status"
+description: "Check the current state of a KulmiPay payment by invoice ID. Returns the invoice state (PENDING, PROCESSING, COMPLETE, or FAILED) with full invoice details."
+---
+
+Use this endpoint to check the status of a payment after initiating a collection. Pass the `invoice_id` returned by [collect payment](/api-reference/collect-payment) or [STK push](/api-reference/stk-push). For checkout-based payments, you can also pass `checkout_id` to validate that the invoice belongs to the correct session.
+
+**Method:** `POST`  
+**URL:** `https://app.kulmipay.com/api/v1/payment/collection/status`
+
+## Authentication
+
+Authenticate with your Bearer token or, for client-side polling, pass the `signature` returned by the collect endpoint.
+
+```http
+Authorization: Bearer <secret_key>
+```
+
+## Request
+
+<ParamField body="invoice_id" type="string" required>
+  The invoice alias ID returned in the `invoice.id` field of the collect or STK push response.
+</ParamField>
+
+<ParamField body="checkout_id" type="string">
+  The checkout session UUID. When provided, KulmiPay validates that the invoice belongs to this checkout session before returning status. Use this when polling from a hosted checkout flow.
+</ParamField>
+
+## Response
+
+<ResponseField name="invoice" type="object">
+  Current snapshot of the invoice.
+
+  <Expandable title="invoice properties">
+    <ResponseField name="invoice.id" type="string">
+      Invoice alias ID, matching the value you submitted.
+    </ResponseField>
+
+    <ResponseField name="invoice.state" type="string">
+      Current payment state. One of:
+
+      | Value | Meaning |
+      |-------|---------|
+      | `PENDING` | The payment has been initiated but the customer has not yet approved it. Common for M-Pesa while the STK prompt is active. |
+      | `PROCESSING` | The payment has been approved and is being processed by the payment network. |
+      | `COMPLETE` | The payment succeeded and funds are in your wallet. |
+      | `FAILED` | The payment failed, was declined, or timed out. |
+    </ResponseField>
+
+    <ResponseField name="invoice.value" type="string">
+      Total amount charged, including fees where applicable.
+    </ResponseField>
+
+    <ResponseField name="invoice.currency" type="string">
+      Settlement currency of the invoice, for example `KES`.
+    </ResponseField>
+
+    <ResponseField name="invoice.provider" type="string">
+      Payment method used, for example `M-PESA` or `CARD-PAYMENT`.
+    </ResponseField>
+
+    <ResponseField name="invoice.api_ref" type="string">
+      Your reference string as submitted when the payment was initiated.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  Session metadata for the payment.
+
+  <Expandable title="meta properties">
+    <ResponseField name="meta.id" type="string">
+      Payment session UUID.
+    </ResponseField>
+
+    <ResponseField name="meta.customer" type="object">
+      Customer record associated with this payment.
+    </ResponseField>
+
+    <ResponseField name="meta.customer_comment" type="string">
+      Optional comment left by the customer at payment time.
+    </ResponseField>
+
+    <ResponseField name="meta.created_at" type="string">
+      ISO 8601 timestamp when the payment session was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Code examples
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/payment/collection/status \
+  --header 'Authorization: Bearer YOUR_SECRET_KEY' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "invoice_id": "GQ7KZ2XPNM"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/payment/collection/status",
+    headers={
+        "Authorization": "Bearer YOUR_SECRET_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "invoice_id": "GQ7KZ2XPNM",
+    },
+)
+
+data = response.json()
+state = data["invoice"]["state"]
+
+if state == "COMPLETE":
+    print("Payment succeeded")
+elif state == "FAILED":
+    print("Payment failed")
+else:
+    print(f"Payment is {state}")
+```
+
+</CodeGroup>
+
+## Example responses
+
+**Pending** — the M-Pesa STK prompt is still active or the card is being processed:
+
+```json
+{
+  "invoice": {
+    "id": "GQ7KZ2XPNM",
+    "state": "PENDING",
+    "value": "1500.00",
+    "currency": "KES",
+    "provider": "M-PESA",
+    "api_ref": "order_20240416_001",
+    "created_at": "2024-04-16T08:23:11.042Z"
+  },
+  "meta": {
+    "id": "a3f7c819-4e2b-4d1a-9c3f-2b8e1d7a6f05",
+    "customer": {
+      "customer_id": "CUST_XJ82KP",
+      "phone_number": "254712345678",
+      "provider": "M-PESA"
+    },
+    "customer_comment": null,
+    "created_at": "2024-04-16T08:23:11.055Z"
+  }
+}
+```
+
+**Complete** — the customer paid successfully:
+
+```json
+{
+  "invoice": {
+    "id": "GQ7KZ2XPNM",
+    "state": "COMPLETE",
+    "value": "1500.00",
+    "currency": "KES",
+    "provider": "M-PESA",
+    "api_ref": "order_20240416_001",
+    "created_at": "2024-04-16T08:23:11.042Z"
+  },
+  "meta": {
+    "id": "a3f7c819-4e2b-4d1a-9c3f-2b8e1d7a6f05",
+    "customer": {
+      "customer_id": "CUST_XJ82KP",
+      "phone_number": "254712345678",
+      "provider": "M-PESA"
+    },
+    "customer_comment": null,
+    "created_at": "2024-04-16T08:23:11.055Z"
+  }
+}
+```
+
+<Tip>
+  For time-sensitive flows, use [webhooks](/webhooks/overview) instead of polling. KulmiPay sends an event to your endpoint the moment the payment state changes, which is faster and more reliable than a polling loop.
+</Tip>

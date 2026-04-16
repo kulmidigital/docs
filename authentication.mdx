@@ -1,0 +1,150 @@
+---
+title: "KulmiPay Authentication With OAuth2 and Public Keys"
+description: "KulmiPay uses OAuth2 Bearer tokens for most API calls and a Public Key for checkout and collection requests. Learn how to generate and use both."
+---
+
+Every request to the KulmiPay API must be authenticated. Most endpoints use a short-lived Bearer token that you obtain by exchanging your application credentials. Checkout and collection endpoints additionally accept a Public Key that you pass directly in the request body or as a header.
+
+## Bearer token (OAuth2 password grant)
+
+Use this method for all standard API calls — M-Pesa deposits, disbursements, wallet operations, webhooks, and more.
+
+### Request a token
+
+Send a `POST` request to `/api/token/` with your API caller credentials in the request body and your application credentials as HTTP Basic auth.
+
+<CodeGroup>
+  ```bash cURL
+  curl -X POST \
+    -d "grant_type=password&username=<API-CALLER-USERNAME>&password=<API-CALLER-PASSWORD>" \
+    -u "<CLIENT-ID>:<CLIENT-SECRET>" \
+    https://app.kulmipay.com/api/token/
+  ```
+
+  ```python Python
+  import requests
+
+  response = requests.post(
+      "https://app.kulmipay.com/api/token/",
+      data={
+          "grant_type": "password",
+          "username": "<API-CALLER-USERNAME>",
+          "password": "<API-CALLER-PASSWORD>",
+      },
+      auth=("<CLIENT-ID>", "<CLIENT-SECRET>"),
+  )
+
+  data = response.json()
+  access_token = data["access_token"]
+  ```
+
+  ```javascript Node.js
+  const response = await fetch("https://app.kulmipay.com/api/token/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization:
+        "Basic " +
+        Buffer.from("<CLIENT-ID>:<CLIENT-SECRET>").toString("base64"),
+    },
+    body: new URLSearchParams({
+      grant_type: "password",
+      username: "<API-CALLER-USERNAME>",
+      password: "<API-CALLER-PASSWORD>",
+    }),
+  });
+
+  const { access_token } = await response.json();
+  ```
+</CodeGroup>
+
+### Token request parameters
+
+| Parameter | Location | Description |
+|---|---|---|
+| `grant_type` | Body | Always `password` |
+| `username` | Body | Your API caller username |
+| `password` | Body | Your API caller password |
+| `CLIENT-ID` | Basic auth username | Your application's Client ID |
+| `CLIENT-SECRET` | Basic auth password | Your application's Client Secret |
+
+### Use the token in requests
+
+Include the token in the `Authorization` header of every subsequent request:
+
+<CodeGroup>
+  ```bash cURL
+  curl --request GET \
+    --url https://app.kulmipay.com/api/wallets/ \
+    --header 'Authorization: Bearer <access_token>'
+  ```
+
+  ```python Python
+  import requests
+
+  headers = {"Authorization": f"Bearer {access_token}"}
+  response = requests.get("https://app.kulmipay.com/api/wallets/", headers=headers)
+  print(response.json())
+  ```
+
+  ```javascript Node.js
+  const response = await fetch("https://app.kulmipay.com/api/wallets/", {
+    headers: { Authorization: `Bearer ${access_token}` },
+  });
+
+  const data = await response.json();
+  ```
+</CodeGroup>
+
+<Note>
+  Tokens expire after a period of inactivity. When a request returns a `401 Unauthorized` response, request a new token using the same flow above.
+</Note>
+
+---
+
+## Public key
+
+Your Public Key identifies your business for checkout and collection requests. You can find it in your dashboard under **API Applications**.
+
+Public keys follow the format `ISPubKey_live_...` in production and `ISPubKey_test_...` in the sandbox.
+
+Pass your public key in one of two ways:
+
+**Option 1 — Request body:**
+
+```json
+{
+  "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
+  "amount": "100",
+  "currency": "KES"
+}
+```
+
+**Option 2 — Request header:**
+
+```
+X-KULMI-PUBLIC-API-KEY: ISPubKey_live_xxxxxxxxxxxxxxxx
+```
+
+<Note>
+  When testing in the sandbox, use `ISPubKey_test_...` credentials. Using a live public key against `sandbox.kulmipay.com` will return an authentication error.
+</Note>
+
+---
+
+## Common authentication errors
+
+| Status | Error | What to do |
+|---|---|---|
+| `401 Unauthorized` | `Invalid credentials` | Check your username, password, Client ID, and Client Secret |
+| `401 Unauthorized` | `Token expired` | Request a new access token |
+| `400 Bad Request` | `Invalid API credential` | Your public key or secret key is malformed or from the wrong environment |
+| `400 Bad Request` | `Invalid API credential for live environment` | You're using a test key against the live API, or vice versa |
+
+---
+
+## Keeping credentials secure
+
+- Never expose your Client Secret or API caller password in client-side code, public repositories, or logs.
+- Store credentials in environment variables or a secrets manager, not in source files.
+- If a credential is compromised, rotate it immediately from the **API Applications** section of your dashboard.

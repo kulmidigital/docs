@@ -1,0 +1,285 @@
+---
+title: "POST /api/v1/send-money/initiation"
+sidebarTitle: "Initiate payout"
+description: "Create a disbursement payment file with one or more transactions to M-Pesa wallets, bank accounts, or other supported providers in Kenya."
+---
+
+Calling this endpoint creates a payment **file** containing one or more transactions. The file starts in the `PREVIEW-AND-APPROVE` state — nothing is sent until you approve it. If you set `requires_approval` to `"NO"`, KulmiPay approves and queues the file immediately after creation.
+
+You must have the `add_files` permission on your API token to call this endpoint.
+
+## Request
+
+**`POST https://app.kulmipay.com/api/v1/send-money/initiation/`**
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token. Format: `Bearer <token>`.
+</ParamField>
+
+<ParamField body="currency" type="string" required>
+  The currency to disburse. Use `"KES"` for Kenyan shillings.
+</ParamField>
+
+<ParamField body="provider" type="string" required>
+  The payment provider to route the disbursement through. One of:
+
+  | Value | Description |
+  |---|---|
+  | `MPESA-B2C` | Send to an M-Pesa mobile wallet |
+  | `MPESA-B2B` | Pay to an M-Pesa PayBill or Till number |
+  | `PESALINK` | Transfer to a Kenyan bank account |
+  | `P2P` | Transfer between KulmiPay wallets |
+  | `AIRTIME` | Top up mobile airtime |
+  | `RTGS` | High-value real-time gross settlement |
+</ParamField>
+
+<ParamField body="requires_approval" type="string" default="YES">
+  Whether the file requires a manual approval step before processing. Set to `"NO"` to skip approval and process immediately. Accepted values: `"YES"`, `"NO"`.
+</ParamField>
+
+<ParamField body="wallet_id" type="string">
+  The ID of a specific wallet to debit. If omitted, KulmiPay uses your default KES settlement wallet. Use this when you have multiple wallets and need to debit a specific one.
+</ParamField>
+
+<ParamField body="batch_reference" type="string">
+  Your internal reference for this batch, such as a payroll run ID or invoice number. Returned as-is in status and webhook responses.
+</ParamField>
+
+<ParamField body="callback_url" type="string">
+  A URL to receive webhook notifications when the file or individual transaction statuses change. Must be HTTPS.
+</ParamField>
+
+<ParamField body="transactions" type="array" required>
+  List of transactions to include in this file. You can include one or many recipients in a single request.
+
+  <Expandable title="Transaction object fields">
+    <ParamField body="account" type="string" required>
+      The recipient's phone number (M-Pesa, Airtime) or bank account number (PesaLink). Use international format for phone numbers, e.g. `254712345678`.
+    </ParamField>
+
+    <ParamField body="amount" type="string" required>
+      The amount to send. Must be a numeric string, e.g. `"1000"`. Minimum amounts apply per provider:
+      - `MPESA-B2C`: KES 10
+      - `PESALINK`: KES 100
+    </ParamField>
+
+    <ParamField body="name" type="string">
+      The recipient's display name. Used for record-keeping and visible in your KulmiPay dashboard.
+    </ParamField>
+
+    <ParamField body="narrative" type="string">
+      A description for this payment. Appears on the recipient's transaction record where the provider supports it.
+    </ParamField>
+
+    <ParamField body="account_type" type="string">
+      For `MPESA-B2B` transactions, specifies how to treat the account. One of `"PayBill"` or `"Till"`.
+    </ParamField>
+
+    <ParamField body="account_reference" type="string">
+      Required when `account_type` is `"PayBill"`. This is the account number or bill reference the recipient uses to identify the payment on the PayBill.
+    </ParamField>
+
+    <ParamField body="bank_code" type="string">
+      Required for `PESALINK` transactions. The numeric code for the recipient's bank. Fetch the full list from [`GET /api/v1/send-money/bank-codes/ke/`](/api-reference/bank-codes).
+    </ParamField>
+
+    <ParamField body="id_number" type="string">
+      The recipient's national ID number. Required by some providers for identity verification.
+    </ParamField>
+
+    <ParamField body="idempotency_key" type="string">
+      A unique key you generate per transaction to prevent duplicates. If a transaction with the same key has already been submitted by your business, the request returns a `400` error instead of creating a duplicate.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `201` with the newly created file object.
+
+<ResponseField name="file_id" type="string">
+  The unique identifier for this payment file. Use this when calling the approve or cancel endpoints.
+</ResponseField>
+
+<ResponseField name="tracking_id" type="string">
+  A UUID you can use to look up this file's status. Use this with the status endpoint.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current file state. Starts as `PREVIEW-AND-APPROVE` when approval is required, or moves to `PROCESSING` when `requires_approval` is `"NO"`.
+</ResponseField>
+
+<ResponseField name="total_amount" type="string">
+  The sum of all transaction amounts in this file, as a string.
+</ResponseField>
+
+<ResponseField name="transactions_count" type="number">
+  The number of transactions in the file.
+</ResponseField>
+
+<ResponseField name="transactions" type="array">
+  The list of transactions created for this file. Each transaction includes a `transaction_id` and its current `status`.
+
+  <Expandable title="Transaction object fields">
+    <ResponseField name="transaction_id" type="string">
+      Unique identifier for this individual transaction.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current status of the transaction: `PENDING`, `PROCESSING`, `COMPLETE`, or `FAILED`.
+    </ResponseField>
+    <ResponseField name="account" type="string">
+      The recipient's phone number or account number.
+    </ResponseField>
+    <ResponseField name="amount" type="string">
+      The transaction amount.
+    </ResponseField>
+    <ResponseField name="narrative" type="string">
+      The payment description.
+    </ResponseField>
+    <ResponseField name="idempotency_key" type="string">
+      The idempotency key submitted with this transaction, if any.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="wallet" type="object">
+  The wallet that will be (or has been) debited for this file.
+</ResponseField>
+
+<ResponseField name="charge_estimate" type="string">
+  Estimated transaction charges for this file.
+</ResponseField>
+
+<ResponseField name="total_amount_estimate" type="string">
+  Estimated total deduction including charges.
+</ResponseField>
+
+<ResponseField name="batch_reference" type="string">
+  Your batch reference, as submitted.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when the file was created.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiation/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "MPESA-B2C",
+    "requires_approval": "NO",
+    "transactions": [
+      {
+        "account": "254712345678",
+        "amount": "1000",
+        "name": "John Doe",
+        "narrative": "Salary - January"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiation/",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "currency": "KES",
+        "provider": "MPESA-B2C",
+        "requires_approval": "NO",
+        "transactions": [
+            {
+                "account": "254712345678",
+                "amount": "1000",
+                "name": "John Doe",
+                "narrative": "Salary - January",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Sample response
+
+```json
+{
+  "file_id": "f8a2b1c3-...",
+  "tracking_id": "d9e4f5a6-...",
+  "status": "PROCESSING",
+  "batch_reference": null,
+  "total_amount": "1000.00",
+  "transactions_count": 1,
+  "charge_estimate": "33.00",
+  "total_amount_estimate": "1033.00",
+  "wallet": {
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT"
+  },
+  "transactions": [
+    {
+      "transaction_id": "t1a2b3c4-...",
+      "status": "PENDING",
+      "account": "254712345678",
+      "amount": "1000",
+      "name": "John Doe",
+      "narrative": "Salary - January",
+      "idempotency_key": null
+    }
+  ],
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:30:00Z"
+}
+```
+
+### PesaLink example
+
+When sending to a bank account via PesaLink, include `bank_code` on every transaction. Fetch codes from the [bank codes endpoint](/api-reference/bank-codes).
+
+```json
+{
+  "currency": "KES",
+  "provider": "PESALINK",
+  "transactions": [
+    {
+      "account": "1234567890",
+      "amount": "5000",
+      "name": "Jane Smith",
+      "bank_code": "68",
+      "narrative": "Vendor payment"
+    }
+  ]
+}
+```
+
+### M-Pesa B2B PayBill example
+
+When paying a PayBill number, include both `account_type` and `account_reference`.
+
+```json
+{
+  "currency": "KES",
+  "provider": "MPESA-B2B",
+  "transactions": [
+    {
+      "account": "400200",
+      "amount": "2500",
+      "account_type": "PayBill",
+      "account_reference": "INV-9901"
+    }
+  ]
+}
+```

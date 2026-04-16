@@ -1,0 +1,133 @@
+---
+title: "GET /api/v1/wallets/{id}/transactions — Wallet Statement"
+description: "Retrieve a paginated transaction history for any wallet, with optional filters for date range, currency, and transaction type to build a statement."
+---
+
+Use this endpoint to pull a full statement for a specific wallet. Results are returned in reverse chronological order and paginated. You can narrow the results using query parameters for date range, currency, or transaction type.
+
+**Method:** `GET`  
+**URL:** `https://app.kulmipay.com/api/v1/wallets/{wallet_id}/transactions/`
+
+Replace `{wallet_id}` with the `wallet_id` (alias ID) of the wallet you want to query.
+
+## Query parameters
+
+<ParamField query="currency" type="string">
+  Filter transactions by currency code, for example `KES` or `USD`.
+</ParamField>
+
+<ParamField query="trans_type" type="string">
+  Filter by transaction direction. Use `DEBIT` for outgoing transactions and `CREDIT` for incoming transactions.
+</ParamField>
+
+<ParamField query="start_date" type="string">
+  Return only transactions on or after this date. Use `YYYY-MM-DD` format, for example `2024-01-01`.
+</ParamField>
+
+<ParamField query="end_date" type="string">
+  Return only transactions on or before this date. Use `YYYY-MM-DD` format, for example `2024-01-31`.
+</ParamField>
+
+## Code example
+
+```bash cURL
+curl --request GET \
+  --url "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/transactions/?start_date=2024-04-01&end_date=2024-04-30&trans_type=CREDIT" \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+## Transaction object
+
+The endpoint returns a paginated list of transaction objects. Results appear under the `results` key, with `count`, `next`, and `previous` for pagination.
+
+<ResponseField name="transaction_id" type="string">
+  The transaction alias ID. Use this value to reference a specific transaction.
+</ResponseField>
+
+<ResponseField name="narrative" type="string">
+  A human-readable description of the transaction, for example `"Internal transfer - wlt_abc123 to wlt_def456"`.
+</ResponseField>
+
+<ResponseField name="value" type="string">
+  The transaction amount as a decimal string, for example `"1500.00"`.
+</ResponseField>
+
+<ResponseField name="running_balance" type="string">
+  The wallet balance immediately after this transaction was applied.
+</ResponseField>
+
+<ResponseField name="trans_type" type="string">
+  Transaction direction. Either `DEBIT` (funds left the wallet) or `CREDIT` (funds arrived).
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current processing status of the transaction.
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Currency of the wallet at the time of the transaction.
+</ResponseField>
+
+<ResponseField name="invoice" type="object">
+  The invoice linked to this transaction, if one exists. Present for collection and disbursement transactions.
+
+  <Expandable title="invoice properties">
+    <ResponseField name="invoice_id" type="string">
+      The invoice alias ID.
+    </ResponseField>
+    <ResponseField name="state" type="string">
+      Invoice state. One of `PENDING`, `PROCESSING`, `COMPLETE`, or `FAILED`.
+    </ResponseField>
+    <ResponseField name="provider" type="string">
+      Payment method used for this invoice, for example `M-PESA` or `CARD-PAYMENT`.
+    </ResponseField>
+    <ResponseField name="value" type="string">
+      The gross amount charged or disbursed.
+    </ResponseField>
+    <ResponseField name="api_ref" type="string">
+      Your reference string as submitted with the original payment request.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the transaction was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the last update to this transaction.
+</ResponseField>
+
+## Example response
+
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "transaction_id": "txn_xyz789",
+      "narrative": "M-Pesa collection from 254712345678",
+      "value": "1500.00",
+      "running_balance": "51500.00",
+      "trans_type": "CREDIT",
+      "status": "COMPLETE",
+      "currency": "KES",
+      "invoice": {
+        "invoice_id": "GQ7KZ2XPNM",
+        "state": "COMPLETE",
+        "provider": "M-PESA",
+        "value": "1500.00",
+        "api_ref": "order_20240416_001"
+      },
+      "created_at": "2024-04-16T08:23:11Z",
+      "updated_at": "2024-04-16T08:24:05Z"
+    }
+  ]
+}
+```
+
+<Note>
+  Use the `next` and `previous` URLs in the response to navigate between pages of results. Both fields are `null` when there are no further pages in that direction.
+</Note>

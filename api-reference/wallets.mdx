@@ -1,0 +1,149 @@
+---
+title: "GET/POST /api/v1/wallets — Manage Wallets"
+description: "List all wallets on your KulmiPay account and create new working wallets to separate funds by purpose, currency, or disbursement use case."
+---
+
+Use these endpoints to retrieve your KulmiPay wallets and create new working wallets. Settlement wallets are provisioned automatically when you activate a currency — you only need the `POST` endpoint to create additional working wallets for fund separation or specific disbursement flows.
+
+**Base URL:** `https://app.kulmipay.com`
+
+## List wallets
+
+**`GET /api/v1/wallets/`**
+
+Returns all wallets associated with your business, including both settlement and working wallets. To retrieve a single wallet, use `GET /api/v1/wallets/{wallet_id}/`.
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/wallets/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://app.kulmipay.com/api/v1/wallets/",
+    headers={"Authorization": "Bearer YOUR_SECRET_KEY"},
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Create a wallet
+
+**`POST /api/v1/wallets/`**
+
+Creates a new working wallet on your account. You cannot create `SETTLEMENT` wallets — those are managed by KulmiPay automatically.
+
+### Request parameters
+
+<ParamField body="currency" type="string" required>
+  Currency for this wallet. One of: `KES`, `USD`, `EUR`, `GBP`.
+</ParamField>
+
+<ParamField body="wallet_type" type="string" required>
+  Must be `WORKING`. Settlement wallets are created automatically and cannot be created through this endpoint.
+</ParamField>
+
+<ParamField body="label" type="string" required>
+  A friendly name for this wallet. Must be unique within the same currency on your account. Alphanumeric characters only.
+</ParamField>
+
+<ParamField body="can_disburse" type="boolean" default="false">
+  Set to `true` to allow this wallet to be used as the source for disbursements. Defaults to `false`.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/wallets/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "currency": "KES",
+    "wallet_type": "WORKING",
+    "label": "Payroll Wallet",
+    "can_disburse": true
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/wallets/",
+    headers={
+        "Authorization": "Bearer YOUR_SECRET_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "currency": "KES",
+        "wallet_type": "WORKING",
+        "label": "Payroll Wallet",
+        "can_disburse": True,
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Wallet object
+
+Both the list and create endpoints return wallet objects in the following shape.
+
+<ResponseField name="wallet_id" type="string">
+  The wallet alias ID. Use this value to identify the wallet in all other endpoints, for example when initiating a transfer or retrieving transactions.
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  The currency this wallet holds. One of `KES`, `USD`, `EUR`, or `GBP`.
+</ResponseField>
+
+<ResponseField name="wallet_type" type="string">
+  Either `SETTLEMENT` (auto-created) or `WORKING` (created by you).
+</ResponseField>
+
+<ResponseField name="label" type="string">
+  The friendly name you assigned to this wallet.
+</ResponseField>
+
+<ResponseField name="available_balance" type="string">
+  Funds immediately available to spend. This excludes amounts that are still clearing or on hold.
+</ResponseField>
+
+<ResponseField name="current_balance" type="string">
+  Total balance on the wallet, including funds that have not yet cleared.
+</ResponseField>
+
+<ResponseField name="can_disburse" type="boolean">
+  Whether this wallet can be used as the source for disbursements.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the last time the wallet balance was updated.
+</ResponseField>
+
+## Example response
+
+```json
+{
+  "wallet_id": "wlt_abc123",
+  "label": "Payroll Wallet",
+  "can_disburse": true,
+  "currency": "KES",
+  "wallet_type": "WORKING",
+  "current_balance": "50000.00",
+  "available_balance": "50000.00",
+  "updated_at": "2024-04-16T09:30:00Z"
+}
+```
+
+<Note>
+  The `wallet_id` returned in this response is the alias ID. Always use this value — not the internal database ID — when referencing a wallet in other API calls.
+</Note>

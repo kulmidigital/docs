@@ -1,0 +1,88 @@
+---
+title: "Using the KulmiPay Sandbox for Safe Payment Testing"
+description: "Use the KulmiPay sandbox to test collections and disbursements with sandbox credentials before switching to your live account and real payments."
+---
+
+The KulmiPay sandbox is a fully isolated environment where you can test your integration end-to-end without moving real money. It mirrors the live API's endpoints and responses, so switching to production requires only a credential and base URL change.
+
+<Warning>
+  Never use live credentials in the sandbox, and never use sandbox credentials against the live API. Each environment validates that credentials match — a mismatch returns an authentication error.
+</Warning>
+
+## Base URLs
+
+| Environment | Base URL |
+|---|---|
+| **Sandbox** | `https://sandbox.kulmipay.com` |
+| **Live** | `https://app.kulmipay.com` |
+
+Swap the base URL in your API client or environment configuration to switch between environments.
+
+## Setting up sandbox credentials
+
+<Steps>
+  <Step title="Create a sandbox account">
+    Go to [sandbox.kulmipay.com](https://sandbox.kulmipay.com) and sign up. Sandbox accounts are separate from live accounts — you need a distinct registration for each environment.
+  </Step>
+
+  <Step title="Create an API application">
+    From your sandbox dashboard, navigate to **API Applications** and create a new application. You'll receive a set of test credentials:
+
+    - **Client ID** — identifies your sandbox application
+    - **Client Secret** — authenticates your sandbox application
+    - **Public Key** — in the format `ISPubKey_test_...`
+    - **API Secret Key** — in the format `ISSecretKey_test_...`
+  </Step>
+
+  <Step title="Generate a sandbox token">
+    Use the same `/api/token/` flow as production, but point to the sandbox base URL:
+
+    ```bash
+    curl -X POST \
+      -d "grant_type=password&username=<SANDBOX-USERNAME>&password=<SANDBOX-PASSWORD>" \
+      -u "<SANDBOX-CLIENT-ID>:<SANDBOX-CLIENT-SECRET>" \
+      https://sandbox.kulmipay.com/api/token/
+    ```
+
+    Use the returned `access_token` in the `Authorization: Bearer` header for all sandbox requests.
+  </Step>
+</Steps>
+
+## Sandbox test data
+
+Use the values below to simulate common payment scenarios. These identifiers only work in the sandbox environment.
+
+### M-Pesa test phone numbers
+
+| Phone number | Simulated behavior |
+|---|---|
+| `254723890353` | Payment succeeds |
+| `254700000000` | Payment fails (insufficient funds) |
+| `254711111111` | Payment times out |
+
+### Test cards
+
+| Card number | Expiry | CVV | Simulated behavior |
+|---|---|---|---|
+| `4111111111111111` | Any future date | Any 3 digits | Payment succeeds (Visa) |
+| `5500005555555559` | Any future date | Any 3 digits | Payment succeeds (Mastercard) |
+| `4000000000000002` | Any future date | Any 3 digits | Payment declined |
+
+### Test amounts
+
+There are no restrictions on amounts in the sandbox. You can use small values like `1` or `5` to keep test data clean.
+
+<Note>
+  Webhook notifications in the sandbox behave identically to production. Configure your webhook endpoint to a publicly accessible URL (or use a tunneling tool like ngrok during local development) to receive sandbox events.
+</Note>
+
+## Switching from sandbox to live
+
+When you're ready to process real transactions:
+
+1. Replace the sandbox base URL (`https://sandbox.kulmipay.com`) with the live URL (`https://app.kulmipay.com`) in your configuration.
+2. Replace your sandbox credentials (Client ID, Client Secret, Public Key, API Secret Key) with the corresponding live credentials from your live dashboard.
+3. Ensure your webhook endpoint URL is pointing to your production server.
+4. Complete any required business verification in your live account before processing payments.
+
+If you store credentials in environment variables, you only need to update those values — no code changes required.

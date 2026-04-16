@@ -1,0 +1,111 @@
+---
+title: "POST /api/v1/send-money/validate-account"
+sidebarTitle: "Validate account"
+description: "Look up the registered account name for a recipient phone number or bank account before initiating a disbursement to confirm you have the correct details."
+---
+
+Use this endpoint to confirm that an account number or phone number is valid and retrieve the name registered against it. This is especially useful before initiating large or bulk disbursements — you can verify each recipient's account details before committing funds.
+
+<Tip>
+  Validate accounts before submitting a bulk disbursement file. Catching invalid accounts early avoids failed transactions and the associated delays in recovering funds.
+</Tip>
+
+## Request
+
+**`POST https://app.kulmipay.com/api/v1/send-money/validate-account/`**
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token. Format: `Bearer <token>`.
+</ParamField>
+
+<ParamField body="provider" type="string" required>
+  The payment provider to validate against. Use the same provider value you intend to use when initiating the payout. For example, `"MPESA-B2B"` to validate a PayBill or Till number.
+</ParamField>
+
+<ParamField body="account" type="string" required>
+  The account number or phone number to validate. Use international format for phone numbers, e.g. `254712345678`.
+</ParamField>
+
+<ParamField body="account_type" type="string">
+  Required for `MPESA-B2B` validations. Specifies whether the account is a `"PayBill"` or a `"TillNumber"`.
+</ParamField>
+
+<ParamField body="bank_code" type="string">
+  Required for bank account validations. The numeric code for the recipient's bank. Fetch the full list from [`GET /api/v1/send-money/bank-codes/ke/`](/api-reference/bank-codes).
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200` with the account name and validation status. The request is synchronous — KulmiPay queries the provider in real time and waits for a response before returning.
+
+<ResponseField name="account" type="string">
+  The account number or phone number you submitted.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  The name registered to this account with the provider. Use this to confirm the recipient before initiating a payment.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The validation result. Typically `"SUCCESS"` when the account was found, or an error indicator when it could not be validated.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-account/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "MPESA-B2B",
+    "account": "400200",
+    "account_type": "PayBill"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/validate-account/",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "provider": "MPESA-B2B",
+        "account": "400200",
+        "account_type": "PayBill",
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Sample response
+
+```json
+{
+  "account": "400200",
+  "name": "SAFARICOM PLC",
+  "status": "SUCCESS"
+}
+```
+
+### Validate a bank account
+
+Pass `bank_code` when validating a PesaLink bank account.
+
+```bash
+curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-account/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "PESALINK",
+    "account": "1234567890",
+    "bank_code": "68"
+  }'
+```

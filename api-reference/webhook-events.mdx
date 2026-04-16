@@ -1,0 +1,130 @@
+---
+title: "GET /api/v1/webhooks/events — Webhook Event Log"
+description: "Retrieve the full delivery history for all webhook events on your account, inspect failure reasons, and replay events that were not delivered."
+---
+
+Use this endpoint to inspect every event KulmiPay attempted to deliver to your webhook endpoints. Each record shows the topic, payload, delivery status, and — for failed deliveries — the reason for failure. You can use this log to debug integration issues and trigger replays for undelivered events.
+
+**Method:** `GET`  
+**URL:** `https://app.kulmipay.com/api/v1/webhooks/events/`
+
+Results are ordered from newest to oldest.
+
+## Code example
+
+```bash cURL
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/webhooks/events/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+## Event object
+
+<ResponseField name="id" type="string">
+  Unique identifier for this event record. Use this ID when triggering a replay.
+</ResponseField>
+
+<ResponseField name="webhook" type="object">
+  The webhook configuration this event was sent to.
+
+  <Expandable title="webhook properties">
+    <ResponseField name="id" type="string">
+      The webhook configuration ID.
+    </ResponseField>
+    <ResponseField name="endpoint" type="string">
+      The URL KulmiPay attempted to deliver this event to.
+    </ResponseField>
+    <ResponseField name="is_active" type="boolean">
+      Whether the webhook endpoint is still active.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="topic" type="string">
+  The event type. One of:
+  - `collection_event` — a payment collection changed state
+  - `send_money_event` — a disbursement changed state
+  - `reversal_event` — a chargeback or reversal was processed
+  - `wallet_transfer_event` — an intra-wallet transfer completed
+  - `subscription_event` — a subscription or billing cycle changed state
+</ResponseField>
+
+<ResponseField name="payload" type="string">
+  The JSON payload that was (or will be) delivered to your endpoint. This is the complete event data, serialized as a JSON string.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Delivery status of this event. One of:
+  - `PENDING` — queued, not yet attempted
+  - `PROCESSING` — currently being delivered
+  - `DELIVERED` — successfully delivered (your endpoint returned a 2xx response)
+  - `FAILED` — all delivery attempts failed
+</ResponseField>
+
+<ResponseField name="failure_reason" type="string">
+  The error message from the most recent failed delivery attempt. Present only when `status` is `FAILED`. Truncated to 300 characters.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when this event was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the last status update for this event.
+</ResponseField>
+
+## Example response
+
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "a1b2c3d4-0000-1111-2222-333344445555",
+      "webhook": {
+        "id": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+        "endpoint": "https://yourapp.example.com/webhooks/kulmipay",
+        "is_active": true
+      },
+      "topic": "collection_event",
+      "payload": "{\"invoice_id\": \"GQ7KZ2XPNM\", \"state\": \"COMPLETE\", ...}",
+      "status": "DELIVERED",
+      "failure_reason": null,
+      "created_at": "2024-04-16T08:24:05Z",
+      "updated_at": "2024-04-16T08:24:07Z"
+    },
+    {
+      "id": "b2c3d4e5-0000-1111-2222-333344445555",
+      "webhook": {
+        "id": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+        "endpoint": "https://yourapp.example.com/webhooks/kulmipay",
+        "is_active": true
+      },
+      "topic": "send_money_event",
+      "payload": "{\"reference\": \"DISBURSE_001\", ...}",
+      "status": "FAILED",
+      "failure_reason": "Connection timed out after 30s",
+      "created_at": "2024-04-15T14:10:00Z",
+      "updated_at": "2024-04-15T14:10:35Z"
+    }
+  ]
+}
+```
+
+## Replaying events
+
+When an event has a `FAILED` status, KulmiPay supports replaying it to retry delivery. Replaying re-enqueues the original payload and sends it to the same webhook endpoint.
+
+To replay an event, use the event's `id` with the replay endpoint:
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/webhooks/events/b2c3d4e5-0000-1111-2222-333344445555/replay/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+<Note>
+  Before replaying events, make sure your endpoint is reachable and returning 2xx responses. Replaying to a persistently failing endpoint will increment the `failures_count` on the webhook and may cause it to be disabled.
+</Note>

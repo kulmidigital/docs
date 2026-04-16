@@ -1,0 +1,108 @@
+---
+title: "Collect M-Pesa Payments with STK Push"
+description: "Send a Lipa Na M-Pesa Express payment prompt directly to a customer's phone. Minimum KES 10, maximum KES 150,000. Supports both server and client-side flows."
+---
+
+M-Pesa STK Push (also called Lipa Na M-Pesa Express) lets you initiate a payment from your server. When you call the API, Safaricom sends a prompt to your customer's phone asking them to enter their M-Pesa PIN. Once they confirm, the payment is processed and you receive a webhook notification. No redirect, no additional steps for the customer.
+
+## How it works
+
+<Steps>
+  <Step title="Send the STK push request">
+    Call `POST /api/v1/payment/collection/stk-push/` with the customer's phone number and the amount to collect.
+  </Step>
+  <Step title="Customer receives a prompt">
+    Safaricom sends a push notification to the customer's phone with your business name and the payment amount.
+  </Step>
+  <Step title="Customer enters their PIN">
+    The customer opens the prompt and enters their M-Pesa PIN to authorise the payment.
+  </Step>
+  <Step title="Webhook fires">
+    KulmiPay sends a `collection_event` webhook to your configured endpoint with the invoice's final state (`COMPLETE` or `FAILED`). You can also poll the payment status endpoint to check the result.
+  </Step>
+</Steps>
+
+## Send an STK push
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/payment/collection/stk-push/ \
+  -H "Authorization: Bearer <token>" \
+  -H "X-KULMI-SECRET-KEY: <secret_key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone_number": "254712345678",
+    "amount": 1000,
+    "api_ref": "ORDER-001",
+    "mobile_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/payment/collection/stk-push/",
+    headers={
+        "Authorization": "Bearer <token>",
+        "X-KULMI-SECRET-KEY": "<secret_key>",
+    },
+    json={
+        "phone_number": "254712345678",
+        "amount": 1000,
+        "api_ref": "ORDER-001",
+        "mobile_tarrif": "BUSINESS-PAYS",
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Request fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone_number` | string | Yes | Kenyan phone number in international format, e.g. `254712345678`. |
+| `amount` | number | Yes | Amount in KES. Minimum KES 10, maximum KES 150,000. |
+| `api_ref` | string | No | Your internal reference for this payment, e.g. an order ID. Returned in the webhook payload. |
+| `wallet_id` | string | No | The ID of a specific KES wallet to receive funds. Defaults to your primary settlement wallet. |
+| `mobile_tarrif` | string | No | Who pays the transaction fee. `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
+
+### Success response
+
+```json
+{
+  "id": "INV-XXXXXXXX",
+  "invoice": {
+    "id": "INV-XXXXXXXX",
+    "state": "PENDING",
+    "provider": "M-PESA",
+    "value": 1000,
+    "api_ref": "ORDER-001",
+    "account": "254712345678",
+    "created_at": "2024-01-15T10:30:00Z"
+  },
+  "customer": {
+    "phone_number": "254712345678",
+    "provider": "M-PESA"
+  },
+  "signature": "<jwt_signature>"
+}
+```
+
+The `id` field in the response is your **invoice ID**. Save it — you'll use it to check payment status.
+
+## Amount limits
+
+M-Pesa enforces minimum and maximum transaction amounts:
+
+- **Minimum**: KES 10
+- **Maximum**: KES 150,000
+
+Requests outside this range are rejected with a `400` error.
+
+<Note>
+  After sending the request, poll `POST /api/v1/payment/collection/status/` with the `invoice_id` from the response to check whether the customer completed the payment. Alternatively, configure a webhook to receive automatic notifications.
+</Note>

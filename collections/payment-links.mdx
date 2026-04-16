@@ -1,0 +1,106 @@
+---
+title: "Create No-Code Payment Links in KulmiPay"
+description: "Generate and share payment URLs that customers open to pay in KES, USD, EUR, or GBP. Create links from the dashboard or programmatically via the API."
+---
+
+Payment links are URLs you share with customers so they can pay you without any checkout integration on their side. When a customer opens the link, they see a hosted payment page pre-filled with the amount and your business details. They choose their preferred payment method — M-Pesa, card, or bank transfer — and complete the payment. You can create payment links from the dashboard or programmatically through the API.
+
+## Create a payment link from the dashboard
+
+Log in to [app.kulmipay.com](https://app.kulmipay.com), navigate to **Collections → Payment Links**, and click **New Link**. Fill in the title, amount, and currency, then copy the generated URL to share with your customer.
+
+## Create a payment link via the API
+
+Send a `POST` request to `/api/v1/payment/collection/pay-requests/` to create a payment link programmatically. KulmiPay sends an email to the customer with the payment URL and returns the link details in the response.
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/payment/collection/pay-requests/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 2500.00,
+    "currency": "KES",
+    "email": "customer@example.com",
+    "first_name": "John",
+    "last_name": "Mwangi",
+    "reason": "Invoice #INV-2024-001 for web design services",
+    "card_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/payment/collection/pay-requests/",
+    headers={"Authorization": "Bearer <token>"},
+    json={
+        "amount": 2500.00,
+        "currency": "KES",
+        "email": "customer@example.com",
+        "first_name": "John",
+        "last_name": "Mwangi",
+        "reason": "Invoice #INV-2024-001 for web design services",
+        "card_tarrif": "BUSINESS-PAYS",
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Request fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `amount` | number | Yes | Amount to request, in the specified currency. |
+| `currency` | string | Yes | Currency code: `KES`, `USD`, `EUR`, or `GBP`. |
+| `email` | string | Yes | Customer's email address. KulmiPay sends the payment link here. |
+| `first_name` | string | Yes | Customer's first name, used in the email greeting. |
+| `last_name` | string | Yes | Customer's last name. |
+| `reason` | string | Yes | Description of what the payment is for, e.g. `Invoice #001`. |
+| `card_tarrif` | string | No | `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
+| `autosend_remider` | number | No | Days after which to send a reminder email. Options: `0` (none), `1`, `2`, `3`, `7`. |
+
+### Success response
+
+```json
+{
+  "detail": {
+    "request_id": "PR-XXXXXXXX",
+    "checkout": {
+      "url": "https://app.kulmipay.com/checkout/<id>/express/",
+      "amount": "2500.00",
+      "currency": "KES",
+      "email": "customer@example.com"
+    },
+    "reason": "Invoice #INV-2024-001 for web design services",
+    "sent_status": "PENDING",
+    "created_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+The `checkout.url` in the response is the URL you can share with your customer. KulmiPay also emails this link automatically to the `email` address you provided.
+
+## Retrieve all payment links
+
+To list all active payment requests for your account, send a `GET` request to the same endpoint:
+
+```bash
+curl https://app.kulmipay.com/api/v1/payment/collection/pay-requests/ \
+  -H "Authorization: Bearer <token>"
+```
+
+## Check a payment link's status
+
+Use the `request_id` from the creation response to look up a specific payment request:
+
+```bash
+curl https://app.kulmipay.com/api/v1/payment/collection/pay-requests/<request_id>/ \
+  -H "Authorization: Bearer <token>"
+```
+
+The response includes a `sent_status` field that tracks the email delivery lifecycle: `PENDING` → `SENT` → `DELIVERED` → `OPENED` → `CLICKED`. The `checkout.paid` field becomes `true` once the customer completes payment.

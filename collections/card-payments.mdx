@@ -1,0 +1,112 @@
+---
+title: "Accept Card and Digital Wallet Payments"
+description: "Accept Visa, Mastercard, Apple Pay, and Google Pay using the KulmiPay collect endpoint. Includes billing address requirements and PCI compliance guidance."
+---
+
+KulmiPay supports card and digital wallet payments through the `POST /api/v1/collect/` endpoint. You can accept Visa and Mastercard credit and debit cards, as well as Apple Pay and Google Pay. Card payments process through a PCI-compliant gateway — KulmiPay handles the sensitive card data so your servers never need to.
+
+## Supported methods
+
+| Method value | Description |
+|---|---|
+| `CARD-PAYMENT` | Visa and Mastercard credit and debit cards. |
+| `APPLE-PAY` | Apple Pay on supported Safari browsers and iOS devices. |
+| `GOOGLE-PAY` | Google Pay on supported Chrome browsers and Android devices. |
+
+## Collect a card payment
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/collect/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "CARD-PAYMENT",
+    "currency": "USD",
+    "amount": 50.00,
+    "api_ref": "ORDER-002",
+    "email": "customer@example.com",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "card_number": "4111111111111111",
+    "expiry": "12/26",
+    "cvc": "123",
+    "country": "KE",
+    "city": "Nairobi",
+    "state": "Nairobi",
+    "address": "123 Main Street",
+    "card_tarrif": "BUSINESS-PAYS",
+    "public_key": "<your_public_key>"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/collect/",
+    json={
+        "method": "CARD-PAYMENT",
+        "currency": "USD",
+        "amount": 50.00,
+        "api_ref": "ORDER-002",
+        "email": "customer@example.com",
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "card_number": "4111111111111111",
+        "expiry": "12/26",
+        "cvc": "123",
+        "country": "KE",
+        "city": "Nairobi",
+        "state": "Nairobi",
+        "address": "123 Main Street",
+        "card_tarrif": "BUSINESS-PAYS",
+        "public_key": "<your_public_key>",
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Request fields
+
+### Core fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `method` | string | Yes | `CARD-PAYMENT`, `APPLE-PAY`, or `GOOGLE-PAY`. |
+| `currency` | string | Yes | Currency code: `KES`, `USD`, `EUR`, or `GBP`. |
+| `amount` | number | Yes | Amount to charge, in the specified currency. |
+| `api_ref` | string | No | Your internal reference for this transaction. |
+| `public_key` | string | Yes* | Your publishable API key. Required unless you are using a checkout signature. |
+| `card_tarrif` | string | No | `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
+
+### Card fields (CARD-PAYMENT only)
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `card_number` | string | Yes | 16-digit card number, no spaces or dashes. |
+| `expiry` | string | Yes | Expiry date in `MM/YY` format, e.g. `12/26`. |
+| `cvc` | string | Yes | 3 or 4 digit card security code. |
+
+### Billing fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | Customer's email address. |
+| `first_name` | string | Yes | Customer's first name. |
+| `last_name` | string | Yes | Customer's last name. |
+| `country` | string | Yes | Two-letter ISO country code, e.g. `KE`. |
+| `city` | string | No | Customer's city. |
+| `state` | string | No | Customer's state or county. |
+| `address` | string | No | Street address. |
+| `zipcode` | string | Conditional | Required when `country` is `US`, `CA`, or `GB`. |
+
+<Note>
+  Card payments require your account to have card collection enabled. If you receive a "Card, Apple and Google payment is not allowed for this account" error, contact [support@kulmipay.com](mailto:support@kulmipay.com) to enable card payments on your account.
+</Note>
+
+<Note>
+  KulmiPay is PCI DSS compliant. Card data is encrypted before it leaves the client and is never stored in plain text. If you are building a custom checkout UI, contact KulmiPay to learn about the hosted fields integration that keeps raw card data off your servers entirely.
+</Note>

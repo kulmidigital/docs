@@ -1,0 +1,48 @@
+---
+title: "KulmiPay: Accept Payments and Send Money in Africa"
+description: "KulmiPay is a REST API for African businesses — collect M-Pesa, card, and bank payments, and disburse money to mobile wallets and bank accounts."
+---
+
+KulmiPay is a payment platform built for businesses operating in Africa. With a single API integration you can accept payments from customers, send money to mobile wallets and bank accounts, manage multi-currency balances, and receive real-time transaction notifications — all without stitching together multiple providers.
+
+## What you can do with KulmiPay
+
+<CardGroup cols={2}>
+  <Card title="Collections" icon="arrow-down-to-line" href="/collections/overview">
+    Accept M-Pesa STK push payments, Visa/Mastercard, Apple Pay, Google Pay, PesaLink bank transfers, and payment links.
+  </Card>
+  <Card title="Disbursements" icon="arrow-up-from-line" href="/disbursements/overview">
+    Send money to mobile wallets and bank accounts one at a time or in bulk, with full status tracking.
+  </Card>
+  <Card title="Wallets" icon="wallet" href="/wallets/overview">
+    Hold balances in KES, USD, EUR, and GBP, transfer between wallets, and convert currencies at live rates.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
+    Receive instant HTTP notifications when payments succeed, fail, or change status — no polling required.
+  </Card>
+</CardGroup>
+
+## Key features
+
+- **M-Pesa STK push** — Trigger a payment prompt directly to a customer's phone with a single API call.
+- **Card payments** — Accept Visa, Mastercard, Apple Pay, and Google Pay from customers anywhere in the world.
+- **Bulk disbursements** — Pay multiple recipients in one request and track each payment individually.
+- **Multi-currency wallets** — Hold and exchange balances across KES, USD, EUR, and GBP with built-in forex.
+- **Subscriptions** — Automate recurring billing with flexible plans and customer management.
+- **Payment links** — Generate a shareable URL to collect payments without writing any frontend code.
+- **Sandbox environment** — Test every integration with simulated transactions before going live.
+
+## How KulmiPay works
+
+Every request is authenticated using a Bearer token obtained from the `/api/token/` endpoint. You create an API application in your dashboard to get the credentials needed to generate that token. From there, every collection, disbursement, or wallet operation is a standard REST call with a JSON body.
+
+KulmiPay notifies your server of transaction outcomes via webhooks, so your application can update records and trigger downstream actions without polling for status.
+
+<CardGroup cols={2}>
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Make your first API call in under 10 minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to generate and use API tokens.
+  </Card>
+</CardGroup>

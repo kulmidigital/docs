@@ -1,0 +1,174 @@
+---
+title: "POST /api/v1/payment/collection/checkout"
+description: "Create a hosted checkout session and redirect your customer to a KulmiPay-hosted payment page. Authenticate with your publishable key."
+---
+
+A checkout session gives you a hosted payment page you can redirect your customer to, or embed using KulmiPay's drop-in UI. You create the session on your server, receive a checkout ID and signature, then use those values to drive the customer-facing payment flow.
+
+This endpoint is authenticated with your **publishable key** (`public_key`), making it safe to call from a client-side environment such as a browser or mobile app. You can also pass the key as an HTTP header instead of in the request body.
+
+**Method:** `POST`  
+**URL:** `https://app.kulmipay.com/api/v1/payment/collection/checkout/`
+
+## Authentication
+
+Pass your publishable key in the request body or in the `X-KULMI-PUBLIC-API-KEY` HTTP header:
+
+```http
+X-KULMI-PUBLIC-API-KEY: YOUR_PUBLIC_KEY
+```
+
+Do **not** use your secret key with this endpoint.
+
+## Request
+
+<ParamField body="public_key" type="string">
+  Your publishable API key. Required unless you pass it via the `X-KULMI-PUBLIC-API-KEY` header. Sandbox keys contain `test`; live keys contain `live`. Using the wrong key for the environment returns a validation error.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to collect. For UGX and TZS currencies the minimum is 500 and the maximum is 5,000,000. For other currencies there is no minimum enforced at this endpoint — limits apply at the time of payment.
+</ParamField>
+
+<ParamField body="currency" type="string" required>
+  Currency for this checkout. One of: `KES`, `USD`, `EUR`, `GBP`.
+</ParamField>
+
+<ParamField body="email" type="string">
+  Customer's email address. When provided and the customer has previously paid, KulmiPay pre-fills their billing details on the checkout page to reduce friction.
+</ParamField>
+
+<ParamField body="api_ref" type="string">
+  Your reference for this checkout session. Used with `unique_api_ref` to return an existing session instead of creating a new one.
+</ParamField>
+
+<ParamField body="card_tarrif" type="string" default="BUSINESS-PAYS">
+  Who pays the card processing fee. Either `BUSINESS-PAYS` (fee deducted from your settlement) or `CUSTOMER-PAYS` (fee added to the displayed price). If your account has a default tariff configured in Payment Settings, that value takes precedence.
+</ParamField>
+
+<ParamField body="mobile_tarrif" type="string" default="BUSINESS-PAYS">
+  Who pays the mobile money processing fee. Either `BUSINESS-PAYS` or `CUSTOMER-PAYS`.
+</ParamField>
+
+<ParamField body="unique_api_ref" type="boolean" default="false">
+  When `true`, KulmiPay looks for an existing checkout session with the same `api_ref` before creating a new one. If a match is found, the existing session is returned. Use this to prevent duplicate sessions when the user refreshes your page or retries a failed request.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  The checkout session UUID. Pass this as `checkout_id` when calling the [collect payment endpoint](/api-reference/collect-payment) to associate the payment with this session.
+</ResponseField>
+
+<ResponseField name="signature" type="string">
+  A JWT that authorizes operations on this checkout session from the client side. Pass it alongside `checkout_id` in the collect and status requests when not using a secret key.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  The hosted checkout URL you can redirect your customer to directly. Opens a KulmiPay-branded payment page for this session.
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Currency of the checkout session.
+</ResponseField>
+
+<ResponseField name="amount" type="string">
+  Fixed amount for this session, if set.
+</ResponseField>
+
+<ResponseField name="paid" type="boolean">
+  Whether this checkout session has been paid. Useful when polling to detect completion.
+</ResponseField>
+
+<ResponseField name="card_tarrif" type="string">
+  Card tariff applied to this session.
+</ResponseField>
+
+<ResponseField name="mobile_tarrif" type="string">
+  Mobile tariff applied to this session.
+</ResponseField>
+
+## Code examples
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/payment/collection/checkout/ \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "public_key": "YOUR_PUBLIC_KEY",
+    "amount": 2500,
+    "currency": "KES",
+    "email": "jane.doe@example.com",
+    "api_ref": "order_20240416_001",
+    "card_tarrif": "BUSINESS-PAYS",
+    "mobile_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/payment/collection/checkout/",
+    json={
+        "public_key": "YOUR_PUBLIC_KEY",
+        "amount": 2500,
+        "currency": "KES",
+        "email": "jane.doe@example.com",
+        "api_ref": "order_20240416_001",
+        "card_tarrif": "BUSINESS-PAYS",
+        "mobile_tarrif": "BUSINESS-PAYS",
+    },
+)
+
+data = response.json()
+checkout_id = data["id"]
+signature = data["signature"]
+checkout_url = data["url"]
+
+# Redirect your customer to checkout_url, or use checkout_id + signature
+# with the KulmiPay drop-in to render inline.
+```
+
+</CodeGroup>
+
+## Example response
+
+```json
+{
+  "id": "d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14",
+  "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "url": "https://app.kulmipay.com/checkout/d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14/express/",
+  "amount": "2500.00",
+  "currency": "KES",
+  "email": "jane.doe@example.com",
+  "api_ref": "order_20240416_001",
+  "paid": false,
+  "card_tarrif": "BUSINESS-PAYS",
+  "mobile_tarrif": "BUSINESS-PAYS",
+  "created_at": "2024-04-16T08:23:11.042Z",
+  "updated_at": "2024-04-16T08:23:11.042Z"
+}
+```
+
+## Using the checkout ID with collect payment
+
+Once you have a `checkout_id` and `signature`, pass them to the [collect payment endpoint](/api-reference/collect-payment) to process the actual payment. This links the payment to the checkout session and lets you verify the amount before charging.
+
+```json
+{
+  "method": "M-PESA",
+  "currency": "KES",
+  "amount": "2500.00",
+  "api_ref": "order_20240416_001",
+  "phone_number": "254712345678",
+  "checkout_id": "d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14",
+  "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+<Note>
+  Use `unique_api_ref: true` in checkout-based e-commerce flows where users may navigate away and return. KulmiPay returns the same session rather than creating a new one, keeping your order reference consistent.
+</Note>

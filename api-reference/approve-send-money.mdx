@@ -1,0 +1,184 @@
+---
+title: "POST /api/v1/send-money/approve"
+sidebarTitle: "Approve payout"
+description: "Approve a disbursement payment file in PREVIEW-AND-APPROVE state to release it for processing. Accepts file_id or tracking_id from the initiation response."
+---
+
+After you initiate a disbursement with `requires_approval` set to `"YES"` (or omitted), the file waits in the `PREVIEW-AND-APPROVE` state. Calling this endpoint confirms the transactions and releases the file for processing. KulmiPay then debits your wallet and routes each payment through the selected provider.
+
+You must have the `change_files` permission on your API token to call this endpoint.
+
+<Note>
+  If you set `requires_approval: "NO"` when creating the file, the file is approved automatically and you do not need to call this endpoint.
+</Note>
+
+## Request
+
+**`POST https://app.kulmipay.com/api/v1/send-money/approve/`**
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token. Format: `Bearer <token>`.
+</ParamField>
+
+<ParamField body="file_id" type="string">
+  The `file_id` returned when you initiated the payout. Use either `file_id` or `tracking_id` — you do not need both.
+</ParamField>
+
+<ParamField body="tracking_id" type="string">
+  The `tracking_id` returned when you initiated the payout. Use as an alternative to `file_id`.
+</ParamField>
+
+<ParamField body="transactions" type="array" required>
+  An array of transaction IDs confirming which transactions you are approving. The number of IDs must exactly match the number of transactions in the file. This acts as an explicit confirmation that you have reviewed the batch.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200` with the updated file object.
+
+<ResponseField name="file_id" type="string">
+  The payment file identifier.
+</ResponseField>
+
+<ResponseField name="tracking_id" type="string">
+  The file's tracking UUID.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The updated file state. Moves to `PROCESSING` after successful approval.
+</ResponseField>
+
+<ResponseField name="total_amount" type="string">
+  Total amount across all transactions in the file.
+</ResponseField>
+
+<ResponseField name="transactions_count" type="number">
+  Number of transactions in the file.
+</ResponseField>
+
+<ResponseField name="transactions" type="array">
+  The full list of transactions with their individual statuses.
+
+  <Expandable title="Transaction object fields">
+    <ResponseField name="transaction_id" type="string">
+      Unique identifier for this transaction.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current transaction status: `PENDING`, `PROCESSING`, `COMPLETE`, or `FAILED`.
+    </ResponseField>
+    <ResponseField name="account" type="string">
+      Recipient phone number or account number.
+    </ResponseField>
+    <ResponseField name="amount" type="string">
+      Transaction amount.
+    </ResponseField>
+    <ResponseField name="status_description" type="string">
+      Human-readable status detail, especially useful when a transaction fails.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="actual_charges" type="string">
+  Actual charges applied to the file at time of processing.
+</ResponseField>
+
+<ResponseField name="paid_amount" type="string">
+  Amount successfully paid out so far.
+</ResponseField>
+
+<ResponseField name="failed_amount" type="string">
+  Amount from transactions that failed processing.
+</ResponseField>
+
+<ResponseField name="wallet" type="object">
+  The wallet debited for this file.
+</ResponseField>
+
+<ResponseField name="batch_reference" type="string">
+  Your batch reference, as submitted.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when the file was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the last status change.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/approve/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_id": "f8a2b1c3-...",
+    "transactions": [
+      "t1a2b3c4-...",
+      "t5d6e7f8-..."
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/approve/",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "file_id": "f8a2b1c3-...",
+        "transactions": [
+            "t1a2b3c4-...",
+            "t5d6e7f8-...",
+        ],
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Sample response
+
+```json
+{
+  "file_id": "f8a2b1c3-...",
+  "tracking_id": "d9e4f5a6-...",
+  "status": "PROCESSING",
+  "batch_reference": "PAYROLL-JAN-2024",
+  "total_amount": "50000.00",
+  "transactions_count": 2,
+  "actual_charges": "66.00",
+  "paid_amount": "0.00",
+  "failed_amount": "0.00",
+  "wallet": {
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT"
+  },
+  "transactions": [
+    {
+      "transaction_id": "t1a2b3c4-...",
+      "status": "PENDING",
+      "account": "254712345678",
+      "amount": "25000",
+      "name": "John Doe"
+    },
+    {
+      "transaction_id": "t5d6e7f8-...",
+      "status": "PENDING",
+      "account": "254798765432",
+      "amount": "25000",
+      "name": "Jane Smith"
+    }
+  ],
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:31:05Z"
+}
+```

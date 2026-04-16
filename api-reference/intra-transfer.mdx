@@ -1,0 +1,146 @@
+---
+title: "POST /api/v1/wallets/{id}/intra_transfer"
+description: "Transfer funds instantly between two wallets on your KulmiPay account. Both wallets must belong to your business and share the same currency."
+---
+
+Use this endpoint to move funds between two wallets that belong to your account. The transfer is atomic — both the debit and credit are applied in the same transaction, so you will never see funds in transit. Both wallets must be in the same currency and must belong to your business.
+
+**Method:** `POST`  
+**URL:** `https://app.kulmipay.com/api/v1/wallets/{wallet_id}/intra_transfer/`
+
+Replace `{wallet_id}` with the `wallet_id` of the **source** wallet you want to debit.
+
+<Warning>
+  The transfer will fail if the source wallet's `available_balance` is less than the requested `amount`. Always check `available_balance` — not `current_balance` — before initiating a transfer, as holds and uncleared funds reduce the available amount.
+</Warning>
+
+## Request parameters
+
+<ParamField body="wallet_id" type="string" required>
+  The alias ID of the destination wallet. Must belong to your account and share the same currency as the source wallet.
+</ParamField>
+
+<ParamField body="amount" type="string" required>
+  The amount to transfer, as a decimal string. Must be greater than zero, for example `"5000.00"`. Maximum value is `999999.00`.
+</ParamField>
+
+<ParamField body="narrative" type="string" required>
+  A description for this transfer. Appears in the transaction statement for both the origin and destination wallets. Alphanumeric and standard punctuation characters only.
+</ParamField>
+
+## Code examples
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/wallets/wlt_abc123/intra_transfer/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "wallet_id": "wlt_def456",
+    "amount": "5000.00",
+    "narrative": "Payroll funding"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/intra_transfer/",
+    headers={
+        "Authorization": "Bearer YOUR_SECRET_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "wallet_id": "wlt_def456",
+        "amount": "5000.00",
+        "narrative": "Payroll funding",
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Response
+
+The response returns the updated state of both wallets after the transfer is applied.
+
+<ResponseField name="origin" type="object">
+  The source wallet after the debit is applied.
+
+  <Expandable title="origin wallet properties">
+    <ResponseField name="wallet_id" type="string">
+      Alias ID of the source wallet.
+    </ResponseField>
+    <ResponseField name="label" type="string">
+      Wallet label.
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      Wallet currency.
+    </ResponseField>
+    <ResponseField name="available_balance" type="string">
+      Updated available balance after the debit.
+    </ResponseField>
+    <ResponseField name="current_balance" type="string">
+      Updated total balance after the debit.
+    </ResponseField>
+    <ResponseField name="can_disburse" type="boolean">
+      Whether this wallet can be used for disbursements.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="destination" type="object">
+  The destination wallet after the credit is applied.
+
+  <Expandable title="destination wallet properties">
+    <ResponseField name="wallet_id" type="string">
+      Alias ID of the destination wallet.
+    </ResponseField>
+    <ResponseField name="label" type="string">
+      Wallet label.
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      Wallet currency.
+    </ResponseField>
+    <ResponseField name="available_balance" type="string">
+      Updated available balance after the credit.
+    </ResponseField>
+    <ResponseField name="current_balance" type="string">
+      Updated total balance after the credit.
+    </ResponseField>
+    <ResponseField name="can_disburse" type="boolean">
+      Whether this wallet can be used for disbursements.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example response
+
+```json
+{
+  "origin": {
+    "wallet_id": "wlt_abc123",
+    "label": "Settlement KES",
+    "can_disburse": true,
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT",
+    "current_balance": "95000.00",
+    "available_balance": "95000.00",
+    "updated_at": "2024-04-16T10:15:00Z"
+  },
+  "destination": {
+    "wallet_id": "wlt_def456",
+    "label": "Payroll Wallet",
+    "can_disburse": true,
+    "currency": "KES",
+    "wallet_type": "WORKING",
+    "current_balance": "55000.00",
+    "available_balance": "55000.00",
+    "updated_at": "2024-04-16T10:15:00Z"
+  }
+}
+```

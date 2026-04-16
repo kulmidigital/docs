@@ -1,0 +1,142 @@
+---
+title: "POST /api/v1/send-money/cancel"
+sidebarTitle: "Cancel payout"
+description: "Cancel a disbursement payment file before it is processed, preventing any transactions from being sent to recipients. Requires the file_id from initiation."
+---
+
+Use this endpoint to cancel a payment file you no longer want to process. Once cancelled, no transactions in the file will be sent and your wallet will not be debited.
+
+You must have the `change_files` permission on your API token to call this endpoint.
+
+<Warning>
+  You can only cancel a file while it is in a cancellable state, such as `PREVIEW-AND-APPROVE`. Files that are already `PROCESSING` or `COMPLETED` cannot be cancelled. Attempting to cancel a file in an ineligible state returns a `400` error.
+</Warning>
+
+## Request
+
+**`POST https://app.kulmipay.com/api/v1/send-money/cancel/`**
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token. Format: `Bearer <token>`.
+</ParamField>
+
+<ParamField body="file_id" type="string" required>
+  The `file_id` of the payment file you want to cancel. This is returned in the initiation response.
+</ParamField>
+
+## Response
+
+A successful request returns HTTP `200` with the updated file object showing its cancelled state.
+
+<ResponseField name="file_id" type="string">
+  The payment file identifier.
+</ResponseField>
+
+<ResponseField name="tracking_id" type="string">
+  The file's tracking UUID.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The updated file state. Returns `CANCELLED` after a successful cancellation.
+</ResponseField>
+
+<ResponseField name="total_amount" type="string">
+  Total amount across all transactions in the file.
+</ResponseField>
+
+<ResponseField name="transactions_count" type="number">
+  Number of transactions in the file.
+</ResponseField>
+
+<ResponseField name="transactions" type="array">
+  The list of transactions with their statuses. All transactions remain in `PENDING` state when a file is cancelled — they are not processed.
+</ResponseField>
+
+<ResponseField name="actual_charges" type="string">
+  Actual charges applied. Will be `0.00` for a cancelled file.
+</ResponseField>
+
+<ResponseField name="paid_amount" type="string">
+  Amount paid out. Will be `0.00` for a cancelled file.
+</ResponseField>
+
+<ResponseField name="batch_reference" type="string">
+  Your batch reference, as submitted.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when the file was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the cancellation.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/cancel/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_id": "f8a2b1c3-..."
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/cancel/",
+    headers={
+        "Authorization": "Bearer <token>",
+        "Content-Type": "application/json",
+    },
+    json={
+        "file_id": "f8a2b1c3-...",
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+### Sample response
+
+```json
+{
+  "file_id": "f8a2b1c3-...",
+  "tracking_id": "d9e4f5a6-...",
+  "status": "CANCELLED",
+  "batch_reference": "PAYROLL-JAN-2024",
+  "total_amount": "50000.00",
+  "transactions_count": 2,
+  "actual_charges": "0.00",
+  "paid_amount": "0.00",
+  "failed_amount": "0.00",
+  "wallet": {
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT"
+  },
+  "transactions": [
+    {
+      "transaction_id": "t1a2b3c4-...",
+      "status": "PENDING",
+      "account": "254712345678",
+      "amount": "25000",
+      "name": "John Doe"
+    },
+    {
+      "transaction_id": "t5d6e7f8-...",
+      "status": "PENDING",
+      "account": "254798765432",
+      "amount": "25000",
+      "name": "Jane Smith"
+    }
+  ],
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:35:00Z"
+}
+```

@@ -1,0 +1,109 @@
+---
+title: "Convert Between Currencies Using KulmiPay Forex Exchange"
+description: "Convert funds between your KES, USD, EUR, and GBP settlement wallets using live exchange rates. Get a quote before committing to a trade."
+---
+
+KulmiPay lets you exchange funds between your settlement wallets in different currencies. If you collect in USD but want to hold in KES — or move money across currencies for a disbursement — you can do this through the forex exchange endpoint.
+
+The exchange always moves funds between two **settlement wallets**: one as the source and one as the destination. You initiate the exchange from the source wallet's ID in the URL.
+
+<Note>
+  Forex exchange only works between settlement wallets. Both the source currency
+  and the target currency must have an active settlement wallet on your account.
+  If you haven't collected in a currency yet, contact KulmiPay support to
+  provision that wallet.
+</Note>
+
+## Step 1: Get a quote
+
+Before committing to an exchange, use the `QUOTE` action to see the current rate and how much you will receive. This does not move any money.
+
+Send a `POST` request to `/api/v1/wallets/{kes-wallet-id}/exchange/` with `"action": "QUOTE"`:
+
+```json
+{
+  "currency": "USD",
+  "amount": "50000",
+  "action": "QUOTE"
+}
+```
+
+| Field | Type | Required | Description |
+| ----- | ---- | -------- | ----------- |
+| `currency` | string | Yes | The target currency. One of `KES`, `USD`, `EUR`, `GBP`. Must differ from the source wallet's currency. |
+| `amount` | string | Yes | The amount to exchange from the source wallet. |
+| `action` | string | Yes | Use `QUOTE` to preview the rate, or `EXCHANGE` to execute the trade. |
+
+A quote response looks like this:
+
+```json
+{
+  "rate": 130.5,
+  "fxe_amount": 383.14,
+  "currency": "USD"
+}
+```
+
+- **`rate`** — the exchange rate applied (source currency per unit of target currency).
+- **`fxe_amount`** — the amount you will receive in the target currency.
+- **`currency`** — the target currency the funds will land in.
+
+<Tip>
+  Always fetch a quote before executing an exchange. Rates can change between
+  requests, and the quote lets you confirm the amount you will receive before
+  any funds move.
+</Tip>
+
+## Step 2: Execute the exchange
+
+Once you're ready to proceed, send the same request with `"action": "EXCHANGE"`. This debits the source wallet and credits the destination wallet at the current rate.
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/wallets/wlt_abc123/exchange/ \
+  --header "Authorization: Bearer <your-token>" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "currency": "USD",
+    "amount": "50000",
+    "action": "EXCHANGE"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/exchange/",
+    headers={
+        "Authorization": "Bearer <your-token>",
+        "Content-Type": "application/json"
+    },
+    json={
+        "currency": "USD",
+        "amount": "50000",
+        "action": "EXCHANGE"
+    }
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+A successful exchange returns:
+
+```json
+{
+  "status": "success",
+  "rate": 130.5,
+  "fxe_amount": 383.14,
+  "currency": "USD",
+  "narrative": "FX exchange KES/USD 130.5000"
+}
+```
+
+The `narrative` is recorded in both wallet statements so you can trace the exchange in your transaction history.
+
+If the source wallet does not have enough `available_balance` to cover the requested amount, the request returns an error and no funds are moved.

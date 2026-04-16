@@ -1,0 +1,135 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "Kulmi",
+  "favicon": "https://media.brand.dev/683b63da-9d8b-4e88-ba27-c8adc9f3c41d.png",
+  "colors": {
+    "primary": "#f47625",
+    "light": "#757575"
+  },
+  "font": {
+    "headings": {
+      "family": "Inter"
+    },
+    "body": {
+      "family": "Inter"
+    }
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Sign Up",
+      "href": "https://app.kulmipay.com"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication",
+              "sandbox"
+            ]
+          },
+          {
+            "group": "Collections",
+            "pages": [
+              "collections/overview",
+              "collections/mpesa-stk-push",
+              "collections/card-payments",
+              "collections/payment-links",
+              "collections/checkout"
+            ]
+          },
+          {
+            "group": "Disbursements",
+            "pages": [
+              "disbursements/overview",
+              "disbursements/send-money",
+              "disbursements/approve-cancel",
+              "disbursements/bank-codes"
+            ]
+          },
+          {
+            "group": "Wallets",
+            "pages": [
+              "wallets/overview",
+              "wallets/transfers",
+              "wallets/forex"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "webhooks/overview",
+              "webhooks/events"
+            ]
+          },
+          {
+            "group": "More Features",
+            "pages": [
+              "subscriptions",
+              "beneficiaries",
+              "troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Collections",
+            "pages": [
+              "api-reference/collect-payment",
+              "api-reference/stk-push",
+              "api-reference/payment-status",
+              "api-reference/payment-links",
+              "api-reference/checkout"
+            ]
+          },
+          {
+            "group": "Disbursements",
+            "pages": [
+              "api-reference/send-money",
+              "api-reference/approve-send-money",
+              "api-reference/cancel-send-money",
+              "api-reference/send-money-status",
+              "api-reference/validate-account",
+              "api-reference/bank-codes"
+            ]
+          },
+          {
+            "group": "Wallets",
+            "pages": [
+              "api-reference/wallets",
+              "api-reference/wallet-transactions",
+              "api-reference/intra-transfer",
+              "api-reference/forex-exchange"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "api-reference/webhooks",
+              "api-reference/webhook-events"
+            ]
+          },
+          {
+            "group": "Subscriptions",
+            "pages": [
+              "api-reference/subscriptions",
+              "api-reference/customers",
+              "api-reference/plans"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

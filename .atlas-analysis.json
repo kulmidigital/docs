@@ -1,0 +1,155 @@
+{
+  "projectType": "saas",
+  "projectName": "KulmiPay",
+  "projectDescription": "KulmiPay is a payment infrastructure platform that enables businesses to collect payments and disburse money via M-Pesa, bank transfers, cards, and more across Kenya and beyond.",
+  "theme": "luma",
+  "primaryColor": "#f47625",
+  "lightColor": "#757575",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication",
+              "sandbox"
+            ]
+          },
+          {
+            "group": "Collections",
+            "pages": [
+              "collections/overview",
+              "collections/mpesa-stk-push",
+              "collections/card-payments",
+              "collections/payment-links",
+              "collections/checkout"
+            ]
+          },
+          {
+            "group": "Disbursements",
+            "pages": [
+              "disbursements/overview",
+              "disbursements/send-money",
+              "disbursements/approve-cancel",
+              "disbursements/bank-codes"
+            ]
+          },
+          {
+            "group": "Wallets",
+            "pages": [
+              "wallets/overview",
+              "wallets/transfers",
+              "wallets/forex"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "webhooks/overview",
+              "webhooks/events"
+            ]
+          },
+          {
+            "group": "More Features",
+            "pages": [
+              "subscriptions",
+              "beneficiaries",
+              "troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Collections",
+            "pages": [
+              "api-reference/collect-payment",
+              "api-reference/stk-push",
+              "api-reference/payment-status",
+              "api-reference/payment-links",
+              "api-reference/checkout"
+            ]
+          },
+          {
+            "group": "Disbursements",
+            "pages": [
+              "api-reference/send-money",
+              "api-reference/approve-send-money",
+              "api-reference/cancel-send-money",
+              "api-reference/send-money-status",
+              "api-reference/validate-account",
+              "api-reference/bank-codes"
+            ]
+          },
+          {
+            "group": "Wallets",
+            "pages": [
+              "api-reference/wallets",
+              "api-reference/wallet-transactions",
+              "api-reference/intra-transfer",
+              "api-reference/forex-exchange"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "api-reference/webhooks",
+              "api-reference/webhook-events"
+            ]
+          },
+          {
+            "group": "Subscriptions",
+            "pages": [
+              "api-reference/subscriptions",
+              "api-reference/customers",
+              "api-reference/plans"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "M-Pesa STK push and B2C/B2B disbursements",
+    "Card payments via Visa/Mastercard (including Apple Pay and Google Pay)",
+    "PesaLink bank transfers",
+    "Payment links and hosted checkout",
+    "Multi-currency wallets (KES, USD, EUR, GBP) with forex exchange",
+    "Recurring billing and subscription management",
+    "Webhook event notifications for collections, disbursements, and chargebacks",
+    "Beneficiary management for frequent payouts",
+    "Sandbox and live environments for integration testing"
+  ],
+  "publicApiSurface": [
+    "POST /api/v1/collect/",
+    "POST /api/v1/payment/collection/stk-push/",
+    "POST /api/v1/payment/collection/status/",
+    "GET/POST /api/v1/payment/collection/pay-requests/",
+    "POST /api/v1/payment/collection/checkout/",
+    "POST /api/v1/send-money/initiation/",
+    "POST /api/v1/send-money/approve/",
+    "POST /api/v1/send-money/cancel/",
+    "POST /api/v1/send-money/status/",
+    "POST /api/v1/send-money/validate-account/",
+    "GET /api/v1/send-money/bank-codes/ke/",
+    "GET/POST /api/v1/wallets/",
+    "GET /api/v1/wallets/{id}/transactions/",
+    "POST /api/v1/wallets/{id}/intra_transfer/",
+    "POST /api/v1/wallets/{id}/exchange/",
+    "GET /api/v1/webhooks/",
+    "GET /api/v1/webhooks/events/",
+    "GET/POST /api/v1/subscriptions/customers/",
+    "GET/POST /api/v1/subscriptions/plans/",
+    "GET/POST /api/v1/subscriptions/subscriptions/",
+    "POST /api/v1/subscriptions/subscriptions/{id}/unsubscribe/",
+    "GET /api/v1/transactions/beneficiaries/",
+    "POST /api/token/"
+  ]
+}

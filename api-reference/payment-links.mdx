@@ -1,0 +1,233 @@
+---
+title: "POST /api/v1/payment/collection/pay-requests"
+description: "Create and retrieve payment request links. KulmiPay emails a hosted checkout URL to your customer and optionally sends a follow-up reminder."
+---
+
+Pay requests let you generate a personalized payment link and email it directly to a customer. KulmiPay hosts the checkout page — your customer receives an email with a link they open to complete the payment at their convenience. You can optionally set an amount, a payment reason, and an automatic reminder.
+
+**Base URL:** `https://app.kulmipay.com/api/v1/payment/collection/pay-requests/`
+
+## Authentication
+
+```http
+Authorization: Bearer <secret_key>
+```
+
+---
+
+## Create a pay request
+
+**Method:** `POST`  
+**URL:** `https://app.kulmipay.com/api/v1/payment/collection/pay-requests/`
+
+### Request
+
+<ParamField body="first_name" type="string" required>
+  Customer's first name. Used in the email greeting and the checkout page.
+</ParamField>
+
+<ParamField body="last_name" type="string" required>
+  Customer's last name.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Customer's email address. KulmiPay sends the payment link to this address immediately after the pay request is created.
+</ParamField>
+
+<ParamField body="currency" type="string" required>
+  Currency for this pay request. One of: `KES`, `USD`, `EUR`, `GBP`.
+</ParamField>
+
+<ParamField body="amount" type="number">
+  Fixed payment amount. When set, the customer cannot change the amount on the checkout page. Omit to allow the customer to enter any amount.
+</ParamField>
+
+<ParamField body="reason" type="string">
+  Description of what the payment is for, for example `"Invoice #1042 — web development services"`. Displayed on the checkout page and in the email.
+</ParamField>
+
+<ParamField body="autosend_reminder" type="number" default="0">
+  Number of days after creation before KulmiPay automatically sends a reminder email to the customer. Accepted values: `0` (no reminder), `1`, `2`, `3`, or `7`. Defaults to `0`.
+</ParamField>
+
+<ParamField body="card_tarrif" type="string" default="BUSINESS-PAYS">
+  Who pays the card processing fee on this pay request. Either `BUSINESS-PAYS` or `CUSTOMER-PAYS`.
+</ParamField>
+
+### Response
+
+<ResponseField name="detail" type="object">
+  The pay request object.
+
+  <Expandable title="pay request properties">
+    <ResponseField name="detail.request_id" type="string">
+      Unique alias for this pay request. Use it to retrieve or archive the pay request.
+    </ResponseField>
+
+    <ResponseField name="detail.checkout" type="object">
+      The checkout session created for this pay request.
+
+      <Expandable title="checkout properties">
+        <ResponseField name="detail.checkout.id" type="string">
+          Checkout session UUID.
+        </ResponseField>
+
+        <ResponseField name="detail.checkout.url" type="string">
+          The hosted checkout URL sent to the customer. You can also share this link directly.
+        </ResponseField>
+
+        <ResponseField name="detail.checkout.amount" type="string">
+          Fixed amount for the checkout, if set.
+        </ResponseField>
+
+        <ResponseField name="detail.checkout.currency" type="string">
+          Currency of the checkout session.
+        </ResponseField>
+
+        <ResponseField name="detail.checkout.email" type="string">
+          Customer email address.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="detail.payment_status" type="string">
+      Current payment status of this pay request. Either `Pending` or `Paid`.
+    </ResponseField>
+
+    <ResponseField name="detail.sent_status" type="string">
+      Email delivery status. One of: `PENDING`, `SENT`, `DELIVERED`, `OPENED`, `CLICKED`, or `FAILED`.
+    </ResponseField>
+
+    <ResponseField name="detail.reason" type="string">
+      Payment reason as provided in the request.
+    </ResponseField>
+
+    <ResponseField name="detail.autosend_reminder" type="number">
+      Reminder schedule in days, as submitted.
+    </ResponseField>
+
+    <ResponseField name="detail.reminder_sent" type="boolean">
+      Whether the automatic reminder has been dispatched.
+    </ResponseField>
+
+    <ResponseField name="detail.created_at" type="string">
+      ISO 8601 timestamp when the pay request was created.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## Retrieve a pay request
+
+**Method:** `GET`  
+**URL:** `https://app.kulmipay.com/api/v1/payment/collection/pay-requests/{request_id}/`
+
+Pass the `request_id` from the create response as a path parameter. The response shape is identical to the create response.
+
+---
+
+## Code examples
+
+<CodeGroup>
+
+```bash cURL — create
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/payment/collection/pay-requests/ \
+  --header 'Authorization: Bearer YOUR_SECRET_KEY' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane.doe@example.com",
+    "currency": "KES",
+    "amount": 5000,
+    "reason": "Invoice #1042 — web development services",
+    "autosend_reminder": 3,
+    "card_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+```bash cURL — retrieve
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/payment/collection/pay-requests/PR_ABC123/ \
+  --header 'Authorization: Bearer YOUR_SECRET_KEY'
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```python Python — create
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/payment/collection/pay-requests/",
+    headers={
+        "Authorization": "Bearer YOUR_SECRET_KEY",
+        "Content-Type": "application/json",
+    },
+    json={
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "email": "jane.doe@example.com",
+        "currency": "KES",
+        "amount": 5000,
+        "reason": "Invoice #1042 — web development services",
+        "autosend_reminder": 3,
+        "card_tarrif": "BUSINESS-PAYS",
+    },
+)
+
+data = response.json()
+pay_request = data["detail"]
+checkout_url = pay_request["checkout"]["url"]
+```
+
+```python Python — retrieve
+import requests
+
+response = requests.get(
+    "https://app.kulmipay.com/api/v1/payment/collection/pay-requests/PR_ABC123/",
+    headers={"Authorization": "Bearer YOUR_SECRET_KEY"},
+)
+
+pay_request = response.json()
+payment_status = pay_request["payment_status"]  # "Pending" or "Paid"
+```
+
+</CodeGroup>
+
+## Example response
+
+```json
+{
+  "detail": {
+    "request_id": "PR_ABC123",
+    "checkout": {
+      "id": "d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14",
+      "url": "https://app.kulmipay.com/checkout/d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14/express/",
+      "amount": "5000.00",
+      "currency": "KES",
+      "email": "jane.doe@example.com",
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "paid": false
+    },
+    "payment_status": "Pending",
+    "sent_status": "SENT",
+    "reason": "Invoice #1042 — web development services",
+    "autosend_reminder": 3,
+    "autosend_reminder_datetime": "2024-04-19T08:23:11.000Z",
+    "reminder_sent": false,
+    "archived": false,
+    "failed_details": null,
+    "created_at": "2024-04-16T08:23:11.042Z",
+    "updated_at": "2024-04-16T08:23:11.042Z"
+  }
+}
+```
+
+<Note>
+  KulmiPay sends the payment email immediately after the pay request is created, as long as the `sent_status` is not `FAILED`. If email delivery fails, the `failed_details` field contains the error description.
+</Note>
