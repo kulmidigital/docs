@@ -1,0 +1,77 @@
+---
+title: "Fund Wallet"
+sidebarTitle: "Fund Wallet"
+description: "Route an M-Pesa or PesaLink collection into a specific KulmiPay wallet using wallet_id."
+---
+
+Fund a wallet by creating a collection and passing the target `wallet_id`. If you omit `wallet_id`, KulmiPay settles the collection into the default settlement wallet for the transaction currency.
+
+KulmiPay currently documents M-Pesa and PesaLink for this flow. Card, Google Pay, Apple Pay, Bitcoin, and ACH funding are not included because they are not currently offered.
+
+## Fund with M-Pesa
+
+```bash
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/payment/collection/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "method": "M-PESA",
+    "currency": "KES",
+    "amount": "1500.00",
+    "api_ref": "wallet-fund-1001",
+    "phone_number": "254712345678",
+    "wallet_id": "wlt_def456",
+    "mobile_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+## Fund with PesaLink
+
+```bash
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/payment/collection/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "method": "PESALINK",
+    "currency": "KES",
+    "amount": "5000.00",
+    "api_ref": "wallet-fund-bank-1001",
+    "wallet_id": "wlt_def456",
+    "bank_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+## Request fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `method` | Yes | `M-PESA` or `PESALINK`. |
+| `currency` | Yes | Use `KES` for M-Pesa and PesaLink wallet funding. |
+| `amount` | Yes | Amount to collect. |
+| `api_ref` | Recommended | Your unique reference for reconciliation. |
+| `wallet_id` | Yes | Target wallet alias ID. |
+| `phone_number` | M-Pesa only | Customer phone number in international format. |
+| `mobile_tarrif` | No | Fee handling for M-Pesa. `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+| `bank_tarrif` | No | Fee handling for PesaLink. `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+
+## Response
+
+The response includes an invoice and a `signature` you can use to check payment status.
+
+```json
+{
+  "invoice": {
+    "id": "GQ7KZ2XPNM",
+    "state": "PENDING",
+    "value": "1500.00",
+    "currency": "KES",
+    "provider": "M-PESA",
+    "api_ref": "wallet-fund-1001"
+  },
+  "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Use [Wallet Transactions](/wallets/wallet-transactions) to confirm the credit once the invoice reaches `COMPLETE`.

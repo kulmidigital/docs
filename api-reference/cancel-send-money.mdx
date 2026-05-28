@@ -1,7 +1,7 @@
 ---
 title: "POST /api/v1/send-money/cancel"
-sidebarTitle: "Cancel payout"
-description: "Cancel a disbursement payment file before it is processed, preventing any transactions from being sent to recipients. Requires the file_id from initiation."
+sidebarTitle: "Cancel send money"
+description: "Cancel a Send Money payment file before it is processed, preventing any transactions from being sent to recipients. Requires the file_id from initiation."
 ---
 
 Use this endpoint to cancel a payment file you no longer want to process. Once cancelled, no transactions in the file will be sent and your wallet will not be debited.
@@ -9,7 +9,7 @@ Use this endpoint to cancel a payment file you no longer want to process. Once c
 You must have the `change_files` permission on your API token to call this endpoint.
 
 <Warning>
-  You can only cancel a file while it is in a cancellable state, such as `PREVIEW-AND-APPROVE`. Files that are already `PROCESSING` or `COMPLETED` cannot be cancelled. Attempting to cancel a file in an ineligible state returns a `400` error.
+  You can only cancel a file while it is in a cancellable state, such as `PREVIEW-AND-APPROVE`, `CHECKING-ACCOUNT-BALANCE`, or `FAILED-ACCOUNT-BALANCE`. Files that are already sending or processing payments cannot be cancelled. Attempting to cancel a file in an ineligible state returns a `400` error.
 </Warning>
 
 ## Request
@@ -17,7 +17,7 @@ You must have the `change_files` permission on your API token to call this endpo
 **`POST https://app.kulmipay.com/api/v1/send-money/cancel/`**
 
 <ParamField header="Authorization" type="string" required>
-  Bearer token. Format: `Bearer <token>`.
+  Secret key. Format: `Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx`.
 </ParamField>
 
 <ParamField body="file_id" type="string" required>
@@ -37,7 +37,7 @@ A successful request returns HTTP `200` with the updated file object showing its
 </ResponseField>
 
 <ResponseField name="status" type="string">
-  The updated file state. Returns `CANCELLED` after a successful cancellation.
+  The updated file status. Returns `Cancelled` after a successful cancellation.
 </ResponseField>
 
 <ResponseField name="total_amount" type="string">
@@ -49,7 +49,7 @@ A successful request returns HTTP `200` with the updated file object showing its
 </ResponseField>
 
 <ResponseField name="transactions" type="array">
-  The list of transactions with their statuses. All transactions remain in `PENDING` state when a file is cancelled — they are not processed.
+  The list of transactions with their statuses. Pending transactions are cancelled when a file is cancelled.
 </ResponseField>
 
 <ResponseField name="actual_charges" type="string">
@@ -78,7 +78,7 @@ A successful request returns HTTP `200` with the updated file object showing its
 
 ```bash cURL
 curl -X POST https://app.kulmipay.com/api/v1/send-money/cancel/ \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "file_id": "f8a2b1c3-..."
@@ -91,7 +91,7 @@ import requests
 response = requests.post(
     "https://app.kulmipay.com/api/v1/send-money/cancel/",
     headers={
-        "Authorization": "Bearer <token>",
+        "Authorization": "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
         "Content-Type": "application/json",
     },
     json={
@@ -109,7 +109,8 @@ print(response.json())
 {
   "file_id": "f8a2b1c3-...",
   "tracking_id": "d9e4f5a6-...",
-  "status": "CANCELLED",
+  "status": "Cancelled",
+  "status_code": "BE111",
   "batch_reference": "PAYROLL-JAN-2024",
   "total_amount": "50000.00",
   "transactions_count": 2,
@@ -123,14 +124,16 @@ print(response.json())
   "transactions": [
     {
       "transaction_id": "t1a2b3c4-...",
-      "status": "PENDING",
+      "status": "Cancelled",
+      "status_code": "TC108",
       "account": "254712345678",
       "amount": "25000",
       "name": "John Doe"
     },
     {
       "transaction_id": "t5d6e7f8-...",
-      "status": "PENDING",
+      "status": "Cancelled",
+      "status_code": "TC108",
       "account": "254798765432",
       "amount": "25000",
       "name": "Jane Smith"

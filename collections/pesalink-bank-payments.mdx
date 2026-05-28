@@ -1,0 +1,94 @@
+---
+title: "PesaLink Bank Payments"
+sidebarTitle: "Bank Payments"
+description: "Collect bank payments through PesaLink and reconcile them through KulmiPay."
+---
+
+PesaLink lets customers pay from Kenyan bank accounts. Use it when a customer prefers bank transfer instead of M-Pesa.
+
+KulmiPay supports PesaLink alongside M-Pesa for collections.
+
+## Collect through PesaLink
+
+Use the collect payment endpoint with `method: "PESALINK"`.
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/payment/collection/ \
+  --header 'Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "method": "PESALINK",
+    "currency": "KES",
+    "amount": "1500.00",
+    "api_ref": "ORDER-1001",
+    "email": "customer@example.com",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "bank_tarrif": "BUSINESS-PAYS"
+  }'
+```
+
+```php PHP
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Collection;
+
+$collection = new Collection();
+$collection->init([
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+]);
+
+$response = $collection->pesalink(
+    "1500.00",
+    "KES",
+    "ORDER-1001",
+    [
+        "email" => "customer@example.com",
+        "first_name" => "Jane",
+        "last_name" => "Doe",
+        "bank_tarrif" => "BUSINESS-PAYS",
+    ]
+);
+```
+
+</CodeGroup>
+
+## Request fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `method` | string | Yes | Must be `PESALINK`. |
+| `currency` | string | Yes | Use `KES`. If another supported currency is provided, KulmiPay converts it to KES before processing. |
+| `amount` | string | Yes | Amount to collect. |
+| `api_ref` | string | Recommended | Your reference for reconciliation. |
+| `email` | string | No | Customer email address. |
+| `first_name` | string | No | Customer first name. |
+| `last_name` | string | No | Customer last name. |
+| `bank_tarrif` | string | No | `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+
+## Response
+
+The response includes an invoice and signature. Store the invoice ID and use it to check payment status.
+
+```json
+{
+  "invoice": {
+    "id": "GQ7KZ2XPNM",
+    "state": "PENDING",
+    "value": "1500.00",
+    "currency": "KES",
+    "provider": "PESALINK",
+    "api_ref": "ORDER-1001"
+  },
+  "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+<Note>
+  PesaLink availability depends on your KulmiPay account settings. Contact support if your account cannot collect via PesaLink.
+</Note>

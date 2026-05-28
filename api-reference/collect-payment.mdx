@@ -1,13 +1,13 @@
 ---
-title: "POST /api/v1/collect — Collect a Payment"
+title: "POST /api/v1/payment/collection — Collect a Payment"
 sidebarTitle: "Collect Payment"
-description: "Initiate a payment collection via M-Pesa, card, Apple Pay, Google Pay, or PesaLink. Returns an invoice ID and JWT signature for tracking payment status."
+description: "Initiate a payment collection via M-Pesa or PesaLink. Returns an invoice ID and JWT signature for tracking payment status."
 ---
 
 Use this endpoint to initiate a payment from your customer. You specify the payment method, amount, currency, and customer details. Kulmi Pay creates an invoice, triggers the appropriate payment network, and returns an invoice ID and JWT signature you use to track the transaction status.
 
 **Method:** `POST`  
-**URL:** `https://app.kulmipay.com/api/v1/collect`
+**URL:** `https://app.kulmipay.com/api/v1/payment/collection/`
 
 ## Authentication
 
@@ -22,7 +22,7 @@ Authorization: Bearer <secret_key>
 ### Required fields
 
 <ParamField body="method" type="string" required>
-  Payment method to use. One of: `M-PESA`, `CARD-PAYMENT`, `APPLE-PAY`, `GOOGLE-PAY`, `PESALINK`, `BITCOIN`, `BANK-ACH`.
+  Payment method to use. Currently supported values are `M-PESA` and `PESALINK`.
 </ParamField>
 
 <ParamField body="currency" type="string" required>
@@ -44,15 +44,15 @@ Authorization: Bearer <secret_key>
 </ParamField>
 
 <ParamField body="email" type="string">
-  Customer email address. **Required for CARD-PAYMENT, BITCOIN, and BANK-ACH.**
+  Customer email address.
 </ParamField>
 
 <ParamField body="first_name" type="string">
-  Customer first name. Required for CARD-PAYMENT and BANK-ACH.
+  Customer first name.
 </ParamField>
 
 <ParamField body="last_name" type="string">
-  Customer last name. Required for CARD-PAYMENT and BANK-ACH.
+  Customer last name.
 </ParamField>
 
 ### Authentication alternative
@@ -67,8 +67,8 @@ Authorization: Bearer <secret_key>
   Who pays the processing fee for mobile money payments. Either `BUSINESS-PAYS` (fee deducted from your settlement) or `CUSTOMER-PAYS` (fee added to the customer-facing amount).
 </ParamField>
 
-<ParamField body="card_tarrif" type="string" default="BUSINESS-PAYS">
-  Who pays the processing fee for card payments. Either `BUSINESS-PAYS` or `CUSTOMER-PAYS`.
+<ParamField body="bank_tarrif" type="string" default="BUSINESS-PAYS">
+  Who pays the processing fee for PesaLink bank payments. Either `BUSINESS-PAYS` or `CUSTOMER-PAYS`.
 </ParamField>
 
 ### Wallet routing
@@ -77,24 +77,8 @@ Authorization: Bearer <secret_key>
   The alias ID of a specific wallet to receive the funds. If omitted, funds settle into your default settlement wallet for the transaction currency.
 </ParamField>
 
-### Card payment fields
-
-The following fields are required when `method` is `CARD-PAYMENT`.
-
-<ParamField body="card_number" type="string">
-  Full card number, digits only, up to 20 characters.
-</ParamField>
-
-<ParamField body="expiry" type="string">
-  Card expiry date in `MM/YY` format, for example `08/27`.
-</ParamField>
-
-<ParamField body="cvc" type="string">
-  Card security code, 3–4 digits.
-</ParamField>
-
 <ParamField body="country" type="string">
-  Two-letter ISO 3166-1 alpha-2 country code for the billing address, for example `US`. Required for card payments. Zipcode is also required when the country is `US`, `CA`, or `GB`.
+  Two-letter ISO 3166-1 alpha-2 country code for the customer address.
 </ParamField>
 
 <ParamField body="zipcode" type="string">
@@ -132,7 +116,7 @@ The following fields are required when `method` is `CARD-PAYMENT`.
     </ResponseField>
 
     <ResponseField name="invoice.provider" type="string">
-      The payment method used to process this invoice, for example `M-PESA` or `CARD-PAYMENT`.
+      The payment method used to process this invoice, for example `M-PESA` or `PESALINK`.
     </ResponseField>
 
     <ResponseField name="invoice.api_ref" type="string">
@@ -151,7 +135,7 @@ The following fields are required when `method` is `CARD-PAYMENT`.
 
 ```bash cURL
 curl --request POST \
-  --url https://app.kulmipay.com/api/v1/collect \
+  --url https://app.kulmipay.com/api/v1/payment/collection/ \
   --header 'Authorization: Bearer YOUR_SECRET_KEY' \
   --header 'Content-Type: application/json' \
   --data '{
@@ -170,7 +154,7 @@ curl --request POST \
 import requests
 
 response = requests.post(
-    "https://app.kulmipay.com/api/v1/collect",
+    "https://app.kulmipay.com/api/v1/payment/collection/",
     headers={
         "Authorization": "Bearer YOUR_SECRET_KEY",
         "Content-Type": "application/json",

@@ -1,25 +1,25 @@
 ---
-title: "POST /api/v1/send-money/validate-account"
+title: "POST /api/v1/send-money/validate-accounts"
 sidebarTitle: "Validate account"
-description: "Look up the registered account name for a recipient phone number or bank account before initiating a disbursement to confirm you have the correct details."
+description: "Look up the registered account name for a recipient phone number or bank account before initiating a Send Money request to confirm you have the correct details."
 ---
 
-Use this endpoint to confirm that an account number or phone number is valid and retrieve the name registered against it. This is especially useful before initiating large or bulk disbursements — you can verify each recipient's account details before committing funds.
+Use this endpoint to confirm that an account number or phone number is valid and retrieve the name registered against it. This is especially useful before initiating large or bulk Send Money requests — you can verify each recipient's account details before committing funds.
 
 <Tip>
-  Validate accounts before submitting a bulk disbursement file. Catching invalid accounts early avoids failed transactions and the associated delays in recovering funds.
+  Validate accounts before submitting a bulk Send Money file. Catching invalid accounts early avoids failed transactions and the associated delays in recovering funds.
 </Tip>
 
 ## Request
 
-**`POST https://app.kulmipay.com/api/v1/send-money/validate-account/`**
+**`POST https://app.kulmipay.com/api/v1/send-money/validate-accounts/`**
 
 <ParamField header="Authorization" type="string" required>
-  Bearer token. Format: `Bearer <token>`.
+  Secret key. Format: `Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx`.
 </ParamField>
 
 <ParamField body="provider" type="string" required>
-  The payment provider to validate against. Use the same provider value you intend to use when initiating the payout. For example, `"MPESA-B2B"` to validate a PayBill or Till number.
+  The payment provider to validate against. Use the same provider value you intend to use when initiating the Send Money request. For example, `"MPESA-B2B"` to validate a PayBill or Till number.
 </ParamField>
 
 <ParamField body="account" type="string" required>
@@ -55,8 +55,8 @@ A successful request returns HTTP `200` with the account name and validation sta
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-account/ \
-  -H "Authorization: Bearer <token>" \
+curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-accounts/ \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "provider": "MPESA-B2B",
@@ -69,9 +69,9 @@ curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-account/ \
 import requests
 
 response = requests.post(
-    "https://app.kulmipay.com/api/v1/send-money/validate-account/",
+    "https://app.kulmipay.com/api/v1/send-money/validate-accounts/",
     headers={
-        "Authorization": "Bearer <token>",
+        "Authorization": "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
         "Content-Type": "application/json",
     },
     json={
@@ -100,8 +100,8 @@ print(response.json())
 Pass `bank_code` when validating a PesaLink bank account.
 
 ```bash
-curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-account/ \
-  -H "Authorization: Bearer <token>" \
+curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-accounts/ \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "provider": "PESALINK",

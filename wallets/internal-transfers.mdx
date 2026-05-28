@@ -1,0 +1,64 @@
+---
+title: "Internal Transfers"
+sidebarTitle: "Internal Transfers"
+description: "Move funds between wallets on the same KulmiPay account."
+---
+
+Internal transfers move funds between two wallets owned by your business. Both wallets must use the same currency.
+
+Use this when you want to move funds from a settlement wallet into a working wallet before running Send Money.
+
+## Transfer funds
+
+```bash
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/wallets/wlt_abc123/intra_transfer/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "wallet_id": "wlt_def456",
+    "amount": "10000.00",
+    "narrative": "Fund payroll wallet"
+  }'
+```
+
+`wlt_abc123` in the URL is the source wallet. The `wallet_id` in the body is the destination wallet.
+
+## Request fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `wallet_id` | Yes | Destination wallet alias ID. |
+| `amount` | Yes | Amount to transfer. Must be greater than zero and not more than `999999.00`. |
+| `narrative` | Yes | Statement description for both wallets. |
+
+## Response
+
+```json
+{
+  "origin": {
+    "wallet_id": "wlt_abc123",
+    "label": "Settlement KES",
+    "can_disburse": true,
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT",
+    "current_balance": "90000.00",
+    "available_balance": "90000.00",
+    "updated_at": "2026-05-28T10:15:00Z"
+  },
+  "destination": {
+    "wallet_id": "wlt_def456",
+    "label": "Payroll Wallet",
+    "can_disburse": true,
+    "currency": "KES",
+    "wallet_type": "WORKING",
+    "current_balance": "10000.00",
+    "available_balance": "10000.00",
+    "updated_at": "2026-05-28T10:15:00Z"
+  }
+}
+```
+
+<Warning>
+  The transfer fails if the wallets use different currencies or if the source wallet does not have enough available balance.
+</Warning>

@@ -1,0 +1,52 @@
+---
+title: "Create Wallets"
+sidebarTitle: "Create Wallets"
+description: "Create a working wallet to separate operational balances on your KulmiPay account."
+---
+
+Create a working wallet when you want to separate balances for a specific use case, such as payroll, refunds, or supplier payouts.
+
+Settlement wallets are managed by KulmiPay and cannot be created through this endpoint.
+
+## Create a working wallet
+
+```bash
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/wallets/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "currency": "KES",
+    "wallet_type": "WORKING",
+    "label": "Payroll Wallet",
+    "can_disburse": true
+  }'
+```
+
+## Request fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `currency` | Yes | Wallet currency. One of `KES`, `USD`, `EUR`, `GBP`. |
+| `wallet_type` | Yes | Must be `WORKING`. |
+| `label` | Yes | Wallet label. Must be unique for active wallets in the same business and currency. |
+| `can_disburse` | No | Set to `true` if this wallet can be used for Send Money. Defaults to `false`. |
+
+## Response
+
+```json
+{
+  "wallet_id": "wlt_def456",
+  "label": "Payroll Wallet",
+  "can_disburse": true,
+  "currency": "KES",
+  "wallet_type": "WORKING",
+  "current_balance": "0.00",
+  "available_balance": "0.00",
+  "updated_at": "2026-05-28T10:00:00Z"
+}
+```
+
+<Warning>
+  You cannot create `SETTLEMENT` wallets with this endpoint. KulmiPay creates settlement wallets for supported currencies automatically.
+</Warning>

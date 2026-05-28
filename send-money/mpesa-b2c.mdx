@@ -1,0 +1,91 @@
+---
+title: "M-Pesa B2C"
+sidebarTitle: "M-Pesa B2C"
+description: "Send money from your KulmiPay wallet to a customer's M-Pesa phone number."
+---
+
+Use M-Pesa B2C when the recipient should receive funds directly in their M-Pesa wallet. Common use cases include salary payments, customer refunds, commissions, rewards, and remittance payouts.
+
+## Transaction fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `account` | Yes | Recipient phone number in international format, for example `254712345678`. |
+| `amount` | Yes | Amount to send in KES. Minimum is KES 10. |
+| `name` | No | Recipient name for your records. |
+| `narrative` | No | Payment reason shown in your reports. |
+| `idempotency_key` | No | Unique key to prevent duplicate payouts. |
+
+## Initiate M-Pesa B2C
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiate/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "MPESA-B2C",
+    "requires_approval": "YES",
+    "callback_url": "https://example.com/webhooks/send-money",
+    "transactions": [
+      {
+        "account": "254712345678",
+        "amount": "1000",
+        "name": "Jane Doe",
+        "narrative": "Salary payment",
+        "idempotency_key": "salary-jan-jane-001"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiate/",
+    headers={
+        "Authorization": "Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx",
+        "Content-Type": "application/json",
+    },
+    json={
+        "currency": "KES",
+        "provider": "MPESA-B2C",
+        "requires_approval": "YES",
+        "transactions": [
+            {
+                "account": "254712345678",
+                "amount": "1000",
+                "name": "Jane Doe",
+                "narrative": "Salary payment",
+                "idempotency_key": "salary-jan-jane-001",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Approve the file
+
+If you set `requires_approval` to `"YES"`, approve the returned file before money moves:
+
+```bash
+curl -X POST https://app.kulmipay.com/api/v1/send-money/approve/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "file_id": "FILE_ID_FROM_INITIATE_RESPONSE",
+    "transactions": [
+      "TRANSACTION_ID_FROM_INITIATE_RESPONSE"
+    ]
+  }'
+```
+
+<Note>
+  Set `requires_approval` to `"NO"` only when your backend is already doing its own review and approval checks.
+</Note>

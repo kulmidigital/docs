@@ -1,136 +1,56 @@
 ---
 title: "Webhooks Overview"
-sidebarTitle: "Overview"
-description: "Learn how to configure a Kulmi Pay webhook endpoint to receive instant notifications whenever a payment, disbursement, or subscription changes state."
+sidebarTitle: "Introduction"
+description: "Learn how to configure a Kulmi Pay webhook endpoint to receive instant notifications whenever a payment, Send Money request, or wallet transfer changes state."
 ---
 
-Webhooks let Kulmi Pay push notifications to your server the moment something happens — a payment completes, a disbursement is processed, or a subscription billing cycle runs. Instead of polling the API for status updates, you register an HTTPS endpoint and Kulmi Pay delivers a JSON payload to it whenever a subscribed event occurs.
+Webhooks let KulmiPay push notifications to your server when supported account events happen. Instead of polling for every payment or transfer, you register an HTTPS endpoint and KulmiPay sends a JSON `POST` whenever a subscribed event changes state.
 
-## Set up a webhook
+## Supported events
 
-<Steps>
-  <Step title="Add your endpoint in the dashboard">
-    Go to **Settings → Webhooks** in your Kulmi Pay dashboard and click **Add Webhook**. Enter the full URL of the endpoint on your server that will receive events. The URL must use HTTPS — plain HTTP endpoints are rejected.
-  </Step>
-  <Step title="Set a challenge secret">
-    Enter a secret string in the **Challenge** field. Kulmi Pay includes this value in every webhook request as an `X-Challenge` header so you can verify that the request genuinely came from Kulmi Pay. Store this secret securely and never expose it in client-side code.
-  </Step>
-  <Step title="Subscribe to events">
-    Select which event types you want to receive. Each flag maps to a specific activity on your account:
+| Event flag | Description |
+|------------|-------------|
+| `collection_event` | Payment invoice state changes for M-Pesa and PesaLink collections. |
+| `send_money_event` | Send Money payment file state changes. |
+| `reversal_event` | Chargeback and reversal state changes. |
+| `wallet_transfer_event` | Wallet intra-transfer events. |
 
-    | Event flag | Description |
-    |---|---|
-    | `collection_event` | Payment invoice state changes (e.g. pending → complete) |
-    | `send_money_event` | Disbursement file state changes |
-    | `reversal_event` | Chargebacks and reversals |
-    | `wallet_transfer_event` | Intra-wallet transfers |
-    | `subscription_event` | Subscription status and billing cycle changes |
+## Requirements
 
-    You can subscribe to one or more events on a single webhook endpoint, or use separate endpoints for different event types.
-  </Step>
-  <Step title="Handle incoming payloads">
-    Your endpoint must accept `POST` requests with a JSON body. Respond with an HTTP `200` status code as quickly as possible — do any heavy processing asynchronously. Kulmi Pay considers any non-200 response a delivery failure.
+- Your endpoint must accept `POST` requests.
+- Your endpoint must use HTTPS.
+- Your endpoint should respond with HTTP `200` or `201` quickly.
+- Your handler should be idempotent because events can be retried or replayed.
+- Use the `challenge` value in the payload to verify the request came from KulmiPay.
 
-    Every webhook payload follows this structure:
+## Payload shape
 
-    ```json
-    {
-      "topic": "collection_event",
-      "data": {
-        "id": "inv_abc123",
-        "state": "COMPLETE",
-        "value": "1000.00",
-        "currency": "KES",
-        "provider": "M-PESA",
-        "api_ref": "ORDER-001"
-      }
-    }
-    ```
+KulmiPay posts the event resource directly to your endpoint and adds the configured `challenge` value to the JSON body. The webhook event log stores the event `topic`, but the merchant endpoint receives the event payload itself.
 
-    The `topic` field identifies the event type. The `data` object contains the full resource that changed — an invoice, a payment file, a chargeback, or a subscription depending on the topic.
-  </Step>
-</Steps>
-
-## Verify the challenge secret
-
-Before processing any webhook payload, confirm that the request came from Kulmi Pay by comparing the `X-Challenge` header against your stored secret.
-
-<CodeGroup>
-
-```javascript Node.js
-const express = require('express');
-const app = express();
-
-app.use(express.json());
-
-app.post('/webhooks/kulmipay', (req, res) => {
-  const challenge = req.headers['x-challenge'];
-
-  if (challenge !== process.env.KULMIPAY_WEBHOOK_SECRET) {
-    return res.status(401).json({ error: 'Invalid challenge' });
-  }
-
-  const { topic, data } = req.body;
-
-  // Process the event asynchronously
-  handleWebhookEvent(topic, data);
-
-  res.status(200).json({ received: true });
-});
-```
-
-```python Python
-from flask import Flask, request, jsonify
-import os
-
-app = Flask(__name__)
-
-@app.route('/webhooks/kulmipay', methods=['POST'])
-def handle_webhook():
-    challenge = request.headers.get('X-Challenge')
-
-    if challenge != os.environ.get('KULMIPAY_WEBHOOK_SECRET'):
-        return jsonify({'error': 'Invalid challenge'}), 401
-
-    payload = request.get_json()
-    topic = payload.get('topic')
-    data = payload.get('data')
-
-    # Process the event asynchronously
-    handle_webhook_event(topic, data)
-
-    return jsonify({'received': True}), 200
-```
-
-```php PHP
-<?php
-$payload = json_decode(file_get_contents('php://input'), true);
-$challenge = $_SERVER['HTTP_X_CHALLENGE'] ?? '';
-
-if ($challenge !== getenv('KULMIPAY_WEBHOOK_SECRET')) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Invalid challenge']);
-    exit;
+```json
+{
+  "invoice_id": "GQ7KZ2XPNM",
+  "state": "COMPLETE",
+  "provider": "M-PESA",
+  "value": "1500.00",
+  "currency": "KES",
+  "challenge": "your-configured-secret"
 }
-
-$topic = $payload['topic'];
-$data = $payload['data'];
-
-// Process the event asynchronously
-handleWebhookEvent($topic, $data);
-
-http_response_code(200);
-echo json_encode(['received' => true]);
 ```
 
-</CodeGroup>
+## Next steps
 
-## Retry behavior and failure handling
-
-When your endpoint returns a non-200 response or is unreachable, Kulmi Pay marks the event as `FAILED` and increments the failure counter for that webhook. As the failure count rises, Kulmi Pay sends email warnings to your account's support address.
-
-<Warning>
-  Your webhook endpoint must use HTTPS with a valid, verifiable TLS certificate. Endpoints that cannot be verified are rejected. If your webhook accumulates too many consecutive failures, Kulmi Pay automatically disables it to prevent further delivery attempts. You will receive an email notification before this happens. To re-enable your webhook, fix the underlying issue and toggle it back on in the dashboard.
-</Warning>
-
-Failed events are not lost. You can replay any event from the **Webhooks → Events** log in your dashboard, or via the API. See [Webhook event types](/webhooks/events) for details on replaying events.
+<CardGroup cols={2}>
+  <Card title="How to Setup Webhook" icon="gear" href="/webhooks/setup">
+    Configure your endpoint and verify incoming events.
+  </Card>
+  <Card title="Payment Collection Events" icon="arrow-down-to-line" href="/webhooks/payment-collection-events">
+    Handle M-Pesa and PesaLink collection updates.
+  </Card>
+  <Card title="Send Money Events" icon="arrow-up-from-line" href="/webhooks/send-money-events">
+    Handle Send Money file status changes.
+  </Card>
+  <Card title="Wallet Intra-Transfer Events" icon="arrows-right-left" href="/webhooks/wallet-intra-transfer-events">
+    Handle wallet transfer updates.
+  </Card>
+</CardGroup>

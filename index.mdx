@@ -1,9 +1,9 @@
 ---
 title: "Kulmi Pay Docs"
-description: "Kulmi Pay lets you collect payments and disburse money via M-Pesa, cards, bank transfers, and more. Integrate in minutes with a single REST API."
+description: "Kulmi Pay lets you collect payments and disburse money via M-Pesa and PesaLink. Integrate in minutes with a single REST API."
 ---
 
-Kulmi Pay is a payment platform built for African businesses. With a single API integration, you can accept payments through M-Pesa, Visa/Mastercard, Apple Pay, Google Pay, and PesaLink bank transfers. Today, live money movement support is centered on Kenya, with broader regional coverage planned over time. Whether you're building a checkout flow, automating payroll, or running recurring billing, Kulmi Pay provides the infrastructure to do it reliably.
+Kulmi Pay is a payment platform built for African businesses. With a single API integration, you can accept payments through M-Pesa and PesaLink bank transfers. Today, live money movement support is centered on Kenya, with broader regional coverage planned over time. Whether you're building a checkout flow or automating payouts, Kulmi Pay provides the infrastructure to do it reliably.
 
 <CardGroup cols={2}>
   <Card title="Quick Start" icon="rocket" href="/quickstart">
@@ -13,10 +13,10 @@ Kulmi Pay is a payment platform built for African businesses. With a single API 
     Learn how to generate API tokens and authenticate every request.
   </Card>
   <Card title="Collections" icon="arrow-down-to-line" href="/collections/overview">
-    Accept M-Pesa, card, and bank payments from your customers.
+    Accept M-Pesa and PesaLink bank payments from your customers.
   </Card>
-  <Card title="Disbursements" icon="arrow-up-from-line" href="/disbursements/overview">
-    Send money to mobile wallets and bank accounts in bulk or one at a time.
+  <Card title="Send Money" icon="arrow-up-from-line" href="/send-money/introduction">
+    Send money to M-Pesa wallets, Till and PayBill numbers, bank accounts, or KulmiPay wallets.
   </Card>
   <Card title="Webhooks" icon="bell" href="/webhooks/overview">
     Receive real-time notifications when payments complete or fail.
@@ -33,10 +33,10 @@ Kulmi Pay is a payment platform built for African businesses. With a single API 
     Sign up at [app.kulmipay.com](https://app.kulmipay.com) and complete business verification to unlock live payments.
   </Step>
   <Step title="Get your API credentials">
-    From your dashboard, navigate to **API Applications** to create an application and obtain your Client ID, Client Secret, and Public Key.
+    From your dashboard, navigate to **API Applications** to create an application and obtain your Public Key and Secret Key.
   </Step>
   <Step title="Test in the sandbox">
-    Use `https://sandbox.kulmipay.com` with sandbox credentials to simulate collections and disbursements without moving real money.
+    Use `https://sandbox.kulmipay.com` with sandbox credentials to simulate collections and send money flows without moving real money.
   </Step>
   <Step title="Go live">
     Switch your base URL to `https://app.kulmipay.com` and your live credentials to start processing real transactions.
@@ -49,19 +49,19 @@ Kulmi Pay is a payment platform built for African businesses. With a single API 
   <Card title="M-Pesa Payments" icon="mobile" href="/collections/mpesa-stk-push">
     Trigger STK push prompts directly to your customers' phones.
   </Card>
-  <Card title="Card Payments" icon="credit-card" href="/collections/card-payments">
-    Accept Visa, Mastercard, Apple Pay, and Google Pay globally.
+  <Card title="PesaLink Bank Payments" icon="building-columns" href="/collections/pesalink-bank-payments">
+    Collect bank payments from Kenyan customers through PesaLink.
   </Card>
-  <Card title="Bulk Disbursements" icon="money-bill-transfer" href="/disbursements/send-money">
+  <Card title="Send Money" icon="money-bill-transfer" href="/send-money/introduction">
     Pay hundreds of recipients in a single API call with full status tracking.
   </Card>
-  <Card title="Multi-Currency Wallets" icon="wallet" href="/wallets/overview">
+  <Card title="Wallet as a Service" icon="wallet" href="/wallets/introduction">
     Hold balances in KES, USD, EUR, and GBP with built-in forex exchange.
   </Card>
-  <Card title="Subscriptions" icon="rotate" href="/subscriptions">
-    Automate recurring billing with flexible plans and customer management.
+  <Card title="Hosted Checkout" icon="window" href="/collections/checkout">
+    Render a hosted checkout flow with M-Pesa and PesaLink options.
   </Card>
-  <Card title="Payment Links" icon="link" href="/collections/payment-links">
-    Share a URL to collect payments — no coding required.
+  <Card title="WooCommerce" icon="shopping-cart" href="/woocommerce">
+    Add KulmiPay checkout to a WordPress store with the WooCommerce plugin.
   </Card>
 </CardGroup>

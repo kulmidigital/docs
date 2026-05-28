@@ -1,0 +1,93 @@
+---
+title: "M-Pesa B2B"
+sidebarTitle: "M-Pesa B2B"
+description: "Send money to M-Pesa PayBill and Till numbers from your KulmiPay wallet."
+---
+
+Use M-Pesa B2B when you need to pay a business through an M-Pesa PayBill or Till number. This is typically used for supplier payments, bills, and business-to-business settlement.
+
+## Transaction fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `account` | Yes | PayBill or Till number. |
+| `account_type` | Yes | Use `PayBill` or `TillNumber`. |
+| `account_reference` | Conditional | Required for `PayBill`; this is the account number/reference on the bill. |
+| `amount` | Yes | Amount to send in KES. |
+| `name` | No | Recipient name for your records. |
+| `narrative` | No | Payment reason shown in your reports. |
+
+## Pay a PayBill
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiate/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "MPESA-B2B",
+    "requires_approval": "YES",
+    "transactions": [
+      {
+        "account": "400200",
+        "account_type": "PayBill",
+        "account_reference": "ACC-00123",
+        "amount": "2500",
+        "name": "Supplier Ltd",
+        "narrative": "January invoice"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiate/",
+    headers={"Authorization": "Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"},
+    json={
+        "currency": "KES",
+        "provider": "MPESA-B2B",
+        "requires_approval": "YES",
+        "transactions": [
+            {
+                "account": "400200",
+                "account_type": "PayBill",
+                "account_reference": "ACC-00123",
+                "amount": "2500",
+                "name": "Supplier Ltd",
+                "narrative": "January invoice",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Pay a Till number
+
+For Till payments, set `account_type` to `TillNumber` and omit `account_reference`.
+
+```json
+{
+  "currency": "KES",
+  "provider": "MPESA-B2B",
+  "transactions": [
+    {
+      "account": "123456",
+      "account_type": "TillNumber",
+      "amount": "2500",
+      "narrative": "Store payment"
+    }
+  ]
+}
+```
+
+## Validate before sending
+
+Use `POST /api/v1/send-money/validate-accounts/` to confirm the PayBill or Till account before initiating a payout.

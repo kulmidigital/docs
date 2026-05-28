@@ -1,0 +1,68 @@
+---
+title: "Wallet as a Service"
+sidebarTitle: "Introduction"
+description: "Use KulmiPay wallets to hold balances, route collections, fund payout wallets, and move money between wallets on your account."
+---
+
+KulmiPay wallets hold the funds your business collects and the balances you use for Send Money. Settlement wallets are created automatically for supported currencies, while working wallets let you separate money for specific operational uses such as payroll, refunds, or supplier payments.
+
+## Wallet types
+
+| Type | Description |
+|------|-------------|
+| `SETTLEMENT` | Automatically managed wallets that receive collected funds for a currency. |
+| `WORKING` | Wallets you create to separate balances for a specific purpose. |
+
+## Supported currencies
+
+KulmiPay wallets support `KES`, `USD`, `EUR`, and `GBP`. M-Pesa and PesaLink collections settle in KES. Send Money currently uses KES wallets.
+
+## What you can do
+
+<CardGroup cols={2}>
+  <Card title="Retrieve Wallets" icon="wallet" href="/wallets/retrieve-wallets">
+    List all wallets or retrieve one wallet by ID.
+  </Card>
+  <Card title="Create Wallets" icon="plus" href="/wallets/create-wallets">
+    Create working wallets for operational balances.
+  </Card>
+  <Card title="Wallet Transactions" icon="list" href="/wallets/wallet-transactions">
+    Retrieve wallet statements and filter transaction history.
+  </Card>
+  <Card title="Fund Wallet" icon="arrow-down-to-line" href="/wallets/fund-wallet">
+    Route M-Pesa or PesaLink collections into a specific wallet.
+  </Card>
+  <Card title="Internal Transfers" icon="arrows-right-left" href="/wallets/internal-transfers">
+    Move funds between wallets on your KulmiPay account.
+  </Card>
+</CardGroup>
+
+## PHP SDK example
+
+```php
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Wallet;
+
+$wallet = new Wallet();
+$wallet->init([
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+]);
+
+$wallets = $wallet->retrieve();
+$created = $wallet->create("KES", "Payroll Wallet", true);
+$transactions = $wallet->transactions($created->wallet_id);
+
+$transfer = $wallet->intra_transfer(
+    "origin-wallet-id",
+    "destination-wallet-id",
+    "1000.00",
+    "Move funds to payroll wallet"
+);
+```
+
+<Note>
+  External wallet transfers are not documented here because there is no matching public wallet API route in the current KulmiPay backend. Use the Send Money APIs for payouts to M-Pesa, M-Pesa B2B, PesaLink bank accounts, or KulmiPay P2P.
+</Note>

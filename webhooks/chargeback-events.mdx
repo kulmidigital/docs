@@ -1,0 +1,53 @@
+---
+title: "Chargeback Events"
+sidebarTitle: "Chargeback Events"
+description: "Webhook payloads for chargeback and reversal status changes."
+---
+
+Enable `reversal_event` to receive notifications when a chargeback is created or its status changes.
+
+Chargeback events use the chargeback read shape from the KulmiPay backend, plus your configured `challenge`.
+
+## When it fires
+
+- A chargeback is created.
+- A chargeback status changes, for example to `DISPUTED`, `OVERDUE`, `COMPLETED`, or `CANCELLED`.
+
+## Payload
+
+```json
+{
+  "chargeback_id": "CB_12345",
+  "session_id": "pay-session-123",
+  "transaction": {
+    "transaction_id": "txn_xyz789",
+    "currency": "KES",
+    "value": "1500.00",
+    "running_balance": "51500.00",
+    "narrative": "M-Pesa collection",
+    "trans_type": "SALE",
+    "status": "CHARGEBACK-PENDING",
+    "created_at": "2026-05-28T08:23:11Z",
+    "updated_at": "2026-05-28T08:24:05Z"
+  },
+  "amount": "1500.00",
+  "reason": "Duplicate payment",
+  "status": "DISPUTED",
+  "resolution": null,
+  "staff_created": false,
+  "created_at": "2026-05-28T09:00:00Z",
+  "updated_at": "2026-05-28T09:10:00Z",
+  "challenge": "your-configured-secret"
+}
+```
+
+## Important fields
+
+| Field | Description |
+|-------|-------------|
+| `chargeback_id` | Chargeback alias ID. |
+| `transaction` | Wallet transaction related to the reversal. |
+| `amount` | Amount under dispute or reversal. |
+| `reason` | Chargeback reason. |
+| `status` | Current chargeback status. |
+| `challenge` | Your configured challenge value. Verify it before processing the event. |

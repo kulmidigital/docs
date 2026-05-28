@@ -1,0 +1,45 @@
+---
+title: "KulmiPay P2P"
+sidebarTitle: "KulmiPay P2P"
+description: "Transfer funds between KulmiPay wallets or accounts using the P2P send money provider."
+---
+
+Use KulmiPay P2P when you need to move funds from one KulmiPay wallet/account to another without sending money through M-Pesa or PesaLink.
+
+P2P uses the same Send Money flow: initiate a file, approve it if required, then check status with the returned `tracking_id`.
+
+## Transaction fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `account` | Yes | Recipient KulmiPay account or wallet identifier. |
+| `amount` | Yes | Amount to transfer. |
+| `name` | No | Recipient name for your records. |
+| `narrative` | No | Payment reason shown in reports. |
+| `idempotency_key` | No | Unique key to prevent duplicate transfers. |
+
+## Initiate a P2P transfer
+
+```bash
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiate/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "P2P",
+    "requires_approval": "YES",
+    "transactions": [
+      {
+        "account": "RECIPIENT_ACCOUNT_ID",
+        "amount": "1000",
+        "name": "Partner Wallet",
+        "narrative": "Internal settlement",
+        "idempotency_key": "p2p-settlement-001"
+      }
+    ]
+  }'
+```
+
+<Warning>
+  Confirm the recipient account identifier before sending. P2P transfers move funds inside KulmiPay and should be treated as final once processed.
+</Warning>

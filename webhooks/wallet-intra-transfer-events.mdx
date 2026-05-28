@@ -1,0 +1,77 @@
+---
+title: "Wallet Intra-Transfer Events"
+sidebarTitle: "Wallet Intra-Transfer Events"
+description: "Webhook payloads for wallet-to-wallet transfers inside a KulmiPay account."
+---
+
+Enable `wallet_transfer_event` to receive notifications when funds move between wallets on your KulmiPay account.
+
+This event is emitted after an internal wallet transfer. The payload includes the debited wallet transaction, the credited wallet transaction, the affected wallets, the transfer amount, and your configured `challenge`.
+
+## When it fires
+
+- An internal wallet transfer completes through `POST /api/v1/wallets/{wallet_id}/intra_transfer/`.
+
+## Payload
+
+```json
+{
+  "from_data": {
+    "wallet": {
+      "wallet_id": "wlt_abc123",
+      "label": "Settlement KES",
+      "can_disburse": true,
+      "currency": "KES",
+      "wallet_type": "SETTLEMENT",
+      "current_balance": "90000.00",
+      "available_balance": "90000.00",
+      "updated_at": "2026-05-28T10:15:00Z"
+    },
+    "transaction": {
+      "transaction_id": "txn_debit123",
+      "currency": "KES",
+      "value": "10000.00",
+      "running_balance": "90000.00",
+      "narrative": "Fund payroll wallet",
+      "trans_type": "PAYOUT",
+      "status": "AVAILABLE",
+      "created_at": "2026-05-28T10:15:00Z",
+      "updated_at": "2026-05-28T10:15:00Z"
+    }
+  },
+  "to_data": {
+    "wallet": {
+      "wallet_id": "wlt_def456",
+      "label": "Payroll Wallet",
+      "can_disburse": true,
+      "currency": "KES",
+      "wallet_type": "WORKING",
+      "current_balance": "10000.00",
+      "available_balance": "10000.00",
+      "updated_at": "2026-05-28T10:15:00Z"
+    },
+    "transaction": {
+      "transaction_id": "txn_credit456",
+      "currency": "KES",
+      "value": "10000.00",
+      "running_balance": "10000.00",
+      "narrative": "Fund payroll wallet",
+      "trans_type": "PAYOUT",
+      "status": "AVAILABLE",
+      "created_at": "2026-05-28T10:15:00Z",
+      "updated_at": "2026-05-28T10:15:00Z"
+    }
+  },
+  "amount": "10000.00",
+  "challenge": "your-configured-secret"
+}
+```
+
+## Important fields
+
+| Field | Description |
+|-------|-------------|
+| `from_data` | Source wallet and debit transaction. |
+| `to_data` | Destination wallet and credit transaction. |
+| `amount` | Transfer amount. |
+| `challenge` | Your configured challenge value. Verify it before processing the event. |

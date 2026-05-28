@@ -1,0 +1,75 @@
+---
+title: "How to Setup Webhook"
+sidebarTitle: "How to Setup Webhook"
+description: "Configure a KulmiPay webhook endpoint and verify incoming event payloads with your challenge value."
+---
+
+Create webhook endpoints from the KulmiPay dashboard. The public API currently exposes webhook configurations for retrieval, but webhook creation and management are handled in the dashboard.
+
+## Configure your endpoint
+
+<Steps>
+  <Step title="Open Webhooks in the dashboard">
+    Sign in to [app.kulmipay.com](https://app.kulmipay.com), then open the Webhooks area from your settings.
+  </Step>
+  <Step title="Add your HTTPS endpoint">
+    Enter the full URL that should receive webhook events. The URL must use HTTPS.
+  </Step>
+  <Step title="Set a challenge value">
+    Add a secret challenge value. KulmiPay includes this value in every webhook payload as `challenge`.
+  </Step>
+  <Step title="Choose event subscriptions">
+    Enable the event flags your integration needs: `collection_event`, `send_money_event`, `reversal_event`, or `wallet_transfer_event`.
+  </Step>
+</Steps>
+
+## Verify incoming events
+
+Before processing a webhook, compare the `challenge` field in the JSON body with the secret value you configured in the dashboard.
+
+<CodeGroup>
+
+```javascript Node.js
+const express = require("express");
+const app = express();
+
+app.use(express.json());
+
+app.post("/webhooks/kulmipay", (req, res) => {
+  if (req.body.challenge !== process.env.KULMIPAY_WEBHOOK_CHALLENGE) {
+    return res.status(401).json({ error: "Invalid challenge" });
+  }
+
+  queueWebhookWork(req.body);
+  return res.status(200).json({ received: true });
+});
+```
+
+```python Python
+import os
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+@app.post("/webhooks/kulmipay")
+def kulmipay_webhook():
+    payload = request.get_json()
+
+    if payload.get("challenge") != os.environ["KULMIPAY_WEBHOOK_CHALLENGE"]:
+        return jsonify({"error": "Invalid challenge"}), 401
+
+    queue_webhook_work(payload)
+    return jsonify({"received": True}), 200
+```
+
+</CodeGroup>
+
+## Retry and deactivation
+
+KulmiPay retries failed webhook deliveries with backoff. A delivery is considered successful when your endpoint returns HTTP `200` or `201`.
+
+If deliveries keep failing, KulmiPay records the failure reason, increments the webhook failure count, warns your account when failures reach 50% of the threshold, and disables the webhook at the failure threshold.
+
+<Note>
+  The default delivery retry count is 5 attempts. The default webhook disable threshold is 40 consecutive failures.
+</Note>

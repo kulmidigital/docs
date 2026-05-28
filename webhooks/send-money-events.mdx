@@ -1,0 +1,68 @@
+---
+title: "Send Money Events"
+sidebarTitle: "Send Money Events"
+description: "Webhook payloads for Send Money payment file state changes."
+---
+
+Enable `send_money_event` to receive notifications when a Send Money payment file is created or changes state.
+
+Send Money events use the same payment file shape returned by `POST /api/v1/send-money/status/`, plus your configured `challenge`.
+
+## When it fires
+
+- A Send Money payment file is created.
+- The payment file state changes during approval, balance checking, processing, completion, or cancellation.
+
+## Payload
+
+```json
+{
+  "file_id": "PF_12345",
+  "tracking_id": "550e8400-e29b-41d4-a716-446655440000",
+  "batch_reference": "PAYROLL-MAY-2026",
+  "status": "Processing payment",
+  "status_code": "BP110",
+  "actual_charges": "66.00",
+  "paid_amount": "25000.00",
+  "failed_amount": "0.00",
+  "charge_estimate": "66.00",
+  "total_amount_estimate": "25066.00",
+  "total_amount": "25000.00",
+  "transactions_count": 1,
+  "transactions": [
+    {
+      "transaction_id": "TX_12345",
+      "status": "Payment initiated",
+      "status_code": "TP102",
+      "status_description": "",
+      "provider": "MPESA-B2C",
+      "account": "254712345678",
+      "amount": "25000.00",
+      "charge": "66.00",
+      "currency": "KES",
+      "narrative": "Salary payment",
+      "provider_reference": null,
+      "idempotency_key": "salary-may-001"
+    }
+  ],
+  "wallet": {
+    "wallet_id": "wlt_abc123",
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT"
+  },
+  "created_at": "2026-05-28T08:00:00Z",
+  "updated_at": "2026-05-28T08:05:30Z",
+  "challenge": "your-configured-secret"
+}
+```
+
+## Important fields
+
+| Field | Description |
+|-------|-------------|
+| `file_id` | Payment file alias ID. |
+| `tracking_id` | UUID used to query file status. |
+| `status` | Human-readable file status. |
+| `status_code` | Machine-friendly KulmiPay status code. |
+| `transactions` | Individual transaction results inside the file. |
+| `challenge` | Your configured challenge value. Verify it before processing the event. |

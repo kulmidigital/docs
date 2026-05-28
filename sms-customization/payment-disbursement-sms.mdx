@@ -1,0 +1,36 @@
+---
+title: "Payment Disbursement SMS"
+sidebarTitle: "Payment Disbursement SMS"
+description: "Customize the SMS sent to payout recipients."
+---
+
+Payment disbursement SMS templates are used after a successful payout where KulmiPay sends an SMS to the recipient.
+
+## Create or edit the template
+
+1. Log in to `https://app.kulmipay.com`.
+2. Open **Messaging**.
+3. Create a new template or edit the existing one.
+4. Set the template type to `PAYOUT`.
+5. Save the template.
+
+If a `PAYOUT` template already exists, update it instead of creating a duplicate.
+
+## Supported fields
+
+| Field | Format | Description |
+|-------|--------|-------------|
+| `AMOUNT` | `{{AMOUNT}}` | Amount paid out. |
+| `REF` | `{{REF}}` | Payment provider reference, for example an M-Pesa receipt code. |
+| `SENDER` | `{{SENDER}}` | Your business name or sending entity. |
+| `NARRATIVE` | `{{NARRATIVE}}` | Reason or narration for the payment. |
+
+## Example template
+
+```text
+You have received KES.{{AMOUNT}}, payment reference {{REF}}, by order of {{SENDER}}. Payment Reason: {{NARRATIVE}}
+```
+
+<Note>
+  Custom payout SMS applies only where KulmiPay sends recipient SMS notifications for the payout flow.
+</Note>

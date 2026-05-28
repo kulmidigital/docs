@@ -1,0 +1,53 @@
+---
+title: "Wallet Transactions"
+sidebarTitle: "Wallet Transactions"
+description: "Retrieve wallet statements and filter transaction history by wallet, date, currency, or transaction type."
+---
+
+Wallet transactions show credits, debits, charges, payouts, deposits, adjustments, and exchanges that affect a wallet balance.
+
+## Retrieve one wallet statement
+
+```bash
+curl --request GET \
+  --url "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/transactions/?start_date=2026-05-01&end_date=2026-05-28" \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+## Retrieve transactions across wallets
+
+```bash
+curl --request GET \
+  --url "https://app.kulmipay.com/api/v1/transactions/?wallet_id=wlt_abc123&trans_type=DEPOSIT" \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+## Filters
+
+| Filter | Description |
+|--------|-------------|
+| `wallet_id` | Wallet alias ID. Supported on `GET /api/v1/transactions/`. |
+| `currency` | Wallet currency, such as `KES`. |
+| `trans_type` | Transaction type: `SALE`, `ADJUSTMENT`, `PAYOUT`, `WITHDRAWAL`, `CHARGE`, `AIRTIME`, `DEPOSIT`, `EXCHANGE`, or `UNMARKED`. |
+| `start_date` | Return transactions created on or after this date. |
+| `end_date` | Return transactions created on or before this date. |
+| `narrative` | Filter by transaction narrative. |
+
+## Transaction object
+
+```json
+{
+  "transaction_id": "txn_xyz789",
+  "invoice": null,
+  "currency": "KES",
+  "value": "1500.00",
+  "running_balance": "51500.00",
+  "narrative": "Wallet funding",
+  "trans_type": "DEPOSIT",
+  "status": "AVAILABLE",
+  "created_at": "2026-05-28T08:23:11Z",
+  "updated_at": "2026-05-28T08:24:05Z"
+}
+```
+
+`invoice` is present when the wallet transaction came from a collection invoice.

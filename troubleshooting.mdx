@@ -1,134 +1,84 @@
 ---
-title: "Troubleshooting"
-sidebarTitle: "Troubleshooting"
-description: "Diagnose and fix the most common errors when integrating Kulmi Pay — from authentication failures and invalid providers to webhook delivery problems."
+title: "Errors References"
+sidebarTitle: "Errors References"
+description: "KulmiPay API error response formats, common HTTP status codes, and what each error usually means."
 ---
 
-Most integration issues fall into a small set of categories. This page walks through the errors you are most likely to encounter, explains what causes them, and shows you how to fix them.
+KulmiPay uses standard HTTP status codes for failed API requests. Error responses include a message that explains what failed and what you should check.
+
+## Common API HTTP errors and their meaning
+
+Here is an example authentication failure response:
+
+```json
+{
+  "detail": "Invalid api token"
+}
+```
+
+Some validation errors are returned as field-level messages:
+
+```json
+{
+  "amount": ["Ensure this value is greater than or equal to 0.10."],
+  "currency": ["\"ABC\" is not a valid choice."]
+}
+```
+
+When multiple fields are invalid, KulmiPay returns all available validation messages in the same response.
+
+## Common HTTP status codes
+
+| Code | Meaning | What to do |
+|---|---|---|
+| `400` | Bad request | The payload is invalid. Check required fields, data types, allowed values, and environment-specific key prefixes. |
+| `401` | Unauthorized | Your API key, checkout signature, or Bearer header is invalid. Confirm the key was copied correctly and belongs to the right environment. |
+| `403` | Forbidden | The account or key does not have access to the resource, or the business is not eligible to transact. |
+| `404` | Not found | The requested resource does not exist, or it does not belong to the authenticated business. |
+| `429` | Too many requests | You are sending too many requests. Slow down and retry with backoff. |
+| `500` | Internal server error | KulmiPay had a server-side problem. Retry later or contact support if it persists. |
+| `503` | Service unavailable | The service is temporarily unavailable or under maintenance. Retry later. |
+
+## Authentication errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `Invalid api token` | The secret key is wrong, revoked, or belongs to another environment. | Use `Authorization: Bearer ISSecretKey_test_...` in sandbox or `Authorization: Bearer ISSecretKey_live_...` in live. |
+| `Invalid token for live environment` | A test key was used on live, or a live key was used on sandbox. | Match the key prefix to the base URL. |
+| `No credentials provided` | The `Authorization` header is missing credentials. | Send a complete `Authorization: Bearer ...` header. |
+| `Bearer string should not contain spaces` | The Bearer header has too many parts. | Ensure the token value has no spaces and the header has exactly two parts. |
+| `invalid account identifier or publishable key` | The public key or checkout signature is invalid. | Check `public_key`, `X-KULMI-PUBLIC-API-KEY`, or `signature` and `checkout_id`. |
+
+## Checkout and collection errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `Ensure you are using the right publishable key` | The public key does not match the API environment. | Use `ISPubKey_test_...` on `sandbox.kulmipay.com` and `ISPubKey_live_...` on `app.kulmipay.com`. |
+| `Amount should be greater than 500 and less than 5,000,000` | UGX or TZS checkout amount is outside the supported range. | Use an amount between 500 and 5,000,000. |
+| `Amount must be equal or more than KES. 10` | M-Pesa amount is below the minimum. | Increase the payment amount. |
+| `Amount must be equal or more than KES. 100` | PesaLink amount is below the minimum. | Increase the transfer amount. |
+| `Failed to complete your request. Your business is not eligible to transact.` | The business cannot process transactions yet. | Complete account verification or contact support. |
+
+## Send Money errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `invalid provider for send money` | The `provider` value is not supported. | Use a valid provider such as `MPESA-B2C`, `MPESA-B2B`, or `PESALINK`. Provider codes are case-sensitive. |
+| `duplicate transaction detected` | An `idempotency_key` has already been used. | Use a new unique `idempotency_key`, unless you are intentionally preventing duplicates. |
+| `Insufficient balance` | The wallet balance cannot cover the transfer and fees. | Top up the wallet or choose a wallet with enough balance. |
+| `Payment file must be in PREVIEW-AND-APPROVE state` | The payment file cannot be approved in its current state. | Check the payment file status before approving or canceling. |
+| `Field bank_code is required for bank transactions` | A bank transfer is missing `bank_code`. | Fetch supported bank codes and pass the exact code in the transaction. |
+
+## Webhook delivery errors
+
+If webhook events are not arriving:
+
+- Confirm your endpoint is publicly reachable.
+- Use HTTPS with a valid TLS certificate.
+- Check your webhook configuration and enabled event types.
+- Check webhook event logs for failed deliveries.
+- Re-enable a webhook if repeated delivery failures disabled it.
 
 <Note>
-  Make sure you are using the right credentials and base URL for your environment. Sandbox credentials (`https://sandbox.kulmipay.com`) do not work against the live API (`https://app.kulmipay.com`), and vice versa. This is one of the most common causes of unexpected errors when moving from testing to production.
+  If an error response does not clearly explain the issue, include the request ID, endpoint, response body, and timestamp when contacting support.
 </Note>
-
----
-
-<AccordionGroup>
-
-  <Accordion title="Authentication errors: Invalid credentials or expired token">
-    **Error messages:** `Invalid credentials`, `Expired token`, `Authentication failed`
-
-    Kulmi Pay uses OAuth 2.0 password grant. Check the following:
-
-    - Confirm you are passing `"grant_type": "password"` in your token request body.
-    - Verify your API caller `username` and `password` are correct and your `CLIENT-ID` and `CLIENT-SECRET` are passed as HTTP Basic auth credentials.
-    - Verify credentials belong to the right environment (sandbox vs. live).
-    - Tokens expire after a period of inactivity. If you receive an expired token error, request a new token from `POST /api/token/` before retrying.
-    - Do not hardcode tokens. Implement token caching and automatic refresh in your integration.
-
-    ```bash Token request
-    curl -X POST \
-      -d "grant_type=password&username=<API-CALLER-USERNAME>&password=<API-CALLER-PASSWORD>" \
-      -u "<CLIENT-ID>:<CLIENT-SECRET>" \
-      https://app.kulmipay.com/api/token/
-    ```
-  </Accordion>
-
-  <Accordion title="Invalid provider">
-    **Error message:** `invalid provider for send money. Allowed values are ...`
-
-    The `provider` field in your disbursement request must exactly match one of the allowed provider codes. Common valid values include:
-
-    - `MPESA-B2C` — M-Pesa business-to-customer transfers
-    - `MPESA-B2B` — M-Pesa business-to-business transfers (PayBill/Till)
-    - `PESALINK` — Bank transfers via PesaLink
-
-    Check the full list by calling `GET /api/v1/send-money/` or reviewing the error message, which returns all allowed values. Provider codes are case-sensitive — `mpesa-b2c` will fail; use `MPESA-B2C`.
-  </Accordion>
-
-  <Accordion title="Duplicate transaction: idempotency_key already used">
-    **Error message:** `duplicate transaction detected. A transaction with similar idempotency_key already exists`
-
-    Every transaction in a disbursement batch can include an optional `idempotency_key` to prevent accidental duplicate payments. If you submit a transaction with a key you have already used, Kulmi Pay rejects the entire request.
-
-    - Use a unique value per transaction — a UUID or a value derived from your internal order or payment ID works well.
-    - If you are retrying a failed request, generate a new `idempotency_key` unless you are certain the original transaction did not process.
-    - If you intentionally want to re-send the same payment, omit the `idempotency_key` field.
-  </Accordion>
-
-  <Accordion title="Insufficient balance">
-    **Error message:** `Insufficient balance` or similar wallet balance error
-
-    Your wallet does not have enough funds to cover the total disbursement amount plus any applicable fees.
-
-    - Check your current wallet balance before initiating a bulk disbursement. Retrieve balances from `GET /api/v1/wallets/`.
-    - If you have multiple wallets in the same currency, confirm you are disbursing from the correct wallet by specifying `wallet_id` in your request.
-    - Top up your wallet via the dashboard before retrying the disbursement.
-  </Accordion>
-
-  <Accordion title="Amount below minimum">
-    **Error message:** `Amount must be equal or more than KES. 10 for M-Pesa payments` or `Amount must be equal or more than KES. 100`
-
-    Kulmi Pay enforces minimum transaction amounts for certain providers:
-
-    | Provider | Minimum amount |
-    |---|---|
-    | `MPESA-B2C` | KES 10 |
-    | `PESALINK` | KES 100 |
-
-    Review each transaction in your batch and remove or increase any amounts that fall below the provider's minimum before resubmitting.
-  </Accordion>
-
-  <Accordion title="Webhook not receiving events">
-    If your endpoint is not receiving webhook events, work through these checks:
-
-    1. **Verify your endpoint is publicly reachable.** Kulmi Pay cannot deliver to `localhost` or endpoints behind a firewall. Use a tool like [ngrok](https://ngrok.com) for local development.
-    2. **Confirm the endpoint uses HTTPS** with a valid, trusted TLS certificate. Self-signed certificates are not accepted.
-    3. **Check your webhook failure count** in **Settings → Webhooks**. If the count is high and `is_active` is `false`, your webhook has been automatically disabled. Fix the underlying issue, then re-enable it in the dashboard.
-    4. **Confirm you have subscribed to the right event flags.** If you are not seeing collection events, check that `collection_event` is enabled on your webhook.
-    5. **Check the Events log** at `GET /api/v1/webhooks/events/` to see if events were created with a `FAILED` status. If they exist, replay them once your endpoint is fixed.
-  </Accordion>
-
-  <Accordion title="Payment file not in correct state">
-    **Error message:** `Payment file must be in PREVIEW-AND-APPROVE state to perform this action`
-
-    You can only approve a disbursement payment file when it is in `PREVIEW-AND-APPROVE` state. This state is reached after a file passes initial validation.
-
-    - Do not attempt to approve a file that is still `PENDING` or has already been `PROCESSED` or `CANCELED`.
-    - Check the file's current state by calling `POST /api/v1/send-money/status/` with your `tracking_id` before calling the approve endpoint.
-    - If you submitted the disbursement with `"requires_approval": "NO"`, the file is approved automatically and cannot be approved again.
-  </Accordion>
-
-  <Accordion title="Invalid bank_code for PesaLink transfers">
-    **Error message:** `Field bank_code is required for bank transactions` or an invalid bank code error
-
-    PesaLink bank transfers require a valid `bank_code` for every transaction. If you omit the field or use an incorrect code, the transaction is rejected.
-
-    Retrieve the full list of valid bank codes for Kenya:
-
-    ```
-    GET /api/v1/send-money/bank-codes/ke/
-    ```
-
-    ```json Example response
-    [
-      { "bank_name": "Kenya Commercial Bank", "bank_code": "01" },
-      { "bank_name": "Equity Bank", "bank_code": "68" },
-      { "bank_name": "Co-operative Bank", "bank_code": "11" }
-    ]
-    ```
-
-    Use the exact `bank_code` string from this list in your transaction payload.
-  </Accordion>
-
-  <Accordion title="can_transact is false: account not verified">
-    **Error message:** `can_transact is false` or a verification-related error
-
-    Your business account has not completed identity verification (KYC). Kulmi Pay requires KYC before allowing live transactions.
-
-    - Log in to your dashboard at [app.kulmipay.com](https://app.kulmipay.com) and navigate to **Settings → Business Verification**.
-    - Complete all required verification steps, including uploading business registration documents and identity documents for the account owner.
-    - Verification is typically reviewed within one business day. You will receive an email when your account is approved.
-    - In the sandbox environment, `can_transact` is always enabled so you can test without completing verification.
-  </Accordion>
-
-</AccordionGroup>

@@ -1,0 +1,352 @@
+---
+title: "Client Libraries (SDKs)"
+sidebarTitle: "Client Libraries"
+description: "Install the KulmiPay browser checkout SDK and PHP SDK, and learn which API credentials to use in frontend and backend integrations."
+---
+
+KulmiPay provides a browser checkout SDK for web apps that need a hosted checkout popup or inline checkout frame, and a PHP SDK for backend collection, payout, wallet, and refund workflows.
+
+<Note>
+  The npm `kulmipay` package is a browser checkout SDK. Do not use it as a secret-key backend SDK. For PHP backends, use the Composer package `kulmipay/kulmipay-php`.
+</Note>
+
+## Browser checkout SDK
+
+The browser package is published on npm as `kulmipay`.
+
+### Install
+
+<CodeGroup>
+
+```bash npm
+npm install kulmipay
+```
+
+```bash yarn
+yarn add kulmipay
+```
+
+```html Script tag
+<script src="https://unpkg.com/kulmipay"></script>
+```
+
+</CodeGroup>
+
+### Browser checkout button
+
+Add a button with the `kulmiPayButton` class. The SDK reads the button's `data-*` attributes and creates a checkout session when the customer clicks it.
+
+```html
+<button
+  class="kulmiPayButton"
+  data-amount="1000"
+  data-currency="KES"
+  data-email="customer@example.com"
+  data-phone_number="254712345678"
+  data-first_name="Jane"
+  data-last_name="Doe"
+  data-api_ref="ORDER-1001">
+  Pay now
+</button>
+
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false
+  })
+    .on("COMPLETE", function (response) {
+      console.log("Payment complete", response);
+    })
+    .on("FAILED", function (response) {
+      console.log("Payment failed", response);
+    })
+    .on("IN-PROGRESS", function (response) {
+      console.log("Payment in progress", response);
+    });
+</script>
+```
+
+### React or bundled JavaScript
+
+When installing from npm, import or require the package from your browser bundle.
+
+<CodeGroup>
+
+```jsx React
+import { useEffect } from "react";
+import KulmiPay from "kulmipay";
+
+export function PaymentButton() {
+  useEffect(() => {
+    const checkout = new KulmiPay({
+      publicAPIKey: process.env.NEXT_PUBLIC_KULMIPAY_PUBLIC_KEY,
+      redirectURL: "https://merchant.example/thank-you",
+      live: false
+    });
+
+    checkout
+      .on("COMPLETE", (response) => console.log("Payment complete", response))
+      .on("FAILED", (response) => console.log("Payment failed", response))
+      .on("IN-PROGRESS", (response) => console.log("Payment in progress", response));
+  }, []);
+
+  return (
+    <button
+      className="kulmiPayButton"
+      data-amount="1000"
+      data-currency="KES"
+      data-email="customer@example.com"
+      data-api_ref="ORDER-1001">
+      Pay now
+    </button>
+  );
+}
+```
+
+```javascript CommonJS
+const KulmiPay = require("kulmipay");
+
+const checkout = new KulmiPay({
+  publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+  redirectURL: "https://merchant.example/thank-you",
+  live: false
+});
+```
+
+</CodeGroup>
+
+### Inline checkout
+
+Use `mode: "inline"` when you want the checkout frame rendered inside a page element.
+
+```html
+<div id="checkoutElement" style="width: 100%; max-width: 420px; height: 720px;"></div>
+
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  const checkout = new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false,
+    mode: "inline",
+    inlineContainer: "checkoutElement"
+  });
+
+  checkout.run({
+    amount: 1000,
+    currency: "KES",
+    email: "customer@example.com",
+    api_ref: "ORDER-1001"
+  });
+</script>
+```
+
+### Environments
+
+| `live` value | Checkout API | Checkout page |
+|---|---|---|
+| `false` | `https://sandbox.kulmipay.com/api/v1/checkout/` | `https://checkout-sandbox.kulmipay.com` |
+| `true` | `https://app.kulmipay.com/api/v1/checkout/` | `https://checkout.kulmipay.com` |
+
+### Self-hosted and local testing
+
+Pass explicit base URLs when testing a local or self-hosted backend.
+
+```javascript
+new KulmiPay({
+  publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+  redirectURL: "http://localhost:5173/thank-you",
+  apiBaseURL: "http://localhost:8000",
+  checkoutBaseURL: "http://localhost:3000",
+  live: false
+});
+```
+
+`apiBaseURL` resolves to `/api/v1/checkout/`. If you need full control, pass `checkoutAPIURL` with the complete endpoint URL.
+
+### Browser SDK options
+
+| Option | Required | Description |
+|---|---|---|
+| `publicAPIKey` | Yes | Your publishable key from the KulmiPay dashboard. Use `ISPubKey_test_...` in sandbox and `ISPubKey_live_...` in production. |
+| `redirectURL` | Recommended | URL where the customer should return after payment. The SDK sends this as both `redirect_url` and `callback_url` for backend compatibility. |
+| `live` | No | Set `true` for production. Defaults to sandbox when omitted or `false`. |
+| `mode` | No | `popup` or `inline`. Defaults to `popup`. |
+| `inlineContainer` | Required for inline | Element ID where the inline checkout iframe should be mounted. Defaults to `checkoutElement`. |
+| `element` | No | Button class name to bind. Defaults to `kulmiPayButton`. |
+| `methods` | No | Payment methods to request, such as `["mpesa", "pesalink"]`. Backend account settings may override this. |
+| `styles` | No | Checkout theme overrides. Backend account settings may also return styles. |
+| `apiBaseURL` | No | Base origin for self-hosted API testing. |
+| `checkoutAPIURL` | No | Full checkout API endpoint override. |
+| `checkoutBaseURL` | No | Checkout frontend origin override. |
+
+## PHP SDK
+
+Use the PHP SDK in backend applications that need to create checkout sessions, start M-Pesa STK pushes, collect PesaLink payments, send money, manage wallets, or create and retrieve refunds.
+
+### Install
+
+```bash
+composer require kulmipay/kulmipay-php
+```
+
+### Configure
+
+```php
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Collection;
+
+$credentials = [
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+    "publishable_key" => "ISPubKey_live_xxxxxxxxxxxxxxxx",
+];
+
+$collection = new Collection();
+$collection->init($credentials);
+```
+
+For sandbox, use sandbox keys and set `sandbox` to `true`:
+
+```php
+$credentials = [
+    "token" => "ISSecretKey_test_xxxxxxxxxxxxxxxx",
+    "publishable_key" => "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    "sandbox" => true,
+];
+```
+
+For self-hosted deployments, pass the full API base URL:
+
+```php
+$credentials = [
+    "token" => "YOUR_SECRET_KEY",
+    "publishable_key" => "YOUR_PUBLIC_KEY",
+    "base_url" => "https://payments.example.com/api/v1",
+];
+```
+
+### Checkout
+
+```php
+use KulmiPay\KulmiPayPHP\Checkout;
+use KulmiPay\KulmiPayPHP\Customer;
+
+$customer = new Customer();
+$customer->first_name = "Jane";
+$customer->last_name = "Doe";
+$customer->email = "customer@example.com";
+$customer->phone_number = "254712345678";
+
+$checkout = new Checkout();
+$checkout->init($credentials);
+
+$response = $checkout->create(
+    1500,
+    "KES",
+    $customer,
+    null,
+    "https://merchant.example/thank-you",
+    "ORDER-1001",
+    null,
+    null,
+    "BUSINESS-PAYS",
+    "BUSINESS-PAYS",
+    null,
+    true
+);
+
+echo $response->url;
+```
+
+### M-Pesa STK Push
+
+```php
+use KulmiPay\KulmiPayPHP\Collection;
+
+$collection = new Collection();
+$collection->init($credentials);
+
+$response = $collection->mpesa_stk_push(
+    "1500.00",
+    "254712345678",
+    "ORDER-1001"
+);
+
+echo $response->invoice->invoice_id;
+```
+
+### Send Money
+
+```php
+use KulmiPay\KulmiPayPHP\Transfer;
+
+$transfer = new Transfer();
+$transfer->init($credentials);
+
+$transactions = [
+    [
+        "name" => "Jane Doe",
+        "account" => "254712345678",
+        "amount" => "1000",
+        "narrative" => "Refund",
+        "idempotency_key" => "refund-1001",
+    ],
+];
+
+$response = $transfer->mpesa("KES", $transactions, "YES");
+```
+
+Supported payout helpers:
+
+| Method | Provider |
+|---|---|
+| `$transfer->mpesa(...)` | `MPESA-B2C` |
+| `$transfer->mpesa_b2b(...)` | `MPESA-B2B` |
+| `$transfer->bank(...)` | `PESALINK` |
+| `$transfer->p2p(...)` | `P2P` |
+
+### Wallets
+
+```php
+use KulmiPay\KulmiPayPHP\Wallet;
+
+$wallet = new Wallet();
+$wallet->init($credentials);
+
+$wallets = $wallet->retrieve();
+$created = $wallet->create("KES", "Payroll Wallet", true);
+$transactions = $wallet->transactions($created->wallet_id);
+```
+
+### Refunds
+
+```php
+use KulmiPay\KulmiPayPHP\Refunds;
+
+$refunds = new Refunds();
+$refunds->init($credentials);
+
+$refund = $refunds->create(
+    "GQ7KZ2XPNM",
+    "1500.00",
+    "Duplicate payment"
+);
+
+$allRefunds = $refunds->retrieve();
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Checkout" icon="cart-shopping" href="/collections/checkout">
+    Create a checkout session and render hosted payment UI.
+  </Card>
+  <Card title="Send Money" icon="money-bill-transfer" href="/send-money/introduction">
+    Send funds to M-Pesa, PesaLink bank accounts, and KulmiPay wallets.
+  </Card>
+</CardGroup>

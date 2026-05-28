@@ -1,0 +1,74 @@
+---
+title: "GET/POST /api/v1/mpesa-paybill-accounts — M-Pesa PayBill Accounts"
+sidebarTitle: "M-Pesa PayBill Accounts"
+description: "Create and retrieve a KulmiPay PayBill account reference for M-Pesa C2B payments."
+---
+
+Use this API to provision or retrieve the M-Pesa PayBill account reference attached to your business.
+
+**Base URL:** `https://app.kulmipay.com`
+
+## Create an account reference
+
+**`POST /api/v1/mpesa-paybill-accounts/`**
+
+The request body is empty.
+
+```bash
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/mpesa-paybill-accounts/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{}'
+```
+
+## List account references
+
+**`GET /api/v1/mpesa-paybill-accounts/`**
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/mpesa-paybill-accounts/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+## Retrieve your account reference
+
+**`GET /api/v1/mpesa-paybill-accounts/{id}/`**
+
+The current backend returns the PayBill account reference for your authenticated business.
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/mpesa-paybill-accounts/current/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+## Response object
+
+<ResponseField name="paybill" type="string">
+  KulmiPay M-Pesa PayBill number.
+</ResponseField>
+
+<ResponseField name="account" type="number">
+  Your business account reference under the KulmiPay PayBill.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 creation timestamp.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 update timestamp.
+</ResponseField>
+
+## Example response
+
+```json
+{
+  "paybill": "4030517",
+  "account": 123456,
+  "created_at": "2026-05-28T09:00:00Z",
+  "updated_at": "2026-05-28T09:00:00Z"
+}
+```

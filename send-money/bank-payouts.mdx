@@ -1,0 +1,90 @@
+---
+title: "Bank Payouts"
+sidebarTitle: "Bank Payouts"
+description: "Send money to Kenyan bank accounts through PesaLink."
+---
+
+Use Bank Payouts when the recipient should receive funds in a Kenyan bank account. KulmiPay routes these payouts through PesaLink.
+
+## Transaction fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `account` | Yes | Recipient bank account number. |
+| `bank_code` | Yes | Recipient bank code. Fetch valid codes from `GET /api/v1/send-money/bank-codes/ke/`. |
+| `amount` | Yes | Amount to send in KES. Minimum is KES 100. |
+| `name` | No | Recipient name for your records. |
+| `narrative` | No | Payment reason shown in your reports. |
+| `idempotency_key` | No | Unique key to prevent duplicate payouts. |
+
+## Initiate a bank payout
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiate/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "currency": "KES",
+    "provider": "PESALINK",
+    "requires_approval": "YES",
+    "transactions": [
+      {
+        "account": "1234567890",
+        "bank_code": "68",
+        "amount": "5000",
+        "name": "John Kamau",
+        "narrative": "Vendor payment",
+        "idempotency_key": "vendor-jan-john-001"
+      }
+    ]
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/initiate/",
+    headers={"Authorization": "Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"},
+    json={
+        "currency": "KES",
+        "provider": "PESALINK",
+        "requires_approval": "YES",
+        "transactions": [
+            {
+                "account": "1234567890",
+                "bank_code": "68",
+                "amount": "5000",
+                "name": "John Kamau",
+                "narrative": "Vendor payment",
+                "idempotency_key": "vendor-jan-john-001",
+            }
+        ],
+    },
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## Get bank codes
+
+```bash
+curl https://app.kulmipay.com/api/v1/send-money/bank-codes/ke/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+## Validate bank account
+
+```bash
+curl -X POST https://app.kulmipay.com/api/v1/send-money/validate-accounts/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "PESALINK",
+    "account": "1234567890",
+    "bank_code": "68"
+  }'
+```

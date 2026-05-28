@@ -1,10 +1,10 @@
 ---
 title: "POST /api/v1/send-money/approve"
-sidebarTitle: "Approve payout"
-description: "Approve a disbursement payment file in PREVIEW-AND-APPROVE state to release it for processing. Accepts file_id or tracking_id from the initiation response."
+sidebarTitle: "Approve send money"
+description: "Approve a Send Money payment file in PREVIEW-AND-APPROVE state to release it for processing. Accepts file_id or tracking_id from the initiation response."
 ---
 
-After you initiate a disbursement with `requires_approval` set to `"YES"` (or omitted), the file waits in the `PREVIEW-AND-APPROVE` state. Calling this endpoint confirms the transactions and releases the file for processing. Kulmi Pay then debits your wallet and routes each payment through the selected provider.
+After you initiate a Send Money request with `requires_approval` set to `"YES"` (or omitted), the file waits in the `PREVIEW-AND-APPROVE` state. Calling this endpoint confirms the transactions and releases the file for processing. Kulmi Pay then debits your wallet and routes each payment through the selected provider.
 
 You must have the `change_files` permission on your API token to call this endpoint.
 
@@ -17,7 +17,7 @@ You must have the `change_files` permission on your API token to call this endpo
 **`POST https://app.kulmipay.com/api/v1/send-money/approve/`**
 
 <ParamField header="Authorization" type="string" required>
-  Bearer token. Format: `Bearer <token>`.
+  Secret key. Format: `Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx`.
 </ParamField>
 
 <ParamField body="file_id" type="string">
@@ -45,7 +45,7 @@ A successful request returns HTTP `200` with the updated file object.
 </ResponseField>
 
 <ResponseField name="status" type="string">
-  The updated file state. Moves to `PROCESSING` after successful approval.
+  The updated file status. Moves into balance checking and processing after successful approval.
 </ResponseField>
 
 <ResponseField name="total_amount" type="string">
@@ -64,7 +64,7 @@ A successful request returns HTTP `200` with the updated file object.
       Unique identifier for this transaction.
     </ResponseField>
     <ResponseField name="status" type="string">
-      Current transaction status: `PENDING`, `PROCESSING`, `COMPLETE`, or `FAILED`.
+      Current transaction status, such as `Pending`, `Payment initiated`, `Processing results`, `Successful`, or `Unsuccessful`.
     </ResponseField>
     <ResponseField name="account" type="string">
       Recipient phone number or account number.
@@ -112,7 +112,7 @@ A successful request returns HTTP `200` with the updated file object.
 
 ```bash cURL
 curl -X POST https://app.kulmipay.com/api/v1/send-money/approve/ \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "file_id": "f8a2b1c3-...",
@@ -129,7 +129,7 @@ import requests
 response = requests.post(
     "https://app.kulmipay.com/api/v1/send-money/approve/",
     headers={
-        "Authorization": "Bearer <token>",
+        "Authorization": "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
         "Content-Type": "application/json",
     },
     json={
@@ -151,7 +151,8 @@ print(response.json())
 {
   "file_id": "f8a2b1c3-...",
   "tracking_id": "d9e4f5a6-...",
-  "status": "PROCESSING",
+  "status": "Confirming balance",
+  "status_code": "BP104",
   "batch_reference": "PAYROLL-JAN-2024",
   "total_amount": "50000.00",
   "transactions_count": 2,
@@ -165,14 +166,16 @@ print(response.json())
   "transactions": [
     {
       "transaction_id": "t1a2b3c4-...",
-      "status": "PENDING",
+      "status": "Pending",
+      "status_code": "TP101",
       "account": "254712345678",
       "amount": "25000",
       "name": "John Doe"
     },
     {
       "transaction_id": "t5d6e7f8-...",
-      "status": "PENDING",
+      "status": "Pending",
+      "status_code": "TP101",
       "account": "254798765432",
       "amount": "25000",
       "name": "Jane Smith"

@@ -1,7 +1,7 @@
 ---
-title: "POST /api/v1/send-money/initiation"
-sidebarTitle: "Initiate payout"
-description: "Create a disbursement payment file with one or more transactions to M-Pesa wallets, bank accounts, or other supported providers in Kenya."
+title: "POST /api/v1/send-money/initiate"
+sidebarTitle: "Initiate send money"
+description: "Create a send money payment file with one or more transactions to M-Pesa wallets, M-Pesa Till or PayBill numbers, bank accounts, or KulmiPay wallets."
 ---
 
 Calling this endpoint creates a payment **file** containing one or more transactions. The file starts in the `PREVIEW-AND-APPROVE` state — nothing is sent until you approve it. If you set `requires_approval` to `"NO"`, Kulmi Pay approves and queues the file immediately after creation.
@@ -10,10 +10,10 @@ You must have the `add_files` permission on your API token to call this endpoint
 
 ## Request
 
-**`POST https://app.kulmipay.com/api/v1/send-money/initiation/`**
+**`POST https://app.kulmipay.com/api/v1/send-money/initiate/`**
 
 <ParamField header="Authorization" type="string" required>
-  Bearer token. Format: `Bearer <token>`.
+  Secret key. Format: `Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx`.
 </ParamField>
 
 <ParamField body="currency" type="string" required>
@@ -21,7 +21,7 @@ You must have the `add_files` permission on your API token to call this endpoint
 </ParamField>
 
 <ParamField body="provider" type="string" required>
-  The payment provider to route the disbursement through. One of:
+  The payment provider to route the Send Money request through. One of:
 
   | Value | Description |
   |---|---|
@@ -29,8 +29,6 @@ You must have the `add_files` permission on your API token to call this endpoint
   | `MPESA-B2B` | Pay to an M-Pesa PayBill or Till number |
   | `PESALINK` | Transfer to a Kenyan bank account |
   | `P2P` | Transfer between Kulmi Pay wallets |
-  | `AIRTIME` | Top up mobile airtime |
-  | `RTGS` | High-value real-time gross settlement |
 </ParamField>
 
 <ParamField body="requires_approval" type="string" default="YES">
@@ -72,7 +70,7 @@ You must have the `add_files` permission on your API token to call this endpoint
     </ParamField>
 
     <ParamField body="account_type" type="string">
-      For `MPESA-B2B` transactions, specifies how to treat the account. One of `"PayBill"` or `"Till"`.
+      For `MPESA-B2B` transactions, specifies how to treat the account. One of `"PayBill"` or `"TillNumber"`.
     </ParamField>
 
     <ParamField body="account_reference" type="string">
@@ -167,8 +165,8 @@ A successful request returns HTTP `201` with the newly created file object.
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://app.kulmipay.com/api/v1/send-money/initiation/ \
-  -H "Authorization: Bearer <token>" \
+curl -X POST https://app.kulmipay.com/api/v1/send-money/initiate/ \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "currency": "KES",
@@ -189,9 +187,9 @@ curl -X POST https://app.kulmipay.com/api/v1/send-money/initiation/ \
 import requests
 
 response = requests.post(
-    "https://app.kulmipay.com/api/v1/send-money/initiation/",
+    "https://app.kulmipay.com/api/v1/send-money/initiate/",
     headers={
-        "Authorization": "Bearer <token>",
+        "Authorization": "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
         "Content-Type": "application/json",
     },
     json={

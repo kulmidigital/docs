@@ -1,89 +1,119 @@
 ---
 title: "Sandbox"
 sidebarTitle: "Sandbox"
-description: "Use the Kulmi Pay sandbox to test collections and disbursements with sandbox credentials before switching to your live account and real payments."
+description: "Test your KulmiPay integration in sandbox before switching to live payments."
 ---
 
-The Kulmi Pay sandbox is a fully isolated environment where you can test your integration end-to-end without moving real money. It mirrors the live API's endpoints and responses, so switching to production requires only a credential and base URL change.
+Use the KulmiPay sandbox to build and test your integration without moving real money. Sandbox and live are separate environments with separate accounts, credentials, API URLs, and checkout URLs.
 
 <Warning>
-  Never use live credentials in the sandbox, and never use sandbox credentials against the live API. Each environment validates that credentials match — a mismatch returns an authentication error.
+  Never mix sandbox and live credentials. Sandbox keys only work on `sandbox.kulmipay.com`, and live keys only work on `app.kulmipay.com`.
 </Warning>
 
-## Base URLs
+## Integration testing environment
 
-| Environment | Base URL |
+KulmiPay provides two environments:
+
+- **Sandbox / development** for testing integrations.
+- **Live / production** for real transactions.
+
+All API requests should be made over HTTPS. Webhook callback URLs should also use HTTPS and be publicly reachable.
+
+## Resources for KulmiPay integration and API testing
+
+### Sandbox / development environment
+
+Use sandbox while building and testing your application.
+
+| Resource | URL |
 |---|---|
-| **Sandbox** | `https://sandbox.kulmipay.com` |
-| **Live** | `https://app.kulmipay.com` |
+| Sandbox dashboard | `https://sandbox.kulmipay.com` |
+| API base URL | `https://sandbox.kulmipay.com/api/` |
+| API v1 base URL | `https://sandbox.kulmipay.com/api/v1/` |
+| Checkout API | `https://sandbox.kulmipay.com/api/v1/checkout/` |
+| Checkout page | `https://checkout-sandbox.kulmipay.com` |
 
-Swap the base URL in your API client or environment configuration to switch between environments.
+Sandbox API keys use test prefixes:
 
-## Setting up sandbox credentials
+| Key | Prefix |
+|---|---|
+| Public key | `ISPubKey_test_` |
+| Secret key | `ISSecretKey_test_` |
 
-<Steps>
-  <Step title="Create a sandbox account">
-    Go to [sandbox.kulmipay.com](https://sandbox.kulmipay.com) and sign up. Sandbox accounts are separate from live accounts — you need a distinct registration for each environment.
-  </Step>
+Create sandbox keys from **API Applications** in the sandbox dashboard.
 
-  <Step title="Create an API application">
-    From your sandbox dashboard, navigate to **API Applications** and create a new application. You'll receive a set of test credentials:
+### Live environment
 
-    - **Client ID** — identifies your sandbox application
-    - **Client Secret** — authenticates your sandbox application
-    - **Public Key** — in the format `ISPubKey_test_...`
-    - **API Secret Key** — in the format `ISSecretKey_test_...`
-  </Step>
+Use live only when you are ready to process real payments.
 
-  <Step title="Generate a sandbox token">
-    Use the same `/api/token/` flow as production, but point to the sandbox base URL:
+| Resource | URL |
+|---|---|
+| Live dashboard | `https://app.kulmipay.com` |
+| Sign up | `https://app.kulmipay.com/account/signup/` |
+| API base URL | `https://app.kulmipay.com/api/` |
+| API v1 base URL | `https://app.kulmipay.com/api/v1/` |
+| Checkout API | `https://app.kulmipay.com/api/v1/checkout/` |
+| Checkout page | `https://checkout.kulmipay.com` |
 
-    ```bash
-    curl -X POST \
-      -d "grant_type=password&username=<SANDBOX-USERNAME>&password=<SANDBOX-PASSWORD>" \
-      -u "<SANDBOX-CLIENT-ID>:<SANDBOX-CLIENT-SECRET>" \
-      https://sandbox.kulmipay.com/api/token/
-    ```
+Live API keys use live prefixes:
 
-    Use the returned `access_token` in the `Authorization: Bearer` header for all sandbox requests.
-  </Step>
-</Steps>
+| Key | Prefix |
+|---|---|
+| Public key | `ISPubKey_live_` |
+| Secret key | `ISSecretKey_live_` |
 
-## Sandbox test data
+## Testing details for sandbox environment
 
-Use the values below to simulate common payment scenarios. These identifiers only work in the sandbox environment.
+### Create a checkout session
 
-### M-Pesa test phone numbers
+Use your sandbox public key to create a test checkout.
+
+```bash
+curl -X POST https://sandbox.kulmipay.com/api/v1/checkout/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    "amount": 1000,
+    "currency": "KES",
+    "email": "customer@example.com",
+    "phone_number": "254723890353",
+    "api_ref": "ORDER-1001",
+    "redirect_url": "https://merchant.example/thank-you"
+  }'
+```
+
+### Authenticate protected sandbox requests
+
+For backend-only API calls, pass your sandbox secret key as a Bearer token.
+
+```bash
+curl --request GET \
+  --url https://sandbox.kulmipay.com/api/v1/wallets/ \
+  --header 'Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx'
+```
+
+### Test M-Pesa phone numbers
 
 | Phone number | Simulated behavior |
 |---|---|
 | `254723890353` | Payment succeeds |
-| `254700000000` | Payment fails (insufficient funds) |
+| `254700000000` | Payment fails |
 | `254711111111` | Payment times out |
-
-### Test cards
-
-| Card number | Expiry | CVV | Simulated behavior |
-|---|---|---|---|
-| `4111111111111111` | Any future date | Any 3 digits | Payment succeeds (Visa) |
-| `5500005555555559` | Any future date | Any 3 digits | Payment succeeds (Mastercard) |
-| `4000000000000002` | Any future date | Any 3 digits | Payment declined |
 
 ### Test amounts
 
-There are no restrictions on amounts in the sandbox. You can use small values like `1` or `5` to keep test data clean.
-
-<Note>
-  Webhook notifications in the sandbox behave identically to production. Configure your webhook endpoint to a publicly accessible URL (or use a tunneling tool like ngrok during local development) to receive sandbox events.
-</Note>
+Use small amounts such as `1`, `5`, or `10` to keep test records easy to review.
 
 ## Switching from sandbox to live
 
-When you're ready to process real transactions:
+When you are ready to go live:
 
-1. Replace the sandbox base URL (`https://sandbox.kulmipay.com`) with the live URL (`https://app.kulmipay.com`) in your configuration.
-2. Replace your sandbox credentials (Client ID, Client Secret, Public Key, API Secret Key) with the corresponding live credentials from your live dashboard.
-3. Ensure your webhook endpoint URL is pointing to your production server.
-4. Complete any required business verification in your live account before processing payments.
+1. Replace `https://sandbox.kulmipay.com` with `https://app.kulmipay.com`.
+2. Replace sandbox keys with live keys.
+3. Use `https://checkout.kulmipay.com` for live hosted checkout.
+4. Point webhooks to your production HTTPS endpoint.
+5. Complete live business verification before processing real payments.
 
-If you store credentials in environment variables, you only need to update those values — no code changes required.
+<Note>
+  If you are using the `kulmipay` browser SDK, set `live: true` when switching to production.
+</Note>

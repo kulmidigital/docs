@@ -1,0 +1,42 @@
+---
+title: "Bring Your M-Pesa Till/PayBill Number"
+sidebarTitle: "Introduction"
+description: "Use your own Safaricom M-Pesa Till or PayBill number with KulmiPay collections."
+---
+
+Use this setup when your business already owns a Safaricom M-Pesa Till or PayBill number and wants KulmiPay to process collections through that shortcode.
+
+Once enabled, your customer-facing payment details use your shortcode, while KulmiPay handles payment processing, reconciliation, payment status updates, and webhooks.
+
+## What you need
+
+Before configuring your shortcode, make sure you have:
+
+| Requirement | Description |
+|-------------|-------------|
+| Safaricom shortcode | Your live Till number or PayBill number. |
+| M-Pesa portal access | Access to the organization that owns the shortcode. |
+| Daraja live app | A live Safaricom Daraja app for the shortcode. |
+| Consumer key and secret | Live Daraja app credentials. |
+| Passkey | The shortcode passkey from Safaricom. |
+| Shortcode type | Either Till or PayBill. |
+
+## Supported flow
+
+This is an account configuration flow. It is not a public REST API for creating or editing M-Pesa shortcode integrations.
+
+After activation, your existing KulmiPay collection flows continue to work:
+
+| Flow | Endpoint or tool |
+|------|------------------|
+| M-Pesa STK Push | `POST /api/v1/payment/collection/` with `method: "M-PESA"` |
+| Hosted checkout | KulmiPay checkout SDK and hosted checkout sessions |
+| WooCommerce | KulmiPay WooCommerce plugin |
+
+<Note>
+  The public `mpesa-paybill-accounts` API is different. It provisions an account reference under the KulmiPay PayBill. This section is for businesses that want to use their own Safaricom shortcode.
+</Note>
+
+## Next step
+
+Follow [Configuring your Shortcode](/mpesa-paybill/configuring-your-account) to prepare the credentials and activation details.

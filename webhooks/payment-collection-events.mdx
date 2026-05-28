@@ -1,0 +1,52 @@
+---
+title: "Payment Collection Events"
+sidebarTitle: "Payment Collection Events"
+description: "Webhook payloads for M-Pesa and PesaLink collection invoice state changes."
+---
+
+Enable `collection_event` to receive notifications when a collection invoice is created or changes state.
+
+Collection events are sent for invoices with a positive value. They use the same invoice shape returned by the collection APIs, plus your configured `challenge`.
+
+## When it fires
+
+- A collection invoice is created.
+- The invoice state changes, for example from `PENDING` to `COMPLETE` or `FAILED`.
+
+## Payload
+
+```json
+{
+  "invoice_id": "GQ7KZ2XPNM",
+  "state": "COMPLETE",
+  "provider": "M-PESA",
+  "charges": "33.00",
+  "net_amount": "1467.00",
+  "currency": "KES",
+  "value": "1500.00",
+  "account": "254712345678",
+  "api_ref": "ORDER-1001",
+  "clearing_status": "AVAILABLE",
+  "mpesa_reference": "RKT123ABC",
+  "host": "https://app.kulmipay.com",
+  "retry_count": 0,
+  "failed_reason": null,
+  "failed_code": null,
+  "failed_code_link": null,
+  "created_at": "2026-05-28T08:23:11Z",
+  "updated_at": "2026-05-28T08:24:05Z",
+  "challenge": "your-configured-secret"
+}
+```
+
+## Important fields
+
+| Field | Description |
+|-------|-------------|
+| `invoice_id` | Invoice alias ID. Use this with the payment status endpoint. |
+| `state` | Invoice state, such as `PENDING`, `PROCESSING`, `COMPLETE`, or `FAILED`. |
+| `provider` | Collection provider, currently `M-PESA` or `PESALINK`. |
+| `value` | Gross collected amount. |
+| `net_amount` | Amount after applicable charges. |
+| `api_ref` | Your reconciliation reference. |
+| `challenge` | Your configured challenge value. Verify it before processing the event. |

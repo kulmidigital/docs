@@ -1,0 +1,103 @@
+---
+title: "WooCommerce"
+sidebarTitle: "WooCommerce"
+description: "Install and configure the KulmiPay WooCommerce plugin to accept M-Pesa and PesaLink payments from your WordPress store."
+---
+
+Use the KulmiPay WooCommerce plugin to add KulmiPay as a payment method at checkout. The plugin creates a KulmiPay checkout session for each WooCommerce order, redirects or opens the payment popup depending on your settings, and confirms payment status before marking the order paid.
+
+The plugin currently supports KulmiPay checkout for **M-Pesa** and **PesaLink** payments.
+
+## Requirements
+
+- WordPress 6.0 or later
+- WooCommerce 8.0 or later
+- PHP 7.4 or later
+- A KulmiPay account with a public API key
+- HTTPS enabled before you go live
+
+## Install the plugin
+
+<Steps>
+  <Step title="Download the plugin ZIP">
+    Download the KulmiPay WooCommerce plugin ZIP from your release package. In this repository, the packaged artifact is `wordpress/dist/kulmipay.zip`.
+  </Step>
+  <Step title="Upload it in WordPress">
+    In WP Admin, go to **Plugins → Add New → Upload Plugin**, select `kulmipay.zip`, and click **Install Now**.
+  </Step>
+  <Step title="Activate KulmiPay">
+    After installation completes, click **Activate Plugin**. The payment gateway will appear in WooCommerce payment settings as **Kulmipay**.
+  </Step>
+</Steps>
+
+## Configure WooCommerce
+
+Open **WooCommerce → Settings → Payments**, then enable **Kulmipay**.
+
+Configure the following fields:
+
+| Field | Description |
+|-------|-------------|
+| `Enable Kulmipay` | Turns the payment method on at checkout. |
+| `Title` | The payment method name shown to customers. Defaults to `Kulmipay`. |
+| `Description` | Checkout text shown below the payment method. |
+| `Test mode` | Uses the sandbox host and test public key when enabled. |
+| `Trust Badges` | Shows the KulmiPay checkout badge at checkout. |
+| `Test Public Key` | Your sandbox public key. It must start with `ISPubKey_test`. |
+| `Live Public Key` | Your live public key. It must start with `ISPubKey_live`. |
+| `Payment Option` | Choose `Redirect` to send customers to KulmiPay, or `Popup` to keep checkout in-page. |
+
+<Warning>
+  Use a **public key** in WooCommerce. Do not paste a secret key into the plugin settings. Secret keys start with `ISSecretKey_` and are only for backend API calls.
+</Warning>
+
+## Get your API key
+
+Use the environment that matches your store mode:
+
+| Mode | Dashboard | Key format |
+|------|-----------|------------|
+| Sandbox | [sandbox.kulmipay.com/account/api-keys/](https://sandbox.kulmipay.com/account/api-keys/) | `ISPubKey_test_...` |
+| Live | [app.kulmipay.com/account/api-keys/](https://app.kulmipay.com/account/api-keys/) | `ISPubKey_live_...` |
+
+When you are ready to process real payments, turn off **Test mode**, add your live public key, and make sure your WordPress site uses HTTPS.
+
+## Test checkout
+
+1. Add a product to your cart.
+2. Go to checkout.
+3. Select **Kulmipay** as the payment method.
+4. Place the order.
+5. Complete the payment in the KulmiPay checkout flow.
+
+After KulmiPay confirms the payment, the plugin validates the invoice through `POST /api/v1/payment/status/` and marks the WooCommerce order as paid.
+
+## Redirects and webhooks
+
+The plugin sends both `redirect_url` and `callback_url` when creating the checkout session. Both point to your WooCommerce callback URL:
+
+```text
+https://your-store.example/wc-api/kulmipay?ref_id=<order_id>
+```
+
+KulmiPay also posts webhook-style callbacks to:
+
+```text
+https://your-store.example/wc-api/kulmipay_webhook
+```
+
+Keep these URLs publicly reachable so WooCommerce can reconcile successful payments.
+
+## Troubleshooting
+
+| Issue | What to check |
+|-------|---------------|
+| KulmiPay does not appear at checkout | Confirm the plugin is active and **Enable Kulmipay** is checked under WooCommerce payment settings. |
+| "Public key is required" | Add either a test public key or live public key, depending on **Test mode**. |
+| "Invalid public key" | Test keys must start with `ISPubKey_test`; live keys must start with `ISPubKey_live`. |
+| Live checkout fails on HTTP | Enable HTTPS or switch back to **Test mode** while developing locally. |
+| Order remains pending | Confirm the customer completed payment and that `/wc-api/kulmipay` and `/wc-api/kulmipay_webhook` are reachable from the internet. |
+
+<Note>
+  The WooCommerce plugin uses the same KulmiPay checkout infrastructure as the browser SDK, but WordPress merchants only need to install the plugin and configure a public key.
+</Note>

@@ -1,0 +1,7 @@
+@media (min-width: 1024px) {
+  #sidebar,
+  #sidebar-content {
+    min-width: 17rem;
+    width: 17rem;
+  }
+}

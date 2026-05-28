@@ -1,16 +1,16 @@
 ---
 title: "M-Pesa STK Push"
 sidebarTitle: "M-Pesa STK Push"
-description: "Send a Lipa Na M-Pesa Express payment prompt directly to a customer's phone. Minimum KES 10, maximum KES 150,000. Supports both server and client-side flows."
+description: "Send a Lipa Na M-Pesa Express payment prompt directly to a customer's phone without redirecting them to a checkout page."
 ---
 
-M-Pesa STK Push (also called Lipa Na M-Pesa Express) lets you initiate a payment from your server. When you call the API, Safaricom sends a prompt to your customer's phone asking them to enter their M-Pesa PIN. Once they confirm, the payment is processed and you receive a webhook notification. No redirect, no additional steps for the customer.
+M-Pesa STK Push (also called Lipa Na M-Pesa Express) lets you initiate a payment from your server. When you call the API, Safaricom sends a prompt to your customer's phone asking them to enter their M-Pesa PIN. Once they confirm, the payment is processed and you receive a webhook notification. No redirect or hosted checkout page is required.
 
 ## How it works
 
 <Steps>
   <Step title="Send the STK push request">
-    Call `POST /api/v1/payment/collection/stk-push/` with the customer's phone number and the amount to collect.
+    Call `POST /api/v1/payment/mpesa-stk-push/` with the customer's phone number and the amount to collect.
   </Step>
   <Step title="Customer receives a prompt">
     Safaricom sends a push notification to the customer's phone with your business name and the payment amount.
@@ -28,13 +28,12 @@ M-Pesa STK Push (also called Lipa Na M-Pesa Express) lets you initiate a payment
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://app.kulmipay.com/api/v1/payment/collection/stk-push/ \
-  -H "Authorization: Bearer <token>" \
-  -H "X-KULMI-SECRET-KEY: <secret_key>" \
+curl -X POST https://app.kulmipay.com/api/v1/payment/mpesa-stk-push/ \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "phone_number": "254712345678",
-    "amount": 1000,
+    "amount": "1000.00",
     "api_ref": "ORDER-001",
     "mobile_tarrif": "BUSINESS-PAYS"
   }'
@@ -44,19 +43,63 @@ curl -X POST https://app.kulmipay.com/api/v1/payment/collection/stk-push/ \
 import requests
 
 response = requests.post(
-    "https://app.kulmipay.com/api/v1/payment/collection/stk-push/",
+    "https://app.kulmipay.com/api/v1/payment/mpesa-stk-push/",
     headers={
-        "Authorization": "Bearer <token>",
-        "X-KULMI-SECRET-KEY": "<secret_key>",
+        "Authorization": "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
+        "Content-Type": "application/json",
     },
     json={
         "phone_number": "254712345678",
-        "amount": 1000,
+        "amount": "1000.00",
         "api_ref": "ORDER-001",
         "mobile_tarrif": "BUSINESS-PAYS",
     },
 )
 print(response.json())
+```
+
+```javascript Node.js
+const response = await fetch(
+  "https://app.kulmipay.com/api/v1/payment/mpesa-stk-push/",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      phone_number: "254712345678",
+      amount: "1000.00",
+      api_ref: "ORDER-001",
+      mobile_tarrif: "BUSINESS-PAYS",
+    }),
+  }
+);
+
+console.log(await response.json());
+```
+
+```php PHP
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Collection;
+
+$collection = new Collection();
+$collection->init([
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+]);
+
+$response = $collection->mpesa_stk_push(
+    "1000.00",
+    "254712345678",
+    "ORDER-001",
+    null,
+    "BUSINESS-PAYS"
+);
+
+echo $response->invoice->invoice_id;
 ```
 
 </CodeGroup>
@@ -66,8 +109,8 @@ print(response.json())
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `phone_number` | string | Yes | Kenyan phone number in international format, e.g. `254712345678`. |
-| `amount` | number | Yes | Amount in KES. Minimum KES 10, maximum KES 150,000. |
-| `api_ref` | string | No | Your internal reference for this payment, e.g. an order ID. Returned in the webhook payload. |
+| `amount` | decimal string or number | Yes | Amount in KES. The backend rounds decimal values up to the nearest whole shilling before sending the STK push. |
+| `api_ref` | string | No | Your internal reference for this payment, e.g. an order ID. Defaults to `MPesa Express` when omitted and is returned in the webhook payload. |
 | `wallet_id` | string | No | The ID of a specific KES wallet to receive funds. Defaults to your primary settlement wallet. |
 | `mobile_tarrif` | string | No | Who pays the transaction fee. `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
 
@@ -75,12 +118,13 @@ print(response.json())
 
 ```json
 {
-  "id": "INV-XXXXXXXX",
+  "id": "a3f7c819-4e2b-4d1a-9c3f-2b8e1d7a6f05",
   "invoice": {
-    "id": "INV-XXXXXXXX",
+    "invoice_id": "INV-XXXXXXXX",
     "state": "PENDING",
     "provider": "M-PESA",
-    "value": 1000,
+    "currency": "KES",
+    "value": "1000.00",
     "api_ref": "ORDER-001",
     "account": "254712345678",
     "created_at": "2024-01-15T10:30:00Z"
@@ -89,21 +133,24 @@ print(response.json())
     "phone_number": "254712345678",
     "provider": "M-PESA"
   },
-  "signature": "<jwt_signature>"
+  "payment_link": null,
+  "customer_comment": null,
+  "refundable": false,
+  "created_at": "2024-01-15T10:30:00Z",
+  "updated_at": "2024-01-15T10:30:00Z"
 }
 ```
 
-The `id` field in the response is your **invoice ID**. Save it — you'll use it to check payment status.
+The `invoice.invoice_id` field is the value you use to check payment status. Save it with your order record.
 
-## Amount limits
+## Sandbox URL
 
-M-Pesa enforces minimum and maximum transaction amounts:
+Use the sandbox host with the same path while testing:
 
-- **Minimum**: KES 10
-- **Maximum**: KES 150,000
-
-Requests outside this range are rejected with a `400` error.
+```bash
+https://sandbox.kulmipay.com/api/v1/payment/mpesa-stk-push/
+```
 
 <Note>
-  After sending the request, poll `POST /api/v1/payment/collection/status/` with the `invoice_id` from the response to check whether the customer completed the payment. Alternatively, configure a webhook to receive automatic notifications.
+  After sending the request, poll `POST /api/v1/payment/status/` with the `invoice.invoice_id` from the response to check whether the customer completed the payment. Alternatively, configure a webhook to receive automatic notifications.
 </Note>

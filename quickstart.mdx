@@ -1,153 +1,161 @@
 ---
 title: "Quick Start"
 sidebarTitle: "Quick Start"
-description: "Create an account, generate an access token, and trigger your first M-Pesa STK push payment in under 10 minutes with the Kulmi Pay API."
+description: "Create an account, get your API keys, and create your first KulmiPay checkout session."
 ---
 
-This guide walks you through everything you need to make your first live API call — from creating an account to triggering an M-Pesa payment prompt on a real phone. If you want to test without real money first, use the [sandbox environment](/sandbox) and replace the base URL with `https://sandbox.kulmipay.com`.
+This guide walks you through the fastest way to make a working KulmiPay API call. You will create an account, get your API keys, and create a checkout session.
+
+If you want to test without real money first, use the [sandbox environment](/sandbox) and replace the base URL with `https://sandbox.kulmipay.com`.
 
 <Steps>
-  <Step title="Create a Kulmi Pay account">
-    Go to [app.kulmipay.com](https://app.kulmipay.com) and sign up for an account. Complete the business verification steps to unlock live payment processing.
+  <Step title="Create a KulmiPay account">
+    Go to [app.kulmipay.com](https://app.kulmipay.com) and sign up for an account. Complete business verification before processing live payments.
 
-    If you want to test first, you can skip verification and start with sandbox credentials at [sandbox.kulmipay.com](https://sandbox.kulmipay.com).
+    For testing, create a separate sandbox account at [sandbox.kulmipay.com](https://sandbox.kulmipay.com).
   </Step>
 
   <Step title="Create an API application">
-    After logging in, navigate to **API Applications** in your dashboard and create a new application.
+    In the dashboard, open **API Applications** and create an application.
 
-    Kulmi Pay will generate three credentials for you:
+    KulmiPay gives you two API keys:
 
     | Credential | What it's for |
     |---|---|
-    | **Client ID** | Identifies your application when requesting a token |
-    | **Client Secret** | Authenticates your application — keep this private |
-    | **Public Key** | Used for checkout and collection requests |
+    | **Public Key** | Browser-safe checkout and public collection requests. It starts with `ISPubKey_`. |
+    | **Secret Key** | Protected backend API requests. It starts with `ISSecretKey_`. |
 
-    Copy all three values and store them securely. You cannot retrieve the Client Secret again after leaving the page.
+    Store the secret key securely. Do not expose it in frontend code.
   </Step>
 
-  <Step title="Get an access token">
-    Exchange your credentials for a Bearer token by posting to `/api/token/`. Pass your `CLIENT-ID` and `CLIENT-SECRET` as HTTP Basic auth credentials, and your API caller username and password in the request body.
+  <Step title="Create a checkout session">
+    Use your public key to create a hosted checkout session.
 
     <CodeGroup>
       ```bash cURL
-      curl -X POST \
-        -d "grant_type=password&username=<API-CALLER-USERNAME>&password=<API-CALLER-PASSWORD>" \
-        -u "<CLIENT-ID>:<CLIENT-SECRET>" \
-        https://app.kulmipay.com/api/token/
-      ```
-
-      ```python Python
-      import requests
-
-      response = requests.post(
-          "https://app.kulmipay.com/api/token/",
-          data={
-              "grant_type": "password",
-              "username": "<API-CALLER-USERNAME>",
-              "password": "<API-CALLER-PASSWORD>",
-          },
-          auth=("<CLIENT-ID>", "<CLIENT-SECRET>"),
-      )
-
-      token = response.json()["access_token"]
-      print(token)
-      ```
-
-      ```javascript Node.js
-      const response = await fetch("https://app.kulmipay.com/api/token/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization:
-            "Basic " +
-            Buffer.from("<CLIENT-ID>:<CLIENT-SECRET>").toString("base64"),
-        },
-        body: new URLSearchParams({
-          grant_type: "password",
-          username: "<API-CALLER-USERNAME>",
-          password: "<API-CALLER-PASSWORD>",
-        }),
-      });
-
-      const { access_token } = await response.json();
-      console.log(access_token);
-      ```
-    </CodeGroup>
-
-    A successful response returns a JSON object containing your `access_token`. Use that value as a Bearer token in all subsequent requests.
-  </Step>
-
-  <Step title="Trigger an M-Pesa STK push">
-    With your token in hand, you can now initiate a payment. The request below sends an STK push to a customer's phone — they'll see a prompt asking them to enter their M-Pesa PIN to complete the payment.
-
-    Replace `<token>` with the `access_token` from the previous step, and update `phone_number`, `amount`, and `api_ref` with your real values.
-
-    <CodeGroup>
-      ```bash cURL
-      curl -X POST https://app.kulmipay.com/api/v1/payment/collection/stk-push/ \
-        --header 'Authorization: Bearer <token>' \
+      curl -X POST https://sandbox.kulmipay.com/api/v1/checkout/ \
         --header 'Content-Type: application/json' \
         --data '{
-          "phone_number": "254723890353",
-          "amount": 10,
-          "api_ref": "YOUR-UNIQUE-TRACKING-NUMBER"
+          "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+          "amount": 1000,
+          "currency": "KES",
+          "email": "customer@example.com",
+          "phone_number": "254712345678",
+          "api_ref": "ORDER-1001",
+          "redirect_url": "https://merchant.example/thank-you",
+          "unique_api_ref": true
         }'
       ```
 
+      ```javascript Node.js
+      const response = await fetch("https://sandbox.kulmipay.com/api/v1/checkout/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          public_key: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+          amount: 1000,
+          currency: "KES",
+          email: "customer@example.com",
+          phone_number: "254712345678",
+          api_ref: "ORDER-1001",
+          redirect_url: "https://merchant.example/thank-you",
+          unique_api_ref: true
+        })
+      });
+
+      const checkout = await response.json();
+      console.log(checkout.url);
+      ```
+
       ```python Python
       import requests
 
-      headers = {
-          "Authorization": "Bearer <token>",
-          "Content-Type": "application/json",
-      }
-
-      payload = {
-          "phone_number": "254723890353",
-          "amount": 10,
-          "api_ref": "YOUR-UNIQUE-TRACKING-NUMBER",
-      }
-
       response = requests.post(
-          "https://app.kulmipay.com/api/v1/payment/collection/stk-push/",
-          json=payload,
-          headers=headers,
+          "https://sandbox.kulmipay.com/api/v1/checkout/",
+          json={
+              "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+              "amount": 1000,
+              "currency": "KES",
+              "email": "customer@example.com",
+              "phone_number": "254712345678",
+              "api_ref": "ORDER-1001",
+              "redirect_url": "https://merchant.example/thank-you",
+              "unique_api_ref": True,
+          },
       )
 
-      print(response.json())
+      checkout = response.json()
+      print(checkout["url"])
       ```
 
-      ```javascript Node.js
-      const response = await fetch(
-        "https://app.kulmipay.com/api/v1/payment/collection/stk-push/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: "Bearer <token>",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            phone_number: "254723890353",
-            amount: 10,
-            api_ref: "YOUR-UNIQUE-TRACKING-NUMBER",
-          }),
-        }
+      ```php PHP
+      <?php
+
+      require_once __DIR__ . "/vendor/autoload.php";
+
+      use KulmiPay\KulmiPayPHP\Checkout;
+      use KulmiPay\KulmiPayPHP\Customer;
+
+      $credentials = [
+          "publishable_key" => "ISPubKey_test_xxxxxxxxxxxxxxxx",
+          "sandbox" => true,
+      ];
+
+      $customer = new Customer();
+      $customer->email = "customer@example.com";
+      $customer->phone_number = "254712345678";
+
+      $checkout = new Checkout();
+      $checkout->init($credentials);
+
+      $response = $checkout->create(
+          1000,
+          "KES",
+          $customer,
+          null,
+          "https://merchant.example/thank-you",
+          "ORDER-1001",
+          null,
+          null,
+          "BUSINESS-PAYS",
+          "BUSINESS-PAYS",
+          null,
+          true
       );
 
-      const data = await response.json();
-      console.log(data);
+      echo $response->url;
       ```
     </CodeGroup>
 
-    | Field | Description |
-    |---|---|
-    | `phone_number` | Customer's phone number in international format (e.g. `254723890353`) |
-    | `amount` | Amount in KES — minimum KES 10 |
-    | `api_ref` | Your unique reference for this transaction — use it to look up the payment later |
+    The response includes a hosted `url`. Redirect the customer to that URL, or render checkout with the [`kulmipay` browser SDK](/client-libraries).
+  </Step>
 
-    Kulmi Pay will return a response confirming the STK push was initiated. The customer's phone will ring within a few seconds with the payment prompt. Configure a [webhook](/webhooks/overview) to receive the final payment status once the customer responds.
+  <Step title="Call a protected endpoint">
+    For backend-only endpoints, pass your secret key as a Bearer token.
+
+    <CodeGroup>
+      ```bash cURL
+      curl --request GET \
+        --url https://sandbox.kulmipay.com/api/v1/wallets/ \
+        --header 'Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx'
+      ```
+
+      ```php PHP
+      <?php
+
+      require_once __DIR__ . "/vendor/autoload.php";
+
+      use KulmiPay\KulmiPayPHP\Wallet;
+
+      $wallet = new Wallet();
+      $wallet->init([
+          "token" => "ISSecretKey_test_xxxxxxxxxxxxxxxx",
+          "sandbox" => true,
+      ]);
+
+      $wallets = $wallet->retrieve();
+      ```
+    </CodeGroup>
   </Step>
 </Steps>
 
@@ -155,15 +163,15 @@ This guide walks you through everything you need to make your first live API cal
 
 <CardGroup cols={2}>
   <Card title="Authentication" icon="key" href="/authentication">
-    Understand token expiry, the public key flow, and how to handle auth errors.
+    Understand public keys, secret keys, and environment-specific credentials.
   </Card>
-  <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
-    Set up real-time notifications so your server knows when payments complete.
+  <Card title="Client Libraries" icon="code" href="/client-libraries">
+    Install and configure the browser checkout SDK or PHP SDK.
   </Card>
-  <Card title="Collections overview" icon="arrow-down-to-line" href="/collections/overview">
-    Explore all payment methods — cards, bank transfers, and payment links.
+  <Card title="Checkout" icon="cart-shopping" href="/collections/checkout">
+    Learn the full hosted checkout flow.
   </Card>
   <Card title="Sandbox" icon="flask" href="/sandbox">
-    Test your full integration with simulated transactions before going live.
+    Test your integration before going live.
   </Card>
 </CardGroup>

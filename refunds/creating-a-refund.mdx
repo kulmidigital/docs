@@ -1,0 +1,95 @@
+---
+title: "Creating a Refund"
+sidebarTitle: "Creating a Refund"
+description: "Create a refund request for a completed KulmiPay collection using the chargebacks API."
+---
+
+Refunds are created through the KulmiPay chargebacks API. When you create a refund request, KulmiPay records the request against a completed invoice and starts the internal review or processing flow.
+
+Use this only for invoices that are already `COMPLETE`. The refund amount must be less than or equal to the original transaction amount.
+
+## Create a refund
+
+**`POST /api/v1/chargebacks/`**
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/chargebacks/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "invoice_id": "GQ7KZ2XPNM",
+    "amount": "1500.00",
+    "reason": "Duplicate payment"
+  }'
+```
+
+```php PHP
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Refunds;
+
+$refunds = new Refunds();
+$refunds->init([
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+]);
+
+$refund = $refunds->create(
+    "GQ7KZ2XPNM",
+    "1500.00",
+    "Duplicate payment"
+);
+```
+
+</CodeGroup>
+
+## Request fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `invoice_id` | Yes | Invoice alias ID for the completed payment. The API also accepts `invoice` for compatibility. |
+| `amount` | Yes | Amount to refund. Must be greater than zero and not more than the original transaction amount. |
+| `reason` | Yes | Short refund reason. |
+
+## Response
+
+```json
+{
+  "chargeback_id": "CB_12345",
+  "session_id": "pay-session-123",
+  "transaction": {
+    "transaction_id": "txn_xyz789",
+    "currency": "KES",
+    "value": "1500.00",
+    "status": "CHARGEBACK-PENDING"
+  },
+  "amount": "1500.00",
+  "reason": "Duplicate payment",
+  "status": "PENDING",
+  "resolution": null,
+  "staff_created": false,
+  "created_at": "2026-05-28T09:00:00Z",
+  "updated_at": "2026-05-28T09:00:00Z"
+}
+```
+
+Store `chargeback_id`. You use it to retrieve the refund later.
+
+## Refund statuses
+
+| Status | Meaning |
+|--------|---------|
+| `PENDING` | The refund request has been created. |
+| `PROCESSING` | KulmiPay is processing the refund. |
+| `DISPUTED` | The refund needs review or supporting action. |
+| `OVERDUE` | The refund request has exceeded the expected processing window. |
+| `COMPLETED` | The refund has been completed. |
+| `CANCELLED` | The refund request was cancelled. |
+
+<Note>
+  M-Pesa refunds may move into processing automatically after creation. Use [Retrieve Refunds](/refunds/retrieve-refunds) or [chargeback webhook events](/webhooks/chargeback-events) to track status changes.
+</Note>

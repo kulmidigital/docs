@@ -1,0 +1,88 @@
+---
+title: "Transaction Status"
+sidebarTitle: "Transaction Status"
+description: "Check the status of a Send Money payment file and each individual payout transaction."
+---
+
+Every Send Money request returns a `tracking_id`. Use it to check the overall payment file status and the status of every transaction in the file.
+
+## Check status
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://app.kulmipay.com/api/v1/send-money/status/ \
+  -H "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tracking_id": "550e8400-e29b-41d4-a716-446655440000"
+  }'
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/send-money/status/",
+    headers={"Authorization": "Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"},
+    json={"tracking_id": "550e8400-e29b-41d4-a716-446655440000"},
+)
+print(response.json())
+```
+
+</CodeGroup>
+
+## File statuses
+
+The status endpoint returns both a human-readable `status` and a machine-friendly `status_code`.
+
+| Status code | Status | Meaning |
+|-------------|--------|---------|
+| `BP103` | `Preview and approve` | File has been created and is waiting for approval. |
+| `BP104` | `Confirming balance` | KulmiPay is checking that the wallet has enough funds. |
+| `BP109` | `Sending payment` | Funds are being debited and transactions are being queued. |
+| `BP110` | `Processing payment` | Transactions have been submitted to the provider. |
+| `BC100` | `Completed` | File processing has ended. Check individual transaction statuses for success or failure. |
+| `BE111` | `Cancelled` | File was cancelled before processing completed. |
+| `BF105` | `Failed on low balance` | The source wallet did not have enough available balance. |
+
+## Transaction statuses
+
+| Status code | Status | Meaning |
+|-------------|--------|---------|
+| `TP101` | `Pending` | Transaction is queued or waiting for file approval. |
+| `TP102` | `Payment initiated` | Transaction has been sent to the provider. |
+| `TP104` | `Processing results` | Provider result is still pending. |
+| `TS100` | `Successful` | Transaction was delivered successfully. |
+| `TF103` | `Initiation failed` | KulmiPay could not initiate the payment with the provider. |
+| `TF106` | `Unsuccessful` | Transaction failed. Check `status_description`. |
+| `TC108` | `Cancelled` | Transaction was cancelled. |
+
+## Response shape
+
+```json
+{
+  "file_id": "FILE_123",
+  "tracking_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "Completed",
+  "status_code": "BC100",
+  "transactions_count": 2,
+  "paid_amount": "5000.00",
+  "failed_amount": "0.00",
+  "transactions": [
+    {
+      "transaction_id": "TX_123",
+      "status": "Successful",
+      "status_code": "TS100",
+      "account": "254712345678",
+      "amount": "2500",
+      "provider_reference": "SAMPLE123",
+      "status_description": "Processed successfully"
+    }
+  ]
+}
+```
+
+<Note>
+  For provider-specific failures, use `status_code`, `status_description`, and `provider_reference` when reconciling or reporting errors to support.
+</Note>

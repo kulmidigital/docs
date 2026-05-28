@@ -54,7 +54,9 @@
               "introduction",
               "quickstart",
               "authentication",
-              "sandbox"
+              "client-libraries",
+              "sandbox",
+              "troubleshooting"
             ]
           },
           {
@@ -62,41 +64,65 @@
             "pages": [
               "collections/overview",
               "collections/mpesa-stk-push",
-              "collections/card-payments",
-              "collections/payment-links",
-              "collections/checkout"
+              "collections/pesalink-bank-payments",
+              "collections/checkout",
+              "woocommerce"
             ]
           },
           {
-            "group": "Disbursements",
+            "group": "Send Money",
             "pages": [
-              "disbursements/overview",
-              "disbursements/send-money",
-              "disbursements/approve-cancel",
-              "disbursements/bank-codes"
+              "send-money/introduction",
+              "send-money/mpesa-b2c",
+              "send-money/mpesa-b2b",
+              "send-money/bank-payouts",
+              "send-money/beneficiaries",
+              "send-money/transaction-status",
+              "send-money/kulmipay-p2p"
             ]
           },
           {
-            "group": "Wallets",
+            "group": "Wallet as a Service",
             "pages": [
-              "wallets/overview",
-              "wallets/transfers",
-              "wallets/forex"
+              "wallets/introduction",
+              "wallets/retrieve-wallets",
+              "wallets/create-wallets",
+              "wallets/wallet-transactions",
+              "wallets/fund-wallet",
+              "wallets/internal-transfers"
             ]
           },
           {
             "group": "Webhooks",
             "pages": [
               "webhooks/overview",
-              "webhooks/events"
+              "webhooks/setup",
+              "webhooks/payment-collection-events",
+              "webhooks/send-money-events",
+              "webhooks/chargeback-events",
+              "webhooks/wallet-intra-transfer-events"
             ]
           },
           {
-            "group": "More Features",
+            "group": "Refunds",
             "pages": [
-              "subscriptions",
-              "beneficiaries",
-              "troubleshooting"
+              "refunds/creating-a-refund",
+              "refunds/retrieve-refunds"
+            ]
+          },
+          {
+            "group": "SMS Customization",
+            "pages": [
+              "sms-customization/introduction",
+              "sms-customization/payment-collection-sms",
+              "sms-customization/payment-disbursement-sms"
+            ]
+          },
+          {
+            "group": "Bring Your M-Pesa Till/PayBill Number",
+            "pages": [
+              "mpesa-paybill/introduction",
+              "mpesa-paybill/configuring-your-account"
             ]
           }
         ]
@@ -110,12 +136,11 @@
               "api-reference/collect-payment",
               "api-reference/stk-push",
               "api-reference/payment-status",
-              "api-reference/payment-links",
               "api-reference/checkout"
             ]
           },
           {
-            "group": "Disbursements",
+            "group": "Send Money",
             "pages": [
               "api-reference/send-money",
               "api-reference/approve-send-money",
@@ -142,11 +167,15 @@
             ]
           },
           {
-            "group": "Subscriptions",
+            "group": "Refunds",
             "pages": [
-              "api-reference/subscriptions",
-              "api-reference/customers",
-              "api-reference/plans"
+              "api-reference/refunds"
+            ]
+          },
+          {
+            "group": "M-Pesa",
+            "pages": [
+              "api-reference/mpesa-paybill-accounts"
             ]
           }
         ]

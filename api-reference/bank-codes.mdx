@@ -1,10 +1,10 @@
 ---
 title: "GET /api/v1/send-money/bank-codes/ke"
 sidebarTitle: "Bank codes"
-description: "Retrieve the complete list of supported Kenyan bank codes required when initiating PesaLink disbursements to bank accounts. No authentication needed."
+description: "Retrieve the complete list of supported Kenyan bank codes required when initiating PesaLink bank payouts. No authentication needed."
 ---
 
-This endpoint returns all bank codes supported for PesaLink transfers in Kenya. When you initiate a disbursement with `provider: "PESALINK"`, every transaction must include a `bank_code` identifying the recipient's bank. Use this endpoint to look up the correct code.
+This endpoint returns all bank codes supported for PesaLink transfers in Kenya. When you initiate a bank payout with `provider: "PESALINK"`, every transaction must include a `bank_code` identifying the recipient's bank. Use this endpoint to look up the correct code.
 
 This is a public endpoint — no authentication is required.
 

@@ -18,7 +18,7 @@ Replace `{wallet_id}` with the `wallet_id` (alias ID) of the wallet you want to 
 </ParamField>
 
 <ParamField query="trans_type" type="string">
-  Filter by transaction direction. Use `DEBIT` for outgoing transactions and `CREDIT` for incoming transactions.
+  Filter by transaction type. Supported values include `SALE`, `ADJUSTMENT`, `PAYOUT`, `WITHDRAWAL`, `CHARGE`, `AIRTIME`, `DEPOSIT`, `EXCHANGE`, and `UNMARKED`.
 </ParamField>
 
 <ParamField query="start_date" type="string">
@@ -58,7 +58,7 @@ The endpoint returns a paginated list of transaction objects. Results appear und
 </ResponseField>
 
 <ResponseField name="trans_type" type="string">
-  Transaction direction. Either `DEBIT` (funds left the wallet) or `CREDIT` (funds arrived).
+  Transaction type, such as `SALE`, `PAYOUT`, `DEPOSIT`, `CHARGE`, or `EXCHANGE`.
 </ResponseField>
 
 <ResponseField name="status" type="string">
@@ -70,7 +70,7 @@ The endpoint returns a paginated list of transaction objects. Results appear und
 </ResponseField>
 
 <ResponseField name="invoice" type="object">
-  The invoice linked to this transaction, if one exists. Present for collection and disbursement transactions.
+      The invoice linked to this transaction, if one exists. Present for collection and Send Money transactions.
 
   <Expandable title="invoice properties">
     <ResponseField name="invoice_id" type="string">
@@ -80,7 +80,7 @@ The endpoint returns a paginated list of transaction objects. Results appear und
       Invoice state. One of `PENDING`, `PROCESSING`, `COMPLETE`, or `FAILED`.
     </ResponseField>
     <ResponseField name="provider" type="string">
-      Payment method used for this invoice, for example `M-PESA` or `CARD-PAYMENT`.
+      Payment method used for this invoice, for example `M-PESA` or `PESALINK`.
     </ResponseField>
     <ResponseField name="value" type="string">
       The gross amount charged or disbursed.

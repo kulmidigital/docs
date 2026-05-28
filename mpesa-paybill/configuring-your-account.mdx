@@ -1,0 +1,57 @@
+---
+title: "Configuring your Shortcode"
+sidebarTitle: "Configuring your Shortcode"
+description: "Configure your own Safaricom M-Pesa Till or PayBill shortcode for KulmiPay collections."
+---
+
+Configure your M-Pesa shortcode after Safaricom has issued the live Till or PayBill number and Daraja credentials.
+
+This setup is handled as an account configuration flow in KulmiPay. The backend supports processing custom M-Pesa callback traffic, but there is no public REST endpoint for merchants to create or update shortcode credentials directly.
+
+## Configuration steps
+
+<Steps>
+  <Step title="Log in to KulmiPay">
+    Sign in at `https://app.kulmipay.com` with an account that can manage integrations and payment settings.
+  </Step>
+  <Step title="Prepare your M-Pesa credentials">
+    Collect the live Daraja `consumer_key`, `consumer_secret`, `passkey`, shortcode, and shortcode type. The shortcode type must match the Safaricom product: Till or PayBill.
+  </Step>
+  <Step title="Share or enter the configuration">
+    Add the credentials in the KulmiPay M-Pesa configuration flow for your account. If the setting is not visible on your account, KulmiPay support must enable it before activation.
+  </Step>
+  <Step title="Activate the shortcode">
+    Confirm the configuration and activate the integration. After activation, KulmiPay can process M-Pesa collections through your shortcode.
+  </Step>
+  <Step title="Test a collection">
+    Create a small M-Pesa collection and confirm the invoice moves to `COMPLETE`. Use payment status checks or webhooks to verify the result.
+  </Step>
+</Steps>
+
+## Required details
+
+| Field | Description |
+|-------|-------------|
+| Shortcode | Your Safaricom Till or PayBill number. |
+| Shortcode type | `Till` or `PayBill`. |
+| Consumer key | Live Daraja app consumer key. |
+| Consumer secret | Live Daraja app consumer secret. |
+| Passkey | Live shortcode passkey from Safaricom. |
+| Business account | KulmiPay business account that should receive collections. |
+
+## Callback handling
+
+KulmiPay handles callback processing for activated custom M-Pesa shortcodes. After setup, payment status updates continue to use the same KulmiPay invoice status and webhook flows documented for collections.
+
+Use these existing integration points:
+
+| Need | Where to look |
+|------|---------------|
+| Create an M-Pesa collection | [M-Pesa STK Push](/collections/mpesa-stk-push) |
+| Check invoice status | [Payment Status](/api-reference/payment-status) |
+| Receive asynchronous updates | [Payment Collection Events](/webhooks/payment-collection-events) |
+| Use the WooCommerce plugin | [WooCommerce](/woocommerce) |
+
+<Note>
+  Keep your live Daraja credentials in sync with KulmiPay. If Safaricom rotates your credentials or changes callback settings, update the KulmiPay configuration before processing live payments.
+</Note>

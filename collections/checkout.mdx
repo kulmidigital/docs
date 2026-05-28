@@ -1,48 +1,120 @@
 ---
 title: "Checkout"
 sidebarTitle: "Checkout"
-description: "Create a hosted checkout session with your Kulmi Pay public key and embed or redirect customers to a branded payment page. Supports M-Pesa, cards, and more."
+description: "Create a KulmiPay hosted checkout session and render it as a popup, inline frame, or redirect flow."
 ---
 
-Kulmi Pay Checkout lets you create a payment session on your server and display a pre-built, branded checkout UI in your app — without building a payment form from scratch. You initialise the session with your public key and the amount, then embed the checkout in your page or redirect the customer to it. Kulmi Pay handles card tokenisation, M-Pesa prompts, and payment state for you.
+KulmiPay Checkout lets you accept payments without building your own payment form. You create a checkout session with your publishable key, then send the customer to a hosted KulmiPay checkout page or render it with the `kulmipay` browser SDK.
+
+The checkout flow supports M-Pesa and PesaLink payments through the same session. Your account payment settings can control the final method order, layout, and checkout styling.
 
 ## Create a checkout session
 
-Send a `POST` request to `/api/v1/payment/collection/checkout/` with your public key and the payment details. The response includes a `url` (the hosted checkout page) and a `signature` you use to authorise subsequent payment calls from that session.
+Send a `POST` request to `/api/v1/checkout/` with your public key and payment details. The response includes a hosted `url`, a checkout `id`, and a `signature`.
 
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://app.kulmipay.com/api/v1/payment/collection/checkout/ \
+curl -X POST https://app.kulmipay.com/api/v1/checkout/ \
   -H "Content-Type: application/json" \
   -d '{
-    "public_key": "<your_public_key>",
+    "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
     "amount": 1500.00,
     "currency": "KES",
     "email": "customer@example.com",
-    "api_ref": "ORDER-003",
-    "card_tarrif": "BUSINESS-PAYS",
-    "mobile_tarrif": "BUSINESS-PAYS"
+    "phone_number": "254712345678",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "api_ref": "ORDER-1001",
+    "redirect_url": "https://merchant.example/thank-you",
+    "mobile_tarrif": "BUSINESS-PAYS",
+    "bank_tarrif": "BUSINESS-PAYS",
+    "unique_api_ref": true
   }'
+```
+
+```javascript JavaScript
+const response = await fetch("https://app.kulmipay.com/api/v1/checkout/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    public_key: "ISPubKey_live_xxxxxxxxxxxxxxxx",
+    amount: 1500,
+    currency: "KES",
+    email: "customer@example.com",
+    phone_number: "254712345678",
+    first_name: "Jane",
+    last_name: "Doe",
+    api_ref: "ORDER-1001",
+    redirect_url: "https://merchant.example/thank-you",
+    unique_api_ref: true
+  })
+});
+
+const checkout = await response.json();
+window.location.href = checkout.url;
 ```
 
 ```python Python
 import requests
 
 response = requests.post(
-    "https://app.kulmipay.com/api/v1/payment/collection/checkout/",
+    "https://app.kulmipay.com/api/v1/checkout/",
     json={
-        "public_key": "<your_public_key>",
-        "amount": 1500.00,
+        "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
+        "amount": 1500,
         "currency": "KES",
         "email": "customer@example.com",
-        "api_ref": "ORDER-003",
-        "card_tarrif": "BUSINESS-PAYS",
-        "mobile_tarrif": "BUSINESS-PAYS",
+        "phone_number": "254712345678",
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "api_ref": "ORDER-1001",
+        "redirect_url": "https://merchant.example/thank-you",
+        "unique_api_ref": True,
     },
 )
-data = response.json()
-checkout_url = data["url"]
+
+checkout = response.json()
+print(checkout["url"])
+```
+
+```php PHP
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Checkout;
+use KulmiPay\KulmiPayPHP\Customer;
+
+$credentials = [
+    "publishable_key" => "ISPubKey_live_xxxxxxxxxxxxxxxx",
+];
+
+$customer = new Customer();
+$customer->first_name = "Jane";
+$customer->last_name = "Doe";
+$customer->email = "customer@example.com";
+$customer->phone_number = "254712345678";
+
+$checkout = new Checkout();
+$checkout->init($credentials);
+
+$response = $checkout->create(
+    1500,
+    "KES",
+    $customer,
+    null,
+    "https://merchant.example/thank-you",
+    "ORDER-1001",
+    null,
+    null,
+    "BUSINESS-PAYS",
+    "BUSINESS-PAYS",
+    null,
+    true
+);
+
+echo $response->url;
 ```
 
 </CodeGroup>
@@ -50,125 +122,154 @@ checkout_url = data["url"]
 ### Request fields
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `public_key` | string | Yes | Your publishable API key from the dashboard. You can also pass this in the `X-KULMI-PUBLIC-API-KEY` header instead. |
-| `amount` | number | Yes | Amount to collect, in the specified currency. |
-| `currency` | string | Yes | Currency code: `KES`, `USD`, `EUR`, or `GBP`. |
-| `email` | string | No | Pre-fill the customer's email on the checkout page. |
-| `api_ref` | string | No | Your internal reference for this transaction. |
-| `card_tarrif` | string | No | Who pays card transaction fees. `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
-| `mobile_tarrif` | string | No | Who pays mobile money fees. `BUSINESS-PAYS` (default) or `CUSTOMER-PAYS`. |
-| `unique_api_ref` | boolean | No | When `true`, if a checkout already exists for this `api_ref`, Kulmi Pay returns the existing session instead of creating a new one. Use this for idempotency. |
+|---|---|---|---|
+| `public_key` | string | Yes* | Your publishable API key. You can pass it in the body or as `X-KULMI-PUBLIC-API-KEY`. |
+| `amount` | number | Yes | Amount to collect. |
+| `currency` | string | No | Currency code. Defaults to your payment settings when omitted. Common values are `KES`, `USD`, `EUR`, and `GBP`. |
+| `email` | string | No | Customer email. Used to pre-fill checkout details. |
+| `phone_number` | string | No | Customer phone number in international format. |
+| `first_name` | string | No | Customer first name. |
+| `last_name` | string | No | Customer last name. |
+| `api_ref` | string | Recommended | Your order or transaction reference. |
+| `redirect_url` | string | Recommended | URL where the customer should return after payment. |
+| `callback_url` | string | No | Compatibility field sent by the browser SDK. Use `redirect_url` for customer redirects. |
+| `host` | string | No | Merchant website origin. The browser SDK sets this automatically. |
+| `method` | string | No | Restrict checkout to a payment method when supported by your account settings. |
+| `mobile_tarrif` | string | No | `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+| `bank_tarrif` | string | No | `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+| `wallet_id` | string | No | Wallet to fund directly, when your account supports wallet funding. |
+| `unique_api_ref` | boolean | No | When `true`, KulmiPay returns an existing checkout for the same `api_ref` instead of creating a duplicate. |
+
+\* Required unless passed as `X-KULMI-PUBLIC-API-KEY`.
 
 ### Success response
 
 ```json
 {
-  "id": "<checkout_id>",
-  "url": "https://app.kulmipay.com/checkout/<checkout_id>/express/",
-  "signature": "<jwt_signature>",
+  "id": "d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14",
+  "url": "https://app.kulmipay.com/checkout/d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14/express/",
+  "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tracking_id": "",
   "amount": "1500.00",
   "currency": "KES",
+  "email": "customer@example.com",
+  "api_ref": "ORDER-1001",
   "paid": false,
-  "merchant_name": "Your Business Name"
+  "mobile_tarrif": "BUSINESS-PAYS",
+  "bank_tarrif": "BUSINESS-PAYS",
+  "methods": ["mpesa", "pesalink"],
+  "layout": "tabs",
+  "styles": {},
+  "merchant_name": "Your Business",
+  "merchant_origin": "merchant.example"
 }
 ```
 
-## Embed checkout in JavaScript or React
+## Use the browser SDK
 
-You can redirect the customer to the `url` from the response, or embed the checkout inside your app using an iframe or Kulmi Pay's JavaScript widget.
+Install the browser SDK from npm or load it from a CDN.
 
 <CodeGroup>
 
-```javascript JavaScript
-async function createCheckout(orderRef, amount) {
-  const response = await fetch(
-    "https://app.kulmipay.com/api/v1/payment/collection/checkout/",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        public_key: process.env.KULMIPAY_PUBLIC_KEY,
-        amount: amount,
-        currency: "KES",
-        api_ref: orderRef,
-        mobile_tarrif: "BUSINESS-PAYS",
-        card_tarrif: "BUSINESS-PAYS",
-        unique_api_ref: true,
-      }),
-    }
-  );
-
-  const data = await response.json();
-
-  // Option 1: redirect the customer
-  window.location.href = data.url;
-
-  // Option 2: embed in an iframe
-  const iframe = document.getElementById("kulmipay-checkout");
-  iframe.src = data.url;
-}
+```bash npm
+npm install kulmipay
 ```
 
-```jsx React
-import { useState } from "react";
-
-export function CheckoutButton({ amount, orderRef }) {
-  const [checkoutUrl, setCheckoutUrl] = useState(null);
-
-  async function handlePay() {
-    const res = await fetch(
-      "https://app.kulmipay.com/api/v1/payment/collection/checkout/",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          public_key: process.env.NEXT_PUBLIC_KULMIPAY_KEY,
-          amount,
-          currency: "KES",
-          api_ref: orderRef,
-          mobile_tarrif: "BUSINESS-PAYS",
-          card_tarrif: "BUSINESS-PAYS",
-          unique_api_ref: true,
-        }),
-      }
-    );
-    const data = await res.json();
-    setCheckoutUrl(data.url);
-  }
-
-  if (checkoutUrl) {
-    return (
-      <iframe
-        src={checkoutUrl}
-        width="100%"
-        height="600"
-        style={{ border: "none" }}
-        title="Kulmi Pay Checkout"
-      />
-    );
-  }
-
-  return <button onClick={handlePay}>Pay KES {amount}</button>;
-}
+```html CDN
+<script src="https://unpkg.com/kulmipay"></script>
 ```
 
 </CodeGroup>
 
-## Idempotency with unique_api_ref
+### Popup checkout
 
-If your user navigates away and returns, or your server retries a failed request, you may not want to create a duplicate checkout session. Set `unique_api_ref: true` and include a consistent `api_ref` value (such as your order ID). Kulmi Pay returns the existing checkout session if one already exists for that reference, rather than creating a new one.
+```html
+<button
+  class="kulmiPayButton"
+  data-amount="1500"
+  data-currency="KES"
+  data-email="customer@example.com"
+  data-phone_number="254712345678"
+  data-first_name="Jane"
+  data-last_name="Doe"
+  data-api_ref="ORDER-1001">
+  Pay now
+</button>
+
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false
+  })
+    .on("COMPLETE", function (response) {
+      console.log("Payment complete", response);
+    })
+    .on("FAILED", function (response) {
+      console.log("Payment failed", response);
+    })
+    .on("IN-PROGRESS", function (response) {
+      console.log("Payment in progress", response);
+    });
+</script>
+```
+
+### Inline checkout
+
+```html
+<div id="checkoutElement" style="width: 100%; max-width: 420px; height: 720px;"></div>
+
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  const checkout = new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false,
+    mode: "inline",
+    inlineContainer: "checkoutElement"
+  });
+
+  checkout.run({
+    amount: 1500,
+    currency: "KES",
+    email: "customer@example.com",
+    phone_number: "254712345678",
+    api_ref: "ORDER-1001"
+  });
+</script>
+```
+
+## Hosted redirect
+
+If you do not need the SDK, redirect the customer to the `url` returned by the checkout API.
+
+```javascript
+const checkout = await response.json();
+window.location.href = checkout.url;
+```
+
+## Idempotency with `unique_api_ref`
+
+Use `unique_api_ref: true` with a stable `api_ref` when retries or page refreshes could create duplicate checkout sessions. If a checkout already exists for that reference, KulmiPay returns the existing session.
 
 ```json
 {
-  "public_key": "<your_public_key>",
-  "amount": 1500.00,
+  "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
+  "amount": 1500,
   "currency": "KES",
-  "api_ref": "ORDER-003",
+  "api_ref": "ORDER-1001",
   "unique_api_ref": true
 }
 ```
 
-<Note>
-  The checkout session URL is tied to your business account. Always use your **publishable** (public) key in client-side code, never your secret key. Your secret key should only be used in server-side requests.
-</Note>
+## Sandbox and live endpoints
+
+| Environment | Checkout API | Checkout page |
+|---|---|---|
+| Sandbox | `https://sandbox.kulmipay.com/api/v1/checkout/` | `https://checkout-sandbox.kulmipay.com` |
+| Live | `https://app.kulmipay.com/api/v1/checkout/` | `https://checkout.kulmipay.com` |
+
+<Warning>
+  Use sandbox public keys with `sandbox.kulmipay.com` and live public keys with `app.kulmipay.com`. Environment mismatches are rejected.
+</Warning>

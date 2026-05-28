@@ -1,5 +1,5 @@
 ---
-title: "POST /api/v1/payment/collection/status"
+title: "POST /api/v1/payment/status"
 sidebarTitle: "Payment Status"
 description: "Check the current state of a Kulmi Pay payment by invoice ID. Returns the invoice state (PENDING, PROCESSING, COMPLETE, or FAILED) with full invoice details."
 ---
@@ -7,7 +7,7 @@ description: "Check the current state of a Kulmi Pay payment by invoice ID. Retu
 Use this endpoint to check the status of a payment after initiating a collection. Pass the `invoice_id` returned by [collect payment](/api-reference/collect-payment) or [STK push](/api-reference/stk-push). For checkout-based payments, you can also pass `checkout_id` to validate that the invoice belongs to the correct session.
 
 **Method:** `POST`  
-**URL:** `https://app.kulmipay.com/api/v1/payment/collection/status`
+**URL:** `https://app.kulmipay.com/api/v1/payment/status/`
 
 ## Authentication
 
@@ -20,7 +20,7 @@ Authorization: Bearer <secret_key>
 ## Request
 
 <ParamField body="invoice_id" type="string" required>
-  The invoice alias ID returned in the `invoice.id` field of the collect or STK push response.
+  The invoice alias ID returned in the `invoice.invoice_id` field of the STK push response, or the invoice ID returned by collect/checkout flows.
 </ParamField>
 
 <ParamField body="checkout_id" type="string">
@@ -33,7 +33,7 @@ Authorization: Bearer <secret_key>
   Current snapshot of the invoice.
 
   <Expandable title="invoice properties">
-    <ResponseField name="invoice.id" type="string">
+    <ResponseField name="invoice.invoice_id" type="string">
       Invoice alias ID, matching the value you submitted.
     </ResponseField>
 
@@ -57,7 +57,7 @@ Authorization: Bearer <secret_key>
     </ResponseField>
 
     <ResponseField name="invoice.provider" type="string">
-      Payment method used, for example `M-PESA` or `CARD-PAYMENT`.
+      Payment method used, for example `M-PESA` or `PESALINK`.
     </ResponseField>
 
     <ResponseField name="invoice.api_ref" type="string">
@@ -94,7 +94,7 @@ Authorization: Bearer <secret_key>
 
 ```bash cURL
 curl --request POST \
-  --url https://app.kulmipay.com/api/v1/payment/collection/status \
+  --url https://app.kulmipay.com/api/v1/payment/status/ \
   --header 'Authorization: Bearer YOUR_SECRET_KEY' \
   --header 'Content-Type: application/json' \
   --data '{
@@ -106,7 +106,7 @@ curl --request POST \
 import requests
 
 response = requests.post(
-    "https://app.kulmipay.com/api/v1/payment/collection/status",
+    "https://app.kulmipay.com/api/v1/payment/status/",
     headers={
         "Authorization": "Bearer YOUR_SECRET_KEY",
         "Content-Type": "application/json",
@@ -131,7 +131,7 @@ else:
 
 ## Example responses
 
-**Pending** — the M-Pesa STK prompt is still active or the card is being processed:
+**Pending** — the M-Pesa STK prompt is still active or the PesaLink payment is awaiting confirmation:
 
 ```json
 {

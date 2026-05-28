@@ -1,10 +1,10 @@
 ---
 title: "POST /api/v1/send-money/status"
-sidebarTitle: "Check payout status"
-description: "Retrieve the current status of a disbursement payment file and each of its individual transactions using the tracking_id returned at initiation."
+sidebarTitle: "Check send money status"
+description: "Retrieve the current status of a Send Money payment file and each of its individual transactions using the tracking_id returned at initiation."
 ---
 
-Use this endpoint to check the state of a payment file and each of its transactions. You can poll this endpoint after initiating or approving a disbursement to confirm whether individual transactions have completed, are still processing, or have failed.
+Use this endpoint to check the state of a payment file and each of its transactions. You can poll this endpoint after initiating or approving a Send Money request to confirm whether individual transactions have completed, are still processing, or have failed.
 
 You must have the `view_files` permission on your API token to call this endpoint.
 
@@ -13,7 +13,7 @@ You must have the `view_files` permission on your API token to call this endpoin
 **`POST https://app.kulmipay.com/api/v1/send-money/status/`**
 
 <ParamField header="Authorization" type="string" required>
-  Bearer token. Format: `Bearer <token>`.
+  Secret key. Format: `Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx`.
 </ParamField>
 
 <ParamField body="tracking_id" type="string" required>
@@ -33,14 +33,20 @@ A successful request returns HTTP `200` with the full file object and its transa
 </ResponseField>
 
 <ResponseField name="status" type="string">
-  Overall status of the payment file. Common values:
+  Human-readable status of the payment file. Common values:
 
   | Status | Meaning |
   |---|---|
-  | `PREVIEW-AND-APPROVE` | File created, awaiting approval |
-  | `PROCESSING` | File approved, transactions are being sent |
-  | `COMPLETE` | All transactions finished (with or without failures) |
-  | `CANCELLED` | File was cancelled before processing |
+  | `Preview and approve` | File created, awaiting approval |
+  | `Confirming balance` | Kulmi Pay is checking the source wallet balance |
+  | `Sending payment` | Transactions are being queued for processing |
+  | `Processing payment` | Transactions are being processed by the provider |
+  | `Completed` | All transactions finished, with or without failures |
+  | `Cancelled` | File was cancelled before processing completed |
+</ResponseField>
+
+<ResponseField name="status_code" type="string">
+  Machine-friendly Kulmi Pay status code for the payment file, such as `BP103`, `BP104`, `BP109`, `BP110`, `BC100`, or `BE111`.
 </ResponseField>
 
 <ResponseField name="total_amount" type="string">
@@ -59,14 +65,10 @@ A successful request returns HTTP `200` with the full file object and its transa
       Unique identifier for this transaction.
     </ResponseField>
     <ResponseField name="status" type="string">
-      Current transaction status. One of:
-      - `PENDING` — queued, not yet submitted to the provider
-      - `PROCESSING` — submitted to the provider, awaiting confirmation
-      - `COMPLETE` — successfully delivered
-      - `FAILED` — could not be delivered
+      Human-readable transaction status, such as `Pending`, `Payment initiated`, `Processing results`, `Successful`, `Unsuccessful`, or `Cancelled`.
     </ResponseField>
     <ResponseField name="status_code" type="string">
-      Provider-specific status code.
+      Machine-friendly Kulmi Pay transaction status code, such as `TP101`, `TP102`, `TP104`, `TS100`, `TF106`, or `TC108`.
     </ResponseField>
     <ResponseField name="status_description" type="string">
       Human-readable reason for the current status, especially useful for failed transactions.
@@ -148,7 +150,7 @@ A successful request returns HTTP `200` with the full file object and its transa
 
 ```bash cURL
 curl -X POST https://app.kulmipay.com/api/v1/send-money/status/ \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx" \
   -H "Content-Type: application/json" \
   -d '{
     "tracking_id": "d9e4f5a6-1234-5678-abcd-ef0123456789"
@@ -161,7 +163,7 @@ import requests
 response = requests.post(
     "https://app.kulmipay.com/api/v1/send-money/status/",
     headers={
-        "Authorization": "Bearer <token>",
+        "Authorization": "Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx",
         "Content-Type": "application/json",
     },
     json={
@@ -179,7 +181,8 @@ print(response.json())
 {
   "file_id": "f8a2b1c3-...",
   "tracking_id": "d9e4f5a6-1234-5678-abcd-ef0123456789",
-  "status": "COMPLETE",
+  "status": "Completed",
+  "status_code": "BC100",
   "batch_reference": "PAYROLL-JAN-2024",
   "total_amount": "50000.00",
   "transactions_count": 2,
@@ -195,8 +198,8 @@ print(response.json())
   "transactions": [
     {
       "transaction_id": "t1a2b3c4-...",
-      "status": "COMPLETE",
-      "status_code": "0",
+      "status": "Successful",
+      "status_code": "TS100",
       "status_description": "The service request is processed successfully.",
       "account": "254712345678",
       "amount": "25000",
@@ -212,8 +215,8 @@ print(response.json())
     },
     {
       "transaction_id": "t5d6e7f8-...",
-      "status": "FAILED",
-      "status_code": "2001",
+      "status": "Unsuccessful",
+      "status_code": "TF106",
       "status_description": "The initiator information is invalid.",
       "account": "254798765432",
       "amount": "25000",

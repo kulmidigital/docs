@@ -1,5 +1,5 @@
 ---
-title: "Beneficiaries"
+title: "Send Money Beneficiaries"
 sidebarTitle: "Beneficiaries"
 description: "Use the Kulmi Pay Beneficiaries API to retrieve saved recipients, filter by provider, and speed up bulk disbursements with pre-validated accounts."
 ---
@@ -12,7 +12,7 @@ Beneficiaries are recipients that Kulmi Pay automatically saves to your account 
 
 Retrieve all saved recipients for your account.
 
-**GET /api/v1/transactions/beneficiaries/**
+**GET /api/v1/send-money/beneficiaries/**
 
 ```json Response
 [
@@ -49,7 +49,7 @@ Retrieve all saved recipients for your account.
 Add a `provider` query parameter to return only recipients for a specific payment channel.
 
 ```
-GET /api/v1/transactions/beneficiaries/?provider=MPESA-B2C
+GET /api/v1/send-money/beneficiaries/?provider=MPESA-B2C
 ```
 
 ### Search by name or account
@@ -57,13 +57,13 @@ GET /api/v1/transactions/beneficiaries/?provider=MPESA-B2C
 Use the `search` query parameter to find a recipient by name, account number, or account reference.
 
 ```
-GET /api/v1/transactions/beneficiaries/?search=Alice
+GET /api/v1/send-money/beneficiaries/?search=Alice
 ```
 
 You can combine filters and search in a single request:
 
 ```
-GET /api/v1/transactions/beneficiaries/?provider=MPESA-B2C&search=254712
+GET /api/v1/send-money/beneficiaries/?provider=MPESA-B2C&search=254712
 ```
 
 ---
@@ -72,7 +72,7 @@ GET /api/v1/transactions/beneficiaries/?provider=MPESA-B2C&search=254712
 
 Retrieve the top 5 recipients you disburse to most often for a given provider. Use this endpoint to power a quick-select UI or to pre-populate a bulk disbursement batch.
 
-**GET /api/v1/transactions/beneficiaries/frequently_used/?provider=MPESA-B2C**
+**GET /api/v1/send-money/beneficiaries/frequently_used/?provider=MPESA-B2C**
 
 The `provider` parameter is required. Replace `MPESA-B2C` with the provider you want to query.
 
@@ -109,4 +109,4 @@ When you include a beneficiary's account details in a disbursement request, Kulm
 - **Fewer rejections** — you are reusing an account that has received a payment before.
 - **Simpler batching** — query your frequently used beneficiaries to build disbursement payloads programmatically.
 
-To use a saved beneficiary in a disbursement, copy the `account`, `provider`, and `account_reference` fields from the beneficiary record directly into your transaction payload when calling `POST /api/v1/send-money/`. You can also pass `"validated_account": true` in the transaction to signal that the account has already been verified.
+To use a saved beneficiary in a send money request, copy the `account`, `provider`, and `account_reference` fields from the beneficiary record directly into your transaction payload when calling `POST /api/v1/send-money/initiate/`. You can also pass `"validated_account": true` in the transaction to signal that the account has already been verified.

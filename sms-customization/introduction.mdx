@@ -1,0 +1,36 @@
+---
+title: "SMS Customization"
+sidebarTitle: "Introduction"
+description: "Customize SMS notifications sent after successful payment collections and payouts."
+---
+
+SMS customization lets you control the message text customers receive after supported payment events. KulmiPay currently supports custom templates for payment collections and payouts.
+
+This is configured in the KulmiPay dashboard. There is no public REST API for creating or updating custom SMS templates.
+
+## Supported template types
+
+| Template type | Backend value | Used for |
+|---------------|---------------|----------|
+| Payment collection | `COLLECTION` | Customer SMS after a successful collection. |
+| Payment disbursement | `PAYOUT` | Recipient SMS after a successful payout. |
+
+## Where to configure templates
+
+Log in to `https://app.kulmipay.com`, open **Messaging**, then create or edit the template for the event you want to customize.
+
+Each business can have one active template per type. If a custom template exists, KulmiPay uses it before falling back to the default message.
+
+## Template syntax
+
+Use double braces for dynamic fields:
+
+```text
+{{FIELD_NAME}}
+```
+
+Only use the fields supported by the template type. Unsupported fields are not replaced.
+
+<Warning>
+  SMS template text is validated before saving. Keep template text to letters, numbers, underscores, commas, full stops, new lines, tabs, dashes, and spaces.
+</Warning>

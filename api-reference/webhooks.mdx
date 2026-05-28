@@ -1,15 +1,17 @@
 ---
-title: "GET /api/v1/webhooks — Manage Webhooks"
+title: "GET /api/v1/webhooks — List Webhooks"
 sidebarTitle: "Webhooks"
-description: "Retrieve your registered webhook endpoints and configure which payment and subscription events trigger notifications to your server."
+description: "Retrieve your registered webhook endpoints and see which collection, Send Money, reversal, and wallet events they subscribe to."
 ---
 
-Use this endpoint to retrieve the webhook configurations registered on your Kulmi Pay account. Each webhook endpoint subscribes to one or more event types. When a matching event occurs, Kulmi Pay sends an HTTP `POST` request to your endpoint containing the event payload.
+Use this endpoint to retrieve the webhook configurations registered on your KulmiPay account. Each webhook endpoint subscribes to one or more event types. When a matching event occurs, KulmiPay sends an HTTP `POST` request to your endpoint containing the event payload.
+
+Webhook creation and management are handled in the KulmiPay dashboard.
 
 **Method:** `GET`  
 **URL:** `https://app.kulmipay.com/api/v1/webhooks/`
 
-Webhook endpoints must use HTTPS. Endpoints that cannot be reached or return non-2xx responses repeatedly will be automatically disabled after reaching the failure threshold.
+Webhook endpoints must use HTTPS. Endpoints that cannot be reached or return non-2xx responses repeatedly are disabled after reaching the failure threshold.
 
 ## Code example
 
@@ -26,11 +28,11 @@ curl --request GET \
 </ResponseField>
 
 <ResponseField name="endpoint" type="string">
-  The HTTPS URL where Kulmi Pay sends event payloads. Must include a valid, verifiable TLS certificate.
+  The HTTPS URL where KulmiPay sends event payloads.
 </ResponseField>
 
 <ResponseField name="is_active" type="boolean">
-  Whether this webhook is currently active. Kulmi Pay sets this to `false` automatically when the endpoint reaches the failure threshold.
+  Whether this webhook is currently active. KulmiPay sets this to `false` automatically when the endpoint reaches the failure threshold.
 </ResponseField>
 
 <ResponseField name="collection_event" type="boolean">
@@ -38,7 +40,7 @@ curl --request GET \
 </ResponseField>
 
 <ResponseField name="send_money_event" type="boolean">
-  When `true`, this webhook receives notifications for disbursement (send money) state changes.
+  When `true`, this webhook receives Send Money payment file state changes.
 </ResponseField>
 
 <ResponseField name="reversal_event" type="boolean">
@@ -49,12 +51,8 @@ curl --request GET \
   When `true`, this webhook receives notifications when an intra-wallet transfer is completed.
 </ResponseField>
 
-<ResponseField name="subscription_event" type="boolean">
-  When `true`, this webhook receives notifications when a subscription status or billing cycle changes.
-</ResponseField>
-
 <ResponseField name="failures_count" type="number">
-  The number of consecutive delivery failures for this endpoint. Kulmi Pay will warn you by email when this reaches 50% of the failure threshold, and disable the endpoint at 100%.
+  The number of consecutive delivery failures for this endpoint. KulmiPay warns you by email when this reaches 50% of the failure threshold, and disables the endpoint at 100%.
 </ResponseField>
 
 <ResponseField name="created_at" type="string">
@@ -79,7 +77,6 @@ curl --request GET \
       "send_money_event": true,
       "reversal_event": false,
       "wallet_transfer_event": false,
-      "subscription_event": true,
       "failures_count": 0,
       "created_at": "2024-03-01T12:00:00Z",
       "updated_at": "2024-04-10T09:30:00Z"
@@ -89,11 +86,9 @@ curl --request GET \
 ```
 
 <Note>
-  The `challenge` secret used to verify incoming webhook payloads is not returned by this endpoint. Store your challenge secret securely at the time you register the webhook. Use it to validate the `X-Kulmi Pay-Signature` header on incoming requests.
+  The `challenge` value used to verify incoming webhook payloads is not returned by this endpoint. Store it securely when you register the webhook. KulmiPay includes it as `challenge` in each webhook payload.
 </Note>
 
 ## Verifying webhook payloads
 
-Kulmi Pay signs every outgoing webhook request. Verify the signature before processing any event to confirm the payload originated from Kulmi Pay and has not been tampered with.
-
-Use your `challenge` secret to compute an HMAC-SHA256 signature of the raw request body and compare it against the value in the `X-Kulmi Pay-Signature` header.
+Before processing an event, compare the payload's `challenge` field against the challenge value you configured in the dashboard.

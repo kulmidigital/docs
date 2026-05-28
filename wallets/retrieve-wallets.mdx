@@ -1,0 +1,55 @@
+---
+title: "Retrieve Wallets"
+sidebarTitle: "Retrieve Wallets"
+description: "List wallets on your KulmiPay account or retrieve a single wallet by wallet_id."
+---
+
+Use these endpoints to inspect balances before collecting, funding a working wallet, or initiating Send Money.
+
+## List wallets
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/wallets/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+The response returns wallet objects for your business:
+
+```json
+[
+  {
+    "wallet_id": "wlt_abc123",
+    "label": "Settlement KES",
+    "can_disburse": true,
+    "currency": "KES",
+    "wallet_type": "SETTLEMENT",
+    "current_balance": "125000.00",
+    "available_balance": "120000.00",
+    "updated_at": "2026-05-28T09:30:00Z"
+  }
+]
+```
+
+## Retrieve one wallet
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/wallets/wlt_abc123/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+## Wallet fields
+
+| Field | Description |
+|-------|-------------|
+| `wallet_id` | Wallet alias ID. Use this in collection routing, transfers, and statements. |
+| `label` | Wallet display name. |
+| `can_disburse` | Whether the wallet can be used as a Send Money source wallet. |
+| `currency` | Wallet currency. One of `KES`, `USD`, `EUR`, `GBP`. |
+| `wallet_type` | `SETTLEMENT` or `WORKING`. |
+| `current_balance` | Total wallet balance, including uncleared funds. |
+| `available_balance` | Balance available for transfers and payouts. |
+| `updated_at` | Last wallet balance update timestamp. |
+
+You can filter the list endpoint by `record_id`, `label`, `wallet_type`, `currency`, `can_disburse`, or `updated_at`.

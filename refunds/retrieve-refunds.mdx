@@ -1,0 +1,93 @@
+---
+title: "Retrieve Refunds"
+sidebarTitle: "Retrieve Refunds"
+description: "List refund requests or retrieve a single refund by chargeback ID."
+---
+
+Use the chargebacks API to retrieve refund requests for your KulmiPay account. The same API returns both refund requests you created and refund records created during chargeback handling.
+
+## List refunds
+
+**`GET /api/v1/chargebacks/`**
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/chargebacks/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+```php PHP
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Refunds;
+
+$refunds = new Refunds();
+$refunds->init([
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+]);
+
+$allRefunds = $refunds->retrieve();
+```
+
+</CodeGroup>
+
+### Example response
+
+```json
+[
+  {
+    "chargeback_id": "CB_12345",
+    "session_id": "pay-session-123",
+    "transaction": {
+      "transaction_id": "txn_xyz789",
+      "currency": "KES",
+      "value": "1500.00",
+      "status": "CHARGEBACK-PENDING"
+    },
+    "amount": "1500.00",
+    "reason": "Duplicate payment",
+    "status": "PENDING",
+    "resolution": null,
+    "staff_created": false,
+    "created_at": "2026-05-28T09:00:00Z",
+    "updated_at": "2026-05-28T09:00:00Z"
+  }
+]
+```
+
+## Retrieve one refund
+
+**`GET /api/v1/chargebacks/{chargeback_id}/`**
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/chargebacks/CB_12345/ \
+  --header "Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx"
+```
+
+```php PHP
+$oneRefund = $refunds->retrieve("CB_12345");
+```
+
+</CodeGroup>
+
+## Response fields
+
+| Field | Description |
+|-------|-------------|
+| `chargeback_id` | Refund or chargeback alias ID. |
+| `session_id` | Checkout payment session ID when the refund is linked to checkout. |
+| `transaction` | Wallet transaction attached to the refund. |
+| `amount` | Refund amount. |
+| `reason` | Refund reason supplied at creation. |
+| `status` | Current refund status. |
+| `resolution` | Resolution note when available. |
+| `staff_created` | Whether the refund was created internally by KulmiPay staff. |
+| `created_at` | Time the refund was created. |
+| `updated_at` | Time the refund was last updated. |

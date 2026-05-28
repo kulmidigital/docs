@@ -1,0 +1,98 @@
+---
+title: "Send Money"
+sidebarTitle: "Introduction"
+description: "Send money from your KulmiPay wallet to M-Pesa wallets, M-Pesa Till or PayBill numbers, bank accounts, and KulmiPay wallets."
+---
+
+Send Money lets you disburse funds from a KulmiPay wallet to one or many recipients. Use it for salaries, supplier payments, customer refunds, agent commissions, marketplace settlements, and wallet-to-wallet transfers.
+
+The flow is built around a **payment file**. You initiate a file with one or more transactions, optionally approve it, then track its status until every transaction is complete or failed.
+
+## Supported payout types
+
+| Payout type | Provider value | Use case |
+|-------------|----------------|----------|
+| M-Pesa B2C | `MPESA-B2C` | Send to a customer's M-Pesa wallet |
+| M-Pesa B2B | `MPESA-B2B` | Pay an M-Pesa PayBill or Till number |
+| Bank payouts | `PESALINK` | Send to a Kenyan bank account through PesaLink |
+| KulmiPay P2P | `P2P` | Transfer between KulmiPay wallets/accounts |
+
+## How it works
+
+<Steps>
+  <Step title="Initiate a payment file">
+    Call `POST /api/v1/send-money/initiate/` with the provider, currency, and transactions array.
+  </Step>
+  <Step title="Approve or auto-approve">
+    If `requires_approval` is `"YES"`, approve the file with `POST /api/v1/send-money/approve/` and include the returned transaction IDs. If it is `"NO"`, KulmiPay queues the file immediately.
+  </Step>
+  <Step title="Track transaction status">
+    Call `POST /api/v1/send-money/status/` with the `tracking_id`, or listen for callbacks on your `callback_url`.
+  </Step>
+</Steps>
+
+## API limits
+
+The `transactions` field is an array, so you can submit multiple recipients in one request. Use batches for payroll, vendor payouts, and other bulk workflows.
+
+For large batches, keep your own `batch_reference` and per-transaction `idempotency_key` values so you can reconcile safely and avoid duplicate payouts during retries.
+
+## Authentication
+
+Send Money endpoints require a secret key:
+
+```http
+Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx
+```
+
+Use sandbox keys with `https://sandbox.kulmipay.com` while testing, then switch to live keys with `https://app.kulmipay.com`.
+
+## PHP SDK example
+
+```php
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Transfer;
+
+$transfer = new Transfer();
+$transfer->init([
+    "token" => "ISSecretKey_live_xxxxxxxxxxxxxxxx",
+]);
+
+$transactions = [
+    [
+        "name" => "Jane Doe",
+        "account" => "254712345678",
+        "amount" => "1000",
+        "narrative" => "Refund",
+        "idempotency_key" => "refund-1001",
+    ],
+];
+
+$response = $transfer->mpesa("KES", $transactions, "YES");
+$status = $transfer->status($response->tracking_id);
+```
+
+Use `$transfer->mpesa_b2b(...)` for M-Pesa Till or PayBill payouts, `$transfer->bank(...)` for PesaLink bank payouts, and `$transfer->p2p(...)` for KulmiPay wallet transfers.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="M-Pesa B2C" icon="mobile" href="/send-money/mpesa-b2c">
+    Send money directly to M-Pesa wallets.
+  </Card>
+  <Card title="M-Pesa B2B" icon="building-storefront" href="/send-money/mpesa-b2b">
+    Pay M-Pesa Till and PayBill numbers.
+  </Card>
+  <Card title="Bank Payouts" icon="building-columns" href="/send-money/bank-payouts">
+    Send money to Kenyan bank accounts through PesaLink.
+  </Card>
+  <Card title="Transaction Status" icon="magnifying-glass" href="/send-money/transaction-status">
+    Track payout files and individual transactions.
+  </Card>
+  <Card title="KulmiPay P2P" icon="arrows-right-left" href="/send-money/kulmipay-p2p">
+    Transfer funds between KulmiPay wallets or accounts.
+  </Card>
+</CardGroup>

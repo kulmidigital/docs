@@ -1,7 +1,7 @@
 ---
 title: "Introduction"
 sidebarTitle: "Introduction"
-description: "Kulmi Pay is a REST API for African businesses, with current live collections and disbursements focused on Kenya."
+description: "Kulmi Pay is a REST API for African businesses, with current live collections and send money flows focused on Kenya."
 ---
 
 Kulmi Pay is a payment platform built for African businesses. With a single API integration you can accept payments from customers, send money to mobile wallets and bank accounts, manage multi-currency balances, and receive real-time transaction notifications — all without stitching together multiple providers. Live operational coverage is currently focused on Kenya, with broader African expansion planned over time.
@@ -10,12 +10,12 @@ Kulmi Pay is a payment platform built for African businesses. With a single API 
 
 <CardGroup cols={2}>
   <Card title="Collections" icon="arrow-down-to-line" href="/collections/overview">
-    Accept M-Pesa STK push payments, Visa/Mastercard, Apple Pay, Google Pay, PesaLink bank transfers, and payment links.
+    Accept M-Pesa STK push payments, PesaLink bank transfers, hosted checkout, and WooCommerce payments.
   </Card>
-  <Card title="Disbursements" icon="arrow-up-from-line" href="/disbursements/overview">
+  <Card title="Send Money" icon="arrow-up-from-line" href="/send-money/introduction">
     Send money to mobile wallets and bank accounts one at a time or in bulk, with full status tracking.
   </Card>
-  <Card title="Wallets" icon="wallet" href="/wallets/overview">
+  <Card title="Wallets" icon="wallet" href="/wallets/introduction">
     Hold balances in KES, USD, EUR, and GBP, transfer between wallets, and convert currencies at live rates.
   </Card>
   <Card title="Webhooks" icon="webhook" href="/webhooks/overview">
@@ -26,16 +26,15 @@ Kulmi Pay is a payment platform built for African businesses. With a single API 
 ## Key features
 
 - **M-Pesa STK push** — Trigger a payment prompt directly to a customer's phone with a single API call.
-- **Card payments** — Accept Visa, Mastercard, Apple Pay, and Google Pay from customers anywhere in the world.
-- **Bulk disbursements** — Pay multiple recipients in one request and track each payment individually.
+- **PesaLink bank payments** — Collect payments from Kenyan bank accounts.
+- **Send Money** — Pay multiple recipients in one request and track each payment individually.
 - **Multi-currency wallets** — Hold and exchange balances across KES, USD, EUR, and GBP with built-in forex.
-- **Subscriptions** — Automate recurring billing with flexible plans and customer management.
-- **Payment links** — Generate a shareable URL to collect payments without writing any frontend code.
+- **WooCommerce plugin** — Add KulmiPay checkout to a WordPress store with a public key.
 - **Sandbox environment** — Test every integration with simulated transactions before going live.
 
 ## How Kulmi Pay works
 
-Every request is authenticated using a Bearer token obtained from the `/api/token/` endpoint. You create an API application in your dashboard to get the credentials needed to generate that token. From there, every collection, disbursement, or wallet operation is a standard REST call with a JSON body.
+Requests are authenticated with API keys from your dashboard. Use a public key for checkout and browser-safe collection flows, and use a secret key as a Bearer token for protected backend operations such as wallets, send money, and webhook management.
 
 Kulmi Pay notifies your server of transaction outcomes via webhooks, so your application can update records and trigger downstream actions without polling for status.
 
@@ -44,6 +43,6 @@ Kulmi Pay notifies your server of transaction outcomes via webhooks, so your app
     Make your first API call in under 10 minutes.
   </Card>
   <Card title="Authentication" icon="key" href="/authentication">
-    Learn how to generate and use API tokens.
+    Learn how to use public and secret API keys.
   </Card>
 </CardGroup>

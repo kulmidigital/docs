@@ -1,0 +1,91 @@
+---
+title: "GET/POST /api/v1/chargebacks — Refunds"
+sidebarTitle: "Refunds"
+description: "Create, list, and retrieve refund requests using the chargebacks API."
+---
+
+Refunds use the chargebacks API.
+
+**Base URL:** `https://app.kulmipay.com`
+
+## Create a refund
+
+**`POST /api/v1/chargebacks/`**
+
+<ParamField body="invoice_id" type="string" required>
+  Completed invoice alias ID. The API also accepts `invoice`.
+</ParamField>
+
+<ParamField body="amount" type="string" required>
+  Refund amount. Must be greater than zero and not more than the transaction value.
+</ParamField>
+
+<ParamField body="reason" type="string" required>
+  Short reason for the refund.
+</ParamField>
+
+```bash
+curl --request POST \
+  --url https://app.kulmipay.com/api/v1/chargebacks/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "invoice_id": "GQ7KZ2XPNM",
+    "amount": "1500.00",
+    "reason": "Duplicate payment"
+  }'
+```
+
+## List refunds
+
+**`GET /api/v1/chargebacks/`**
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/chargebacks/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+## Retrieve a refund
+
+**`GET /api/v1/chargebacks/{chargeback_id}/`**
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/chargebacks/CB_12345/ \
+  --header "Authorization: Bearer YOUR_SECRET_KEY"
+```
+
+## Refund object
+
+<ResponseField name="chargeback_id" type="string">
+  Refund or chargeback alias ID.
+</ResponseField>
+
+<ResponseField name="session_id" type="string">
+  Checkout payment session ID when available.
+</ResponseField>
+
+<ResponseField name="transaction" type="object">
+  Wallet transaction attached to the refund.
+</ResponseField>
+
+<ResponseField name="amount" type="string">
+  Refund amount.
+</ResponseField>
+
+<ResponseField name="reason" type="string">
+  Refund reason.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current status: `PENDING`, `PROCESSING`, `DISPUTED`, `OVERDUE`, `COMPLETED`, or `CANCELLED`.
+</ResponseField>
+
+<ResponseField name="resolution" type="string">
+  Resolution note when available.
+</ResponseField>
+
+<ResponseField name="staff_created" type="boolean">
+  Whether the refund was created internally by KulmiPay staff.
+</ResponseField>
