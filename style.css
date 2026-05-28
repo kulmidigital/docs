@@ -1,7 +1,16 @@
 @media (min-width: 1024px) {
+  :root {
+    --kulmi-sidebar-width: 17rem;
+    --kulmi-sidebar-extra-width: 3rem;
+  }
+
   #sidebar,
   #sidebar-content {
-    min-width: 17rem;
-    width: 17rem;
+    min-width: var(--kulmi-sidebar-width);
+    width: var(--kulmi-sidebar-width);
+  }
+
+  main {
+    margin-left: var(--kulmi-sidebar-extra-width);
   }
 }

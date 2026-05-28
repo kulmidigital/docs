@@ -129,53 +129,62 @@
       },
       {
         "tab": "API Reference",
+        "openapi": "openapi.yml",
         "groups": [
           {
             "group": "Collections",
             "pages": [
-              "api-reference/collect-payment",
-              "api-reference/stk-push",
-              "api-reference/payment-status",
-              "api-reference/checkout"
+              "POST /payment/collection",
+              "POST /payment/mpesa-stk-push",
+              "POST /payment/status",
+              "POST /checkout",
+              "POST /checkout/details"
             ]
           },
           {
             "group": "Send Money",
             "pages": [
-              "api-reference/send-money",
-              "api-reference/approve-send-money",
-              "api-reference/cancel-send-money",
-              "api-reference/send-money-status",
-              "api-reference/validate-account",
-              "api-reference/bank-codes"
+              "POST /send-money/initiate",
+              "POST /send-money/approve",
+              "POST /send-money/cancel",
+              "POST /send-money/status",
+              "POST /send-money/validate-accounts",
+              "GET /send-money/beneficiaries",
+              "GET /send-money/beneficiaries/frequently_used",
+              "GET /send-money/bank-codes/ke"
             ]
           },
           {
-            "group": "Wallets",
+            "group": "Wallet as a Service",
             "pages": [
-              "api-reference/wallets",
-              "api-reference/wallet-transactions",
-              "api-reference/intra-transfer",
-              "api-reference/forex-exchange"
+              "GET /wallets",
+              "POST /wallets",
+              "GET /wallets/{id}",
+              "GET /wallets/{id}/transactions",
+              "POST /wallets/{id}/intra_transfer"
             ]
           },
           {
             "group": "Webhooks",
             "pages": [
-              "api-reference/webhooks",
-              "api-reference/webhook-events"
+              "GET /webhooks",
+              "GET /webhooks-events"
             ]
           },
           {
             "group": "Refunds",
             "pages": [
-              "api-reference/refunds"
+              "GET /chargebacks",
+              "POST /chargebacks",
+              "GET /chargebacks/{id}"
             ]
           },
           {
-            "group": "M-Pesa",
+            "group": "Bring Your M-Pesa Till/PayBill Number",
             "pages": [
-              "api-reference/mpesa-paybill-accounts"
+              "GET /mpesa-paybill-accounts",
+              "POST /mpesa-paybill-accounts",
+              "GET /mpesa-paybill-accounts/{id}"
             ]
           }
         ]
