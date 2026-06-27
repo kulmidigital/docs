@@ -1,5 +1,5 @@
 ---
-title: "GET /api/v1/webhooks/events — Webhook Event Log"
+title: "GET /api/v1/webhooks-events — Webhook Event Log"
 sidebarTitle: "Event Log"
 description: "Retrieve the delivery history for webhook events on your account and inspect failure reasons."
 ---
@@ -7,7 +7,7 @@ description: "Retrieve the delivery history for webhook events on your account a
 Use this endpoint to inspect every event KulmiPay attempted to deliver to your webhook endpoints. Each record shows the topic, payload, delivery status, and, for failed deliveries, the reason for failure. Use this log to debug integration issues.
 
 **Method:** `GET`  
-**URL:** `https://app.kulmipay.com/api/v1/webhooks/events/`
+**URL:** `https://app.kulmipay.com/api/v1/webhooks-events/`
 
 Results are ordered from newest to oldest.
 
@@ -15,7 +15,7 @@ Results are ordered from newest to oldest.
 
 ```bash cURL
 curl --request GET \
-  --url https://app.kulmipay.com/api/v1/webhooks/events/ \
+  --url https://app.kulmipay.com/api/v1/webhooks-events/ \
   --header "Authorization: Bearer YOUR_SECRET_KEY"
 ```
 

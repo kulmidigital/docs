@@ -1,0 +1,1536 @@
+{
+  "info": {
+    "_postman_id": "f3d3f8f0-0de6-4c81-91b1-2462d4670101",
+    "name": "KulmiPay Public API",
+    "description": "Requests for KulmiPay collections, payouts, wallets, webhooks, refunds, and M-Pesa PayBill accounts.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth & Environment - Authentication Check - List Wallets",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth & Environment - Public Endpoint Check - Bank Codes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/bank-codes/ke/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "bank-codes",
+            "ke"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - Collect Payment - M-Pesa",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/payment/collection/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payment",
+            "collection"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"M-PESA\",\n  \"currency\": \"KES\",\n  \"amount\": \"1500.00\",\n  \"api_ref\": \"order_20240416_001\",\n  \"phone_number\": \"254712345678\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Doe\",\n  \"mobile_tarrif\": \"BUSINESS-PAYS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - Collect Payment - PesaLink",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/payment/collection/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payment",
+            "collection"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"method\": \"PESALINK\",\n  \"currency\": \"KES\",\n  \"amount\": \"5000.00\",\n  \"api_ref\": \"order_20240416_001\",\n  \"email\": \"jane.doe@example.com\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Doe\",\n  \"bank_tarrif\": \"BUSINESS-PAYS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - Collect Payment - Public Key",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/payment/collection/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payment",
+            "collection"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"public_key\": \"<public_key>\",\n  \"method\": \"M-PESA\",\n  \"currency\": \"KES\",\n  \"amount\": \"1500.00\",\n  \"api_ref\": \"order_20240416_001\",\n  \"phone_number\": \"254712345678\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Doe\",\n  \"mobile_tarrif\": \"BUSINESS-PAYS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - M-Pesa STK Push",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/payment/mpesa-stk-push/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payment",
+            "mpesa-stk-push"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone_number\": \"254712345678\",\n  \"amount\": \"1500.00\",\n  \"api_ref\": \"order_20240416_001\",\n  \"mobile_tarrif\": \"BUSINESS-PAYS\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - Payment Status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/payment/status/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payment",
+            "status"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invoice_id\": \"GQ7KZ2XPNM\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - Create Checkout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-KULMI-PUBLIC-API-KEY",
+            "value": "<public_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/checkout/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "checkout"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"public_key\": \"<public_key>\",\n  \"amount\": 2500,\n  \"currency\": \"KES\",\n  \"email\": \"jane.doe@example.com\",\n  \"phone_number\": \"254712345678\",\n  \"api_ref\": \"order_20240416_001\",\n  \"redirect_url\": \"https://merchant.example/thank-you\",\n  \"unique_api_ref\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Collections - Checkout Details",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-KULMI-PUBLIC-API-KEY",
+            "value": "<public_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/checkout/details/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "checkout",
+            "details"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"checkout_id\": \"<checkout_id>\",\n  \"signature\": \"<checkout_signature>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Initiate M-Pesa B2C",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/initiate/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "initiate"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"KES\",\n  \"provider\": \"MPESA-B2C\",\n  \"requires_approval\": \"NO\",\n  \"callback_url\": \"https://merchant.example/webhooks/kulmipay\",\n  \"batch_reference\": \"PAYROLL-JAN-2024\",\n  \"transactions\": [\n    {\n      \"account\": \"254712345678\",\n      \"amount\": \"1000\",\n      \"name\": \"John Doe\",\n      \"narrative\": \"Salary - January\",\n      \"idempotency_key\": \"txn-unique-001\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Initiate M-Pesa B2B PayBill",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/initiate/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "initiate"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"KES\",\n  \"provider\": \"MPESA-B2B\",\n  \"requires_approval\": \"YES\",\n  \"transactions\": [\n    {\n      \"account\": \"400200\",\n      \"amount\": \"2500\",\n      \"account_type\": \"PayBill\",\n      \"account_reference\": \"INV-9901\",\n      \"narrative\": \"Supplier payment\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Initiate PesaLink Bank Payout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/initiate/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "initiate"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"KES\",\n  \"provider\": \"PESALINK\",\n  \"requires_approval\": \"YES\",\n  \"transactions\": [\n    {\n      \"account\": \"1234567890\",\n      \"amount\": \"5000\",\n      \"name\": \"Jane Smith\",\n      \"bank_code\": \"68\",\n      \"narrative\": \"Vendor payment\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Initiate KulmiPay P2P",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/initiate/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "initiate"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"KES\",\n  \"provider\": \"P2P\",\n  \"requires_approval\": \"YES\",\n  \"transactions\": [\n    {\n      \"account\": \"wlt_def456\",\n      \"amount\": \"1000\",\n      \"name\": \"Branch Wallet\",\n      \"narrative\": \"Internal payout\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Approve File",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/approve/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "approve"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"file_id\": \"<file_id>\",\n  \"transactions\": [\n    \"<transaction_id>\"\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Cancel File",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/cancel/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "cancel"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"file_id\": \"<file_id>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Send Money Status",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/status/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "status"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tracking_id\": \"<tracking_id>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Validate M-Pesa B2B Account",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/validate-accounts/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "validate-accounts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"provider\": \"MPESA-B2B\",\n  \"account\": \"400200\",\n  \"account_type\": \"PayBill\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Validate PesaLink Account",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/validate-accounts/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "validate-accounts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"provider\": \"PESALINK\",\n  \"account\": \"1234567890\",\n  \"bank_code\": \"68\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Bank Codes - Kenya",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/bank-codes/ke/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "bank-codes",
+            "ke"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - List Beneficiaries",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/beneficiaries/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "beneficiaries"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Filter Beneficiaries by Provider",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/beneficiaries/?provider=MPESA-B2C&search=254712345678",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "beneficiaries"
+          ],
+          "query": [
+            {
+              "key": "provider",
+              "value": "MPESA-B2C"
+            },
+            {
+              "key": "search",
+              "value": "254712345678"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send Money - Frequently Used Beneficiaries",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/send-money/beneficiaries/frequently_used/?provider=MPESA-B2C",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "send-money",
+            "beneficiaries",
+            "frequently_used"
+          ],
+          "query": [
+            {
+              "key": "provider",
+              "value": "MPESA-B2C"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - List Wallets",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Create Working Wallet",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"KES\",\n  \"wallet_type\": \"WORKING\",\n  \"label\": \"Payroll Wallet\",\n  \"can_disburse\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Retrieve Wallet",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets",
+            "wlt_abc123"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Wallet Transactions",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/transactions/?start_date=2026-05-01&end_date=2026-05-28",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets",
+            "wlt_abc123",
+            "transactions"
+          ],
+          "query": [
+            {
+              "key": "start_date",
+              "value": "2026-05-01"
+            },
+            {
+              "key": "end_date",
+              "value": "2026-05-28"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Transactions by Wallet",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/transactions/?wallet_id=wlt_abc123&trans_type=DEPOSIT",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "transactions"
+          ],
+          "query": [
+            {
+              "key": "wallet_id",
+              "value": "wlt_abc123"
+            },
+            {
+              "key": "trans_type",
+              "value": "DEPOSIT"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Intra Transfer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/intra_transfer/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets",
+            "wlt_abc123",
+            "intra_transfer"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"wallet_id\": \"wlt_def456\",\n  \"amount\": \"5000.00\",\n  \"narrative\": \"Payroll funding\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Forex Quote",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/exchange/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets",
+            "wlt_abc123",
+            "exchange"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"USD\",\n  \"amount\": \"100000.00\",\n  \"action\": \"QUOTE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wallets - Forex Exchange",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/exchange/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wallets",
+            "wlt_abc123",
+            "exchange"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currency\": \"USD\",\n  \"amount\": \"100000.00\",\n  \"action\": \"EXCHANGE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Webhooks - List Webhooks",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/webhooks/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Webhooks - Webhook Events",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/webhooks-events/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks-events"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refunds - List Refunds",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/chargebacks/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "chargebacks"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refunds - Create Refund",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/chargebacks/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "chargebacks"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invoice_id\": \"GQ7KZ2XPNM\",\n  \"amount\": \"1500.00\",\n  \"reason\": \"Duplicate payment\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refunds - Retrieve Refund",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/chargebacks/CB_12345/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "chargebacks",
+            "CB_12345"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "M-Pesa PayBill Accounts - List PayBill Accounts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/mpesa-paybill-accounts/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mpesa-paybill-accounts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "M-Pesa PayBill Accounts - Create PayBill Account Reference",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/mpesa-paybill-accounts/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mpesa-paybill-accounts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "M-Pesa PayBill Accounts - Retrieve PayBill Account",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <secret_key>"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://app.kulmipay.com/api/v1/mpesa-paybill-accounts/current/",
+          "protocol": "https",
+          "host": [
+            "app",
+            "kulmipay",
+            "com"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "mpesa-paybill-accounts",
+            "current"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
