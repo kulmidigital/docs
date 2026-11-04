@@ -76,7 +76,7 @@ curl -X POST https://sandbox.kulmipay.com/api/v1/checkout/ \
     "amount": 1000,
     "currency": "KES",
     "email": "customer@example.com",
-    "phone_number": "254723890353",
+    "phone_number": "254700000001",
     "api_ref": "ORDER-1001",
     "redirect_url": "https://merchant.example/thank-you"
   }'
@@ -94,11 +94,15 @@ curl --request GET \
 
 ### Test M-Pesa phone numbers
 
+These numbers answer by themselves about 5 seconds after you start a payment. No phone is involved, and they only work in sandbox.
+
 | Phone number | Simulated behavior |
 |---|---|
-| `254723890353` | Payment succeeds |
-| `254700000000` | Payment fails |
-| `254711111111` | Payment times out |
+| `254700000001` | Paid: the invoice completes and the wallet is credited |
+| `254700000002` | Failed: no response from the customer |
+| `254700000003` | Failed: cancelled by the customer |
+
+Any other number goes to Safaricom's test system, which doesn't send a prompt to a real phone.
 
 ### Test amounts
 

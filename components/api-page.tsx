@@ -12,16 +12,19 @@ import { javascript } from 'fumadocs-openapi/requests/generators/javascript';
 import { python } from 'fumadocs-openapi/requests/generators/python';
 import { phpCodeSample } from './php-code-sample';
 
+// Operations with `security: []` in openapi.yml.
+const publicPaths = ['/send-money/bank-codes/'];
+
 /**
  * Samples always show the auth header, as on Mintlify. Fumadocs leaves it out
  * until the "Try it" panel has opened, and leaves the token empty after that.
- * Every operation in openapi.yml uses the global secret key.
  */
 const withAuthHeader = (generator: CodeUsageGenerator): CodeUsageGenerator => ({
   ...generator,
   generate(data, context) {
     const auth = data.header.Authorization;
-    if (auth && auth.value !== 'Bearer ') return generator.generate(data, context);
+    const isPublic = publicPaths.some((path) => data.url.includes(path));
+    if (isPublic || (auth && auth.value !== 'Bearer ')) return generator.generate(data, context);
 
     return generator.generate(
       { ...data, header: { ...data.header, Authorization: { value: 'Bearer <token>' } } },

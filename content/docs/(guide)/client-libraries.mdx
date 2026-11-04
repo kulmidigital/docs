@@ -139,6 +139,29 @@ Use `mode: "inline"` when you want the checkout frame rendered inside a page ele
 </script>
 ```
 
+### Redirect checkout
+
+Use `mode: "redirect"` to send the customer to the full KulmiPay checkout page instead of opening a popup. After paying, they return to your `redirectURL`.
+
+```html
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  const checkout = new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false,
+    mode: "redirect"
+  });
+
+  checkout.run({
+    amount: 1000,
+    currency: "KES",
+    email: "customer@example.com",
+    api_ref: "ORDER-1001"
+  });
+</script>
+```
+
 ### Environments
 
 | `live` value | Checkout API | Checkout page |
@@ -169,7 +192,7 @@ new KulmiPay({
 | `publicAPIKey` | Yes | Your publishable key from the KulmiPay dashboard. Use `ISPubKey_test_...` in sandbox and `ISPubKey_live_...` in production. |
 | `redirectURL` | Recommended | URL where the customer should return after payment. The SDK sends this as both `redirect_url` and `callback_url` for backend compatibility. |
 | `live` | No | Set `true` for production. Defaults to sandbox when omitted or `false`. |
-| `mode` | No | `popup` or `inline`. Defaults to `popup`. |
+| `mode` | No | `popup`, `inline`, or `redirect`. Defaults to `popup`. |
 | `inlineContainer` | Required for inline | Element ID where the inline checkout iframe should be mounted. Defaults to `checkoutElement`. |
 | `element` | No | Button class name to bind. Defaults to `kulmiPayButton`. |
 | `methods` | No | Payment methods to request, such as `["mpesa", "pesalink"]`. Backend account settings may override this. |

@@ -236,6 +236,29 @@ npm install kulmipay
 </script>
 ```
 
+### Redirect checkout
+
+Use `mode: "redirect"` to send the customer to the full KulmiPay checkout page instead of opening a popup. After paying, they return to your `redirectURL`.
+
+```html
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  const checkout = new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false,
+    mode: "redirect"
+  });
+
+  checkout.run({
+    amount: 1500,
+    currency: "KES",
+    email: "customer@example.com",
+    api_ref: "ORDER-1001"
+  });
+</script>
+```
+
 ## Hosted redirect
 
 If you do not need the SDK, redirect the customer to the `url` returned by the checkout API.

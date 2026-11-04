@@ -309,6 +309,7 @@ paths:
     get:
       operationId: send-money_bank-codes_ke_list
       description: List supported Kenyan bank codes for PesaLink payouts.
+      security: []
       responses:
         "200":
           description: ""
