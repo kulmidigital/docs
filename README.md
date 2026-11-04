@@ -29,7 +29,7 @@ The site runs at `http://localhost:3000`.
 1. Add an `.mdx` file under `content/docs/(guide)/`, with `title` and `description` in the frontmatter. `sidebarTitle` is optional.
 2. Add it to `content/docs/(guide)/meta.json`, or it won't show in the sidebar, search or sitemap.
 
-For a new API endpoint, add it to `openapi.yml` with a `summary` and one tag, then add it to `content/docs/api-reference/meta.json` as `<tag>/<summary>` in lower-case with hyphens.
+For a new API endpoint, add it to `openapi.yml` with a trailing slash on its path (the API answers others with a 301), a `summary` and one tag, then add it to `content/docs/api-reference/meta.json` as `<tag>/<summary>` in lower-case with hyphens.
 
 ## Writing components
 
