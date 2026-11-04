@@ -1,0 +1,84 @@
+---
+title: "Errors References"
+sidebarTitle: "Errors References"
+description: "KulmiPay API error response formats, common HTTP status codes, and what each error usually means."
+---
+
+KulmiPay uses standard HTTP status codes for failed API requests. Error responses include a message that explains what failed and what you should check.
+
+## Common API HTTP errors and their meaning
+
+Here is an example authentication failure response:
+
+```json
+{
+  "detail": "Invalid api token"
+}
+```
+
+Some validation errors are returned as field-level messages:
+
+```json
+{
+  "amount": ["Ensure this value is greater than or equal to 0.10."],
+  "currency": ["\"ABC\" is not a valid choice."]
+}
+```
+
+When multiple fields are invalid, KulmiPay returns all available validation messages in the same response.
+
+## Common HTTP status codes
+
+| Code | Meaning | What to do |
+|---|---|---|
+| `400` | Bad request | The payload is invalid. Check required fields, data types, allowed values, and environment-specific key prefixes. |
+| `401` | Unauthorized | Your API key, checkout signature, or Bearer header is invalid. Confirm the key was copied correctly and belongs to the right environment. |
+| `403` | Forbidden | The account or key does not have access to the resource, or the business is not eligible to transact. |
+| `404` | Not found | The requested resource does not exist, or it does not belong to the authenticated business. |
+| `429` | Too many requests | You are sending too many requests. Slow down and retry with backoff. |
+| `500` | Internal server error | KulmiPay had a server-side problem. Retry later or contact support if it persists. |
+| `503` | Service unavailable | The service is temporarily unavailable or under maintenance. Retry later. |
+
+## Authentication errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `Invalid api token` | The secret key is wrong, revoked, or belongs to another environment. | Use `Authorization: Bearer ISSecretKey_test_...` in sandbox or `Authorization: Bearer ISSecretKey_live_...` in live. |
+| `Invalid token for live environment` | A test key was used on live, or a live key was used on sandbox. | Match the key prefix to the base URL. |
+| `No credentials provided` | The `Authorization` header is missing credentials. | Send a complete `Authorization: Bearer ...` header. |
+| `Bearer string should not contain spaces` | The Bearer header has too many parts. | Ensure the token value has no spaces and the header has exactly two parts. |
+| `invalid account identifier or publishable key` | The public key or checkout signature is invalid. | Check `public_key`, `X-KULMI-PUBLIC-API-KEY`, or `signature` and `checkout_id`. |
+
+## Checkout and collection errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `Ensure you are using the right publishable key` | The public key does not match the API environment. | Use `ISPubKey_test_...` on `sandbox.kulmipay.com` and `ISPubKey_live_...` on `app.kulmipay.com`. |
+| `Amount should be greater than 500 and less than 5,000,000` | UGX or TZS checkout amount is outside the supported range. | Use an amount between 500 and 5,000,000. |
+| `Amount must be equal or more than KES. 10` | M-Pesa amount is below the minimum. | Increase the payment amount. |
+| `Amount must be equal or more than KES. 100` | PesaLink amount is below the minimum. | Increase the transfer amount. |
+| `Failed to complete your request. Your business is not eligible to transact.` | The business cannot process transactions yet. | Complete account verification or contact support. |
+
+## Send Money errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `invalid provider for send money` | The `provider` value is not supported. | Use a valid provider such as `MPESA-B2C`, `MPESA-B2B`, or `PESALINK`. Provider codes are case-sensitive. |
+| `duplicate transaction detected` | An `idempotency_key` has already been used. | Use a new unique `idempotency_key`, unless you are intentionally preventing duplicates. |
+| `Insufficient balance` | The wallet balance cannot cover the transfer and fees. | Top up the wallet or choose a wallet with enough balance. |
+| `Payment file must be in PREVIEW-AND-APPROVE state` | The payment file cannot be approved in its current state. | Check the payment file status before approving or canceling. |
+| `Field bank_code is required for bank transactions` | A bank transfer is missing `bank_code`. | Fetch supported bank codes and pass the exact code in the transaction. |
+
+## Webhook delivery errors
+
+If webhook events are not arriving:
+
+- Confirm your endpoint is publicly reachable.
+- Use HTTPS with a valid TLS certificate.
+- Check your webhook configuration and enabled event types.
+- Check webhook event logs for failed deliveries.
+- Re-enable a webhook if repeated delivery failures disabled it.
+
+<Callout type="info">
+  If an error response does not clearly explain the issue, include the request ID, endpoint, response body, and timestamp when contacting support.
+</Callout>

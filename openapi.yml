@@ -7,7 +7,7 @@ info:
 security:
   - SecretAPIKeyScheme: []
 paths:
-  /chargebacks:
+  /chargebacks/:
     get:
       operationId: chargebacks_list
       description: List refund and chargeback requests.
@@ -72,7 +72,7 @@ paths:
         metadata:
           sidebarTitle: Create refund
     parameters: []
-  /chargebacks/{id}:
+  /chargebacks/{id}/:
     get:
       operationId: chargebacks_read
       description: Retrieve one refund by chargeback ID.
@@ -96,7 +96,7 @@ paths:
         required: true
         schema:
           type: integer
-  /checkout:
+  /checkout/:
     post:
       operationId: checkout_create
       description: Create a hosted checkout session.
@@ -120,7 +120,7 @@ paths:
         metadata:
           sidebarTitle: Create checkout session
     parameters: []
-  /checkout/details:
+  /checkout/details/:
     post:
       operationId: checkout_details
       description: Retrieve checkout details for an existing checkout session.
@@ -144,7 +144,7 @@ paths:
         metadata:
           sidebarTitle: Get checkout details
     parameters: []
-  /mpesa-paybill-accounts:
+  /mpesa-paybill-accounts/:
     get:
       operationId: mpesa-paybill-accounts_list
       description: List configured M-Pesa Till and PayBill accounts.
@@ -209,7 +209,7 @@ paths:
         metadata:
           sidebarTitle: Create M-Pesa account
     parameters: []
-  /mpesa-paybill-accounts/{id}:
+  /mpesa-paybill-accounts/{id}/:
     get:
       operationId: mpesa-paybill-accounts_read
       description: Retrieve one configured M-Pesa Till or PayBill account.
@@ -233,7 +233,7 @@ paths:
         required: true
         schema:
           type: integer
-  /payment/mpesa-stk-push:
+  /payment/mpesa-stk-push/:
     post:
       operationId: payment_mpesa-stk-push_create
       description: Send an M-Pesa payment prompt to a customer phone number.
@@ -257,7 +257,7 @@ paths:
         metadata:
           sidebarTitle: Start M-Pesa STK Push
     parameters: []
-  /payment/status:
+  /payment/status/:
     post:
       operationId: payment_status_create
       description: Check the state of a collection invoice.
@@ -281,7 +281,7 @@ paths:
         metadata:
           sidebarTitle: Check payment status
     parameters: []
-  /send-money/approve:
+  /send-money/approve/:
     post:
       operationId: send-money_approve_create
       description: Approve a send money payment file.
@@ -305,10 +305,11 @@ paths:
         metadata:
           sidebarTitle: Approve send money
     parameters: []
-  /send-money/bank-codes/ke:
+  /send-money/bank-codes/ke/:
     get:
       operationId: send-money_bank-codes_ke_list
       description: List supported Kenyan bank codes for PesaLink payouts.
+      security: []
       responses:
         "200":
           description: ""
@@ -319,7 +320,7 @@ paths:
         metadata:
           sidebarTitle: List bank codes
     parameters: []
-  /send-money/cancel:
+  /send-money/cancel/:
     post:
       operationId: send-money_cancel_create
       description: Cancel a send money payment file before processing.
@@ -343,7 +344,7 @@ paths:
         metadata:
           sidebarTitle: Cancel send money
     parameters: []
-  /send-money/initiate:
+  /send-money/initiate/:
     post:
       operationId: send-money_initiate_create
       description: Create a send money payment file.
@@ -367,7 +368,7 @@ paths:
         metadata:
           sidebarTitle: Initiate send money
     parameters: []
-  /send-money/status:
+  /send-money/status/:
     post:
       operationId: send-money_status_create
       description: Check payout file and transaction status.
@@ -391,7 +392,7 @@ paths:
         metadata:
           sidebarTitle: Check send money status
     parameters: []
-  /wallets:
+  /wallets/:
     get:
       operationId: wallets_list
       description: List wallets on your account.
@@ -492,7 +493,7 @@ paths:
         metadata:
           sidebarTitle: Create wallet
     parameters: []
-  /wallets/{id}:
+  /wallets/{id}/:
     get:
       operationId: wallets_read
       description: Retrieve one wallet by ID.
@@ -516,7 +517,7 @@ paths:
         required: true
         schema:
           type: integer
-  /wallets/{id}/intra_transfer:
+  /wallets/{id}/intra_transfer/:
     post:
       operationId: wallets_intra_transfer
       description: Move funds between wallets on your account.
@@ -546,7 +547,7 @@ paths:
         required: true
         schema:
           type: integer
-  /wallets/{id}/transactions:
+  /wallets/{id}/transactions/:
     get:
       operationId: wallets_transactions
       description: Retrieve wallet transaction history.
@@ -570,7 +571,7 @@ paths:
         required: true
         schema:
           type: integer
-  /payment/collection:
+  /payment/collection/:
     post:
       tags:
         - Collections
@@ -632,7 +633,7 @@ paths:
       x-mint:
         metadata:
           sidebarTitle: Collect payment
-  /send-money/validate-accounts:
+  /send-money/validate-accounts/:
     post:
       tags:
         - Send Money
@@ -674,7 +675,7 @@ paths:
       x-mint:
         metadata:
           sidebarTitle: Validate account
-  /webhooks:
+  /webhooks/:
     get:
       tags:
         - Webhooks
@@ -692,7 +693,7 @@ paths:
       x-mint:
         metadata:
           sidebarTitle: List webhooks
-  /webhooks-events:
+  /webhooks-events/:
     get:
       tags:
         - Webhooks
@@ -710,7 +711,7 @@ paths:
       x-mint:
         metadata:
           sidebarTitle: List webhook events
-  /send-money/beneficiaries:
+  /send-money/beneficiaries/:
     get:
       tags:
         - Send Money
@@ -767,7 +768,7 @@ paths:
       x-mint:
         metadata:
           sidebarTitle: List beneficiaries
-  /send-money/beneficiaries/frequently_used:
+  /send-money/beneficiaries/frequently_used/:
     get:
       tags:
         - Send Money

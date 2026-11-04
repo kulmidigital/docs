@@ -1,0 +1,152 @@
+---
+title: "Authentication"
+sidebarTitle: "Authentication"
+description: "Authenticate KulmiPay API requests with your publishable public key or secret API key."
+---
+
+Requests to KulmiPay are authenticated with API keys. KulmiPay provides two key types:
+
+- **Public / publishable key**: prefixed with `ISPubKey_`
+- **Secret key**: prefixed with `ISSecretKey_`
+
+Keys are tied to an environment. Test keys include `test` and must be used with sandbox endpoints. Live keys include `live` and must be used with live endpoints.
+
+| Environment | Base URL | Public key prefix | Secret key prefix |
+|---|---|---|---|
+| Sandbox | `https://sandbox.kulmipay.com` | `ISPubKey_test_` | `ISSecretKey_test_` |
+| Live | `https://app.kulmipay.com` | `ISPubKey_live_` | `ISSecretKey_live_` |
+
+<Callout type="warn">
+  Never expose your secret key in frontend code, mobile apps, public repositories, logs, or browser requests. Use it only from your backend.
+</Callout>
+
+## How to get API keys
+
+Create or view your API keys in the KulmiPay dashboard under **API Applications**.
+
+Your public key is used for browser-safe checkout and collection flows. Your secret key is used for protected server-to-server operations such as wallets, disbursements, payment sessions, webhooks management, and other account-level API calls.
+
+Only generate and use a secret key when your integration needs backend access.
+
+## Public key authentication
+
+Use your public key for checkout flows and public collection requests. You can pass it in the request body:
+
+```json
+{
+  "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+  "amount": 1000,
+  "currency": "KES"
+}
+```
+
+Or pass it as a request header:
+
+```http
+X-KULMI-PUBLIC-API-KEY: ISPubKey_test_xxxxxxxxxxxxxxxx
+```
+
+Example checkout request:
+
+```bash
+curl -X POST https://sandbox.kulmipay.com/api/v1/checkout/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    "amount": 1000,
+    "currency": "KES",
+    "email": "customer@example.com",
+    "api_ref": "ORDER-1001"
+  }'
+```
+
+The `kulmipay` browser SDK handles public key authentication for you:
+
+```javascript
+new KulmiPay({
+  publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+  redirectURL: "https://merchant.example/thank-you",
+  live: false
+});
+```
+
+## Secret key authentication
+
+Use your secret key for protected REST API requests. Send it in the `Authorization` header with the `Bearer` prefix.
+
+```http
+Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx
+```
+
+Example:
+
+```bash
+curl --request GET \
+  --url https://sandbox.kulmipay.com/api/v1/wallets/ \
+  --header 'Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx'
+```
+
+In production, switch to the live base URL and a live secret key:
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/wallets/ \
+  --header 'Authorization: Bearer ISSecretKey_live_xxxxxxxxxxxxxxxx'
+```
+
+<Callout type="info">
+  Secret keys do not require an OAuth token exchange. Use the key directly as the Bearer token.
+</Callout>
+
+The PHP SDK attaches the correct headers from the credentials you pass to `init()`:
+
+```php
+use KulmiPay\KulmiPayPHP\Wallet;
+
+$wallet = new Wallet();
+$wallet->init([
+    "token" => "ISSecretKey_test_xxxxxxxxxxxxxxxx",
+    "publishable_key" => "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    "sandbox" => true,
+]);
+```
+
+## Choosing the right key
+
+| Use case | Key to use | Where to use it |
+|---|---|---|
+| Hosted checkout with `kulmipay` SDK | Public key | Browser |
+| Create a checkout session directly | Public key | Browser or backend |
+| Check or list account resources | Secret key | Backend only |
+| Send money or approve payouts | Secret key | Backend only |
+| Manage webhooks | Secret key | Backend only |
+| Wallet operations | Secret key | Backend only |
+
+## Common authentication errors
+
+| Status | Error | What to check |
+|---|---|---|
+| `401 Unauthorized` | `Invalid api token` | The secret key is wrong, revoked, or not attached to an active account. |
+| `401 Unauthorized` | `Invalid token for live environment` | You used a sandbox key on the live API, or a live key on sandbox. |
+| `401 Unauthorized` | `No credentials provided` | The `Authorization` header is missing or incomplete. |
+| `401 Unauthorized` | `Bearer string should not contain spaces` | The Bearer token contains spaces or the header has too many parts. |
+| `403 Forbidden` | Account cannot transact | Your business account is not enabled for the requested operation. |
+
+## Keeping credentials secure
+
+- Store secret keys in environment variables or a secrets manager.
+- Do not commit `.env` files or hard-code credentials.
+- Rotate keys immediately if they are exposed.
+- Use HTTPS for all requests between your backend, frontend, and KulmiPay.
+- Use sandbox keys while testing and live keys only after you are ready to process real payments.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Client Libraries" icon="code" href="/client-libraries">
+    Install and configure the browser checkout SDK or PHP SDK.
+  </Card>
+  <Card title="Sandbox" icon="flask" href="/sandbox">
+    Test your integration with sandbox keys before going live.
+  </Card>
+</CardGroup>

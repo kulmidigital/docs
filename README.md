@@ -1,55 +1,54 @@
-# Mintlify Starter Kit
+# KulmiPay developer docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+The site at [developers.kulmipay.com](https://developers.kulmipay.com), built with [Fumadocs](https://fumadocs.dev) on Next.js.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
-
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+## Run it locally
 
 ```bash
-npx skills add https://mintlify.com/docs
+npm install
+npm run dev
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+The site runs at `http://localhost:3000`.
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
+## Where things live
 
-## Development
+| Path | What it is |
+|---|---|
+| `content/docs/(guide)/` | The Documentation tab. Folders in brackets don't appear in the URL. |
+| `content/docs/(guide)/meta.json` | Documentation sidebar: order, group names, which pages show |
+| `openapi.yml` | The API spec. The API Reference pages are generated from it at build time. |
+| `content/docs/api-reference/meta.json` | API Reference sidebar |
+| `content/docs/api-reference/*.mdx` | Hand-written API pages. They work by URL but aren't in the sidebar. |
+| `components/mintlify.tsx` | `Card`, `CardGroup`, `Steps`, `ParamField`, `ResponseField`, `Expandable` |
+| `app/global.css` | Brand colours and component styles |
+| `next.config.mjs` | Redirects |
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+## Add a page
 
+1. Add an `.mdx` file under `content/docs/(guide)/`, with `title` and `description` in the frontmatter. `sidebarTitle` is optional.
+2. Add it to `content/docs/(guide)/meta.json`, or it won't show in the sidebar, search or sitemap.
+
+For a new API endpoint, add it to `openapi.yml` with a trailing slash on its path (the API answers others with a 301), a `summary` and one tag, then add it to `content/docs/api-reference/meta.json` as `<tag>/<summary>` in lower-case with hyphens.
+
+## Writing components
+
+- Callouts: `<Callout type="info">`, `"warn"` or `"idea"`
+- Code tabs: add `tab="Name"` to neighbouring code fences, as in ` ```bash tab="cURL" `
+- Code title: ` ```json title="Response" `
+
+## Before merging
+
+```bash
+npm run build
+npm run types:check
+npm start
 ```
-npm i -g mint
+
+With the server running, in a second terminal:
+
+```bash
+npm run check:links -- http://localhost:3000
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
-mint dev
-```
-
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+This crawls every page for broken links and anchors, and checks every URL in `scripts/mintlify-urls.json` still works.

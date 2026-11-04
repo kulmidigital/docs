@@ -1,0 +1,245 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-openapi/css/preset.css';
+
+/*
+ * KulmiPay brand. Values come from kulmipay/public/ui/tokens.css.
+ * Text and links use --fd-primary (a darker ember in light mode, for contrast);
+ * ember itself is kept for filled buttons.
+ */
+:root {
+  --kp-ember: #f56e0f;
+  --kp-ember-hover: #ff8126;
+  --kp-on-ember: #141210;
+
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #1a1a2e;
+  --color-fd-muted: #f6f1ec;
+  --color-fd-muted-foreground: #6b6b80;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #1a1a2e;
+  --color-fd-card: #fbfaf8;
+  --color-fd-card-foreground: #1a1a2e;
+  --color-fd-border: #efe9e3;
+  --color-fd-primary: #c2410c;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-secondary: #f6f1ec;
+  --color-fd-secondary-foreground: #1a1a2e;
+  --color-fd-accent: rgba(245, 110, 15, 0.09);
+  --color-fd-accent-foreground: #1a1a2e;
+  --color-fd-ring: #f56e0f;
+  --color-fd-info: #6b6b80;
+  --color-fd-warning: #e2b26a;
+  --color-fd-success: #15803d;
+  --color-fd-error: #b42318;
+  --color-fd-idea: #f56e0f;
+}
+
+.dark {
+  --color-fd-background: #141210;
+  --color-fd-foreground: #f5f5f4;
+  --color-fd-muted: #1c1916;
+  --color-fd-muted-foreground: #a8a29e;
+  --color-fd-popover: #1f1b18;
+  --color-fd-popover-foreground: #f5f5f4;
+  --color-fd-card: #191614;
+  --color-fd-card-foreground: #f5f5f4;
+  --color-fd-border: rgba(255, 255, 255, 0.09);
+  --color-fd-primary: #ff9a4d;
+  --color-fd-primary-foreground: #141210;
+  --color-fd-secondary: #1c1916;
+  --color-fd-secondary-foreground: #f5f5f4;
+  --color-fd-accent: rgba(245, 110, 15, 0.14);
+  --color-fd-accent-foreground: #f5f5f4;
+  --color-fd-info: #a8a29e;
+  --color-fd-warning: #fcd34d;
+  --color-fd-success: #4ade80;
+  --color-fd-error: #fda29b;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #1c1916;
+  --color-fd-secondary: #1c1916;
+  --color-fd-muted-foreground: #a8a29e;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0 !important;
+}
+
+/* Pages outside the sidebar: see layoutTree in lib/nav.tsx */
+a:has(> .kp-unlisted) {
+  display: none;
+}
+
+.prose :is(h1, h2, h3, h4) {
+  font-weight: 700;
+}
+
+.kp-signup {
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  border-radius: 0.5rem;
+  background: var(--kp-ember);
+  color: var(--kp-on-ember);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.kp-signup:hover {
+  background: var(--kp-ember-hover);
+}
+
+.kp-eyebrow {
+  margin-bottom: -0.25rem;
+  color: var(--color-fd-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.kp-cards {
+  margin-block: 1.5rem;
+}
+
+.kp-step-title {
+  margin-block: 0 0.5rem !important;
+  color: var(--color-fd-foreground);
+  font-weight: 600;
+}
+
+/* ParamField and ResponseField */
+.kp-field {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--color-fd-border);
+}
+
+.kp-field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.kp-field-name {
+  color: var(--color-fd-primary);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 600;
+}
+
+.kp-field-meta {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 0.375rem;
+  background: var(--color-fd-muted);
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.75rem;
+}
+
+.kp-field-required {
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 0.375rem;
+  background: var(--color-fd-accent);
+  color: var(--color-fd-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.kp-field-body {
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.kp-field-body > :first-child {
+  margin-top: 0;
+}
+
+.kp-field-body > :last-child {
+  margin-bottom: 0;
+}
+
+.kp-expandable {
+  margin-top: 0.75rem;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 0.625rem;
+}
+
+.kp-expandable > summary {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.kp-expandable > summary:hover {
+  color: var(--color-fd-foreground);
+}
+
+.kp-expandable-body {
+  padding-inline: 0.875rem;
+  border-top: 1px solid var(--color-fd-border);
+}
+
+.kp-expandable-body > .kp-field:last-child {
+  border-bottom: 0;
+}
+
+.kp-expandable:not([open]) .kp-when-open,
+.kp-expandable[open] > summary .kp-when-closed {
+  display: none;
+}
+
+.kp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-fd-border);
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.875rem;
+}
+
+.kp-footer-links {
+  display: flex;
+  gap: 0.875rem;
+}
+
+.kp-footer a:hover {
+  color: var(--color-fd-primary);
+}
+
+.kp-not-found {
+  max-width: 32rem;
+  margin: 6rem auto;
+  padding-inline: 1rem;
+  text-align: center;
+}
+
+.kp-not-found h1 {
+  margin-bottom: 0.75rem;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.kp-not-found p {
+  margin-bottom: 1.25rem;
+  color: var(--color-fd-muted-foreground);
+}
+
+.kp-not-found a {
+  color: var(--color-fd-primary);
+  font-weight: 600;
+}
