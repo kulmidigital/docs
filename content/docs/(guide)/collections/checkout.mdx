@@ -1,0 +1,271 @@
+---
+title: "Checkout"
+sidebarTitle: "Checkout"
+description: "Create a KulmiPay hosted checkout session and render it as a popup, inline frame, or redirect flow."
+---
+
+KulmiPay Checkout lets you accept payments without building your own payment form. You create a checkout session with your publishable key, then send the customer to a hosted KulmiPay checkout page or render it with the `kulmipay` browser SDK.
+
+The checkout flow supports M-Pesa and PesaLink payments through the same session. Your account payment settings can control the final method order, layout, and checkout styling.
+
+## Create a checkout session
+
+Send a `POST` request to `/api/v1/checkout/` with your public key and payment details. The response includes a hosted `url`, a checkout `id`, and a `signature`.
+
+
+```bash tab="cURL"
+curl -X POST https://app.kulmipay.com/api/v1/checkout/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
+    "amount": 1500.00,
+    "currency": "KES",
+    "email": "customer@example.com",
+    "phone_number": "254712345678",
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "api_ref": "ORDER-1001",
+    "redirect_url": "https://merchant.example/thank-you",
+    "mobile_tarrif": "BUSINESS-PAYS",
+    "bank_tarrif": "BUSINESS-PAYS",
+    "unique_api_ref": true
+  }'
+```
+
+```javascript tab="JavaScript"
+const response = await fetch("https://app.kulmipay.com/api/v1/checkout/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    public_key: "ISPubKey_live_xxxxxxxxxxxxxxxx",
+    amount: 1500,
+    currency: "KES",
+    email: "customer@example.com",
+    phone_number: "254712345678",
+    first_name: "Jane",
+    last_name: "Doe",
+    api_ref: "ORDER-1001",
+    redirect_url: "https://merchant.example/thank-you",
+    unique_api_ref: true
+  })
+});
+
+const checkout = await response.json();
+window.location.href = checkout.url;
+```
+
+```python tab="Python"
+import requests
+
+response = requests.post(
+    "https://app.kulmipay.com/api/v1/checkout/",
+    json={
+        "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
+        "amount": 1500,
+        "currency": "KES",
+        "email": "customer@example.com",
+        "phone_number": "254712345678",
+        "first_name": "Jane",
+        "last_name": "Doe",
+        "api_ref": "ORDER-1001",
+        "redirect_url": "https://merchant.example/thank-you",
+        "unique_api_ref": True,
+    },
+)
+
+checkout = response.json()
+print(checkout["url"])
+```
+
+```php tab="PHP"
+<?php
+
+require_once __DIR__ . "/vendor/autoload.php";
+
+use KulmiPay\KulmiPayPHP\Checkout;
+use KulmiPay\KulmiPayPHP\Customer;
+
+$credentials = [
+    "publishable_key" => "ISPubKey_live_xxxxxxxxxxxxxxxx",
+];
+
+$customer = new Customer();
+$customer->first_name = "Jane";
+$customer->last_name = "Doe";
+$customer->email = "customer@example.com";
+$customer->phone_number = "254712345678";
+
+$checkout = new Checkout();
+$checkout->init($credentials);
+
+$response = $checkout->create(
+    1500,
+    "KES",
+    $customer,
+    null,
+    "https://merchant.example/thank-you",
+    "ORDER-1001",
+    null,
+    null,
+    "BUSINESS-PAYS",
+    "BUSINESS-PAYS",
+    null,
+    true
+);
+
+echo $response->url;
+```
+
+
+### Request fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `public_key` | string | Yes* | Your publishable API key. You can pass it in the body or as `X-KULMI-PUBLIC-API-KEY`. |
+| `amount` | number | Yes | Amount to collect. |
+| `currency` | string | No | Currency code. Defaults to your payment settings when omitted. Common values are `KES`, `USD`, `EUR`, and `GBP`. |
+| `email` | string | No | Customer email. Used to pre-fill checkout details. |
+| `phone_number` | string | No | Customer phone number in international format. |
+| `first_name` | string | No | Customer first name. |
+| `last_name` | string | No | Customer last name. |
+| `api_ref` | string | Recommended | Your order or transaction reference. |
+| `redirect_url` | string | Recommended | URL where the customer should return after payment. |
+| `callback_url` | string | No | Compatibility field sent by the browser SDK. Use `redirect_url` for customer redirects. |
+| `host` | string | No | Merchant website origin. The browser SDK sets this automatically. |
+| `method` | string | No | Restrict checkout to a payment method when supported by your account settings. |
+| `mobile_tarrif` | string | No | `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+| `bank_tarrif` | string | No | `BUSINESS-PAYS` or `CUSTOMER-PAYS`. |
+| `wallet_id` | string | No | Wallet to fund directly, when your account supports wallet funding. |
+| `unique_api_ref` | boolean | No | When `true`, KulmiPay returns an existing checkout for the same `api_ref` instead of creating a duplicate. |
+
+\* Required unless passed as `X-KULMI-PUBLIC-API-KEY`.
+
+### Success response
+
+```json
+{
+  "id": "d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14",
+  "url": "https://app.kulmipay.com/checkout/d9f3a821-5b2c-4e8a-a1d4-3c7f9e2b0a14/express/",
+  "signature": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tracking_id": "",
+  "amount": "1500.00",
+  "currency": "KES",
+  "email": "customer@example.com",
+  "api_ref": "ORDER-1001",
+  "paid": false,
+  "mobile_tarrif": "BUSINESS-PAYS",
+  "bank_tarrif": "BUSINESS-PAYS",
+  "methods": ["mpesa", "pesalink"],
+  "layout": "tabs",
+  "styles": {},
+  "merchant_name": "Your Business",
+  "merchant_origin": "merchant.example"
+}
+```
+
+## Use the browser SDK
+
+Install the browser SDK from npm or load it from a CDN.
+
+
+```bash tab="npm"
+npm install kulmipay
+```
+
+```html tab="CDN"
+<script src="https://unpkg.com/kulmipay"></script>
+```
+
+
+### Popup checkout
+
+```html
+<button
+  class="kulmiPayButton"
+  data-amount="1500"
+  data-currency="KES"
+  data-email="customer@example.com"
+  data-phone_number="254712345678"
+  data-first_name="Jane"
+  data-last_name="Doe"
+  data-api_ref="ORDER-1001">
+  Pay now
+</button>
+
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false
+  })
+    .on("COMPLETE", function (response) {
+      console.log("Payment complete", response);
+    })
+    .on("FAILED", function (response) {
+      console.log("Payment failed", response);
+    })
+    .on("IN-PROGRESS", function (response) {
+      console.log("Payment in progress", response);
+    });
+</script>
+```
+
+### Inline checkout
+
+```html
+<div id="checkoutElement" style="width: 100%; max-width: 420px; height: 720px;"></div>
+
+<script src="https://unpkg.com/kulmipay"></script>
+<script>
+  const checkout = new KulmiPay({
+    publicAPIKey: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+    redirectURL: "https://merchant.example/thank-you",
+    live: false,
+    mode: "inline",
+    inlineContainer: "checkoutElement"
+  });
+
+  checkout.run({
+    amount: 1500,
+    currency: "KES",
+    email: "customer@example.com",
+    phone_number: "254712345678",
+    api_ref: "ORDER-1001"
+  });
+</script>
+```
+
+## Hosted redirect
+
+If you do not need the SDK, redirect the customer to the `url` returned by the checkout API.
+
+```javascript
+const checkout = await response.json();
+window.location.href = checkout.url;
+```
+
+## Idempotency with `unique_api_ref`
+
+Use `unique_api_ref: true` with a stable `api_ref` when retries or page refreshes could create duplicate checkout sessions. If a checkout already exists for that reference, KulmiPay returns the existing session.
+
+```json
+{
+  "public_key": "ISPubKey_live_xxxxxxxxxxxxxxxx",
+  "amount": 1500,
+  "currency": "KES",
+  "api_ref": "ORDER-1001",
+  "unique_api_ref": true
+}
+```
+
+## Sandbox and live endpoints
+
+| Environment | Checkout API | Checkout page |
+|---|---|---|
+| Sandbox | `https://sandbox.kulmipay.com/api/v1/checkout/` | `https://checkout-sandbox.kulmipay.com` |
+| Live | `https://app.kulmipay.com/api/v1/checkout/` | `https://checkout.kulmipay.com` |
+
+<Callout type="warn">
+  Use sandbox public keys with `sandbox.kulmipay.com` and live public keys with `app.kulmipay.com`. Environment mismatches are rejected.
+</Callout>

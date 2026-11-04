@@ -1,33 +1,17 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
-
 # Documentation project instructions
 
 ## About this project
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Run `mint dev` to preview locally
-- Run `mint broken-links` to check links
-
-## Terminology
-
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- A documentation site built with Fumadocs on Next.js. See `README.md` for the layout.
+- Pages are MDX files with YAML frontmatter in `content/docs/`.
+- Sidebars are the `meta.json` files. API Reference pages are generated from `openapi.yml`.
+- Run `npm run dev` to preview, and `npm run check:links` against a running server to check links.
+- Existing URLs must keep working: API error messages and dashboards link to them.
 
 ## Style preferences
 
-{/* Add any project-specific style rules below */}
-
 - Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
+- Keep sentences concise, one idea per sentence
 - Use sentence case for headings
 - Bold for UI elements: Click **Settings**
 - Code formatting for file names, commands, paths, and code references
-
-## Content boundaries
-
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}

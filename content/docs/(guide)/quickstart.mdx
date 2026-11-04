@@ -1,0 +1,173 @@
+---
+title: "Quick Start"
+sidebarTitle: "Quick Start"
+description: "Create an account, get your API keys, and create your first KulmiPay checkout session."
+---
+
+This guide walks you through the fastest way to make a working KulmiPay API call. You will create an account, get your API keys, and create a checkout session.
+
+If you want to test without real money first, use the [sandbox environment](/sandbox) and replace the base URL with `https://sandbox.kulmipay.com`.
+
+<Steps>
+  <Step title="Create a KulmiPay account">
+    Go to [app.kulmipay.com](https://app.kulmipay.com) and sign up for an account. Complete business verification before processing live payments.
+
+    For testing, create a separate sandbox account at [sandbox.kulmipay.com](https://sandbox.kulmipay.com).
+  </Step>
+
+  <Step title="Create an API application">
+    In the dashboard, open **API Applications** and create an application.
+
+    KulmiPay gives you two API keys:
+
+    | Credential | What it's for |
+    |---|---|
+    | **Public Key** | Browser-safe checkout and public collection requests. It starts with `ISPubKey_`. |
+    | **Secret Key** | Protected backend API requests. It starts with `ISSecretKey_`. |
+
+    Store the secret key securely. Do not expose it in frontend code.
+  </Step>
+
+  <Step title="Create a checkout session">
+    Use your public key to create a hosted checkout session.
+
+      ```bash tab="cURL"
+      curl -X POST https://sandbox.kulmipay.com/api/v1/checkout/ \
+        --header 'Content-Type: application/json' \
+        --data '{
+          "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+          "amount": 1000,
+          "currency": "KES",
+          "email": "customer@example.com",
+          "phone_number": "254712345678",
+          "api_ref": "ORDER-1001",
+          "redirect_url": "https://merchant.example/thank-you",
+          "unique_api_ref": true
+        }'
+      ```
+
+      ```javascript tab="Node.js"
+      const response = await fetch("https://sandbox.kulmipay.com/api/v1/checkout/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          public_key: "ISPubKey_test_xxxxxxxxxxxxxxxx",
+          amount: 1000,
+          currency: "KES",
+          email: "customer@example.com",
+          phone_number: "254712345678",
+          api_ref: "ORDER-1001",
+          redirect_url: "https://merchant.example/thank-you",
+          unique_api_ref: true
+        })
+      });
+
+      const checkout = await response.json();
+      console.log(checkout.url);
+      ```
+
+      ```python tab="Python"
+      import requests
+
+      response = requests.post(
+          "https://sandbox.kulmipay.com/api/v1/checkout/",
+          json={
+              "public_key": "ISPubKey_test_xxxxxxxxxxxxxxxx",
+              "amount": 1000,
+              "currency": "KES",
+              "email": "customer@example.com",
+              "phone_number": "254712345678",
+              "api_ref": "ORDER-1001",
+              "redirect_url": "https://merchant.example/thank-you",
+              "unique_api_ref": True,
+          },
+      )
+
+      checkout = response.json()
+      print(checkout["url"])
+      ```
+
+      ```php tab="PHP"
+      <?php
+
+      require_once __DIR__ . "/vendor/autoload.php";
+
+      use KulmiPay\KulmiPayPHP\Checkout;
+      use KulmiPay\KulmiPayPHP\Customer;
+
+      $credentials = [
+          "publishable_key" => "ISPubKey_test_xxxxxxxxxxxxxxxx",
+          "sandbox" => true,
+      ];
+
+      $customer = new Customer();
+      $customer->email = "customer@example.com";
+      $customer->phone_number = "254712345678";
+
+      $checkout = new Checkout();
+      $checkout->init($credentials);
+
+      $response = $checkout->create(
+          1000,
+          "KES",
+          $customer,
+          null,
+          "https://merchant.example/thank-you",
+          "ORDER-1001",
+          null,
+          null,
+          "BUSINESS-PAYS",
+          "BUSINESS-PAYS",
+          null,
+          true
+      );
+
+      echo $response->url;
+      ```
+
+    The response includes a hosted `url`. Redirect the customer to that URL, or render checkout with the [`kulmipay` browser SDK](/client-libraries).
+  </Step>
+
+  <Step title="Call a protected endpoint">
+    For backend-only endpoints, pass your secret key as a Bearer token.
+
+      ```bash tab="cURL"
+      curl --request GET \
+        --url https://sandbox.kulmipay.com/api/v1/wallets/ \
+        --header 'Authorization: Bearer ISSecretKey_test_xxxxxxxxxxxxxxxx'
+      ```
+
+      ```php tab="PHP"
+      <?php
+
+      require_once __DIR__ . "/vendor/autoload.php";
+
+      use KulmiPay\KulmiPayPHP\Wallet;
+
+      $wallet = new Wallet();
+      $wallet->init([
+          "token" => "ISSecretKey_test_xxxxxxxxxxxxxxxx",
+          "sandbox" => true,
+      ]);
+
+      $wallets = $wallet->retrieve();
+      ```
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Understand public keys, secret keys, and environment-specific credentials.
+  </Card>
+  <Card title="Client Libraries" icon="code" href="/client-libraries">
+    Install and configure the browser checkout SDK or PHP SDK.
+  </Card>
+  <Card title="Checkout" icon="cart-shopping" href="/collections/checkout">
+    Learn the full hosted checkout flow.
+  </Card>
+  <Card title="Sandbox" icon="flask" href="/sandbox">
+    Test your integration before going live.
+  </Card>
+</CardGroup>
