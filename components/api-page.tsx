@@ -12,12 +12,16 @@ import { javascript } from 'fumadocs-openapi/requests/generators/javascript';
 import { python } from 'fumadocs-openapi/requests/generators/python';
 import { phpCodeSample } from './php-code-sample';
 
-/** Samples show `Bearer <token>` rather than an empty token, as on Mintlify. */
-const withTokenPlaceholder = (generator: CodeUsageGenerator): CodeUsageGenerator => ({
+/**
+ * Samples always show the auth header, as on Mintlify. Fumadocs leaves it out
+ * until the "Try it" panel has opened, and leaves the token empty after that.
+ * Every operation in openapi.yml uses the global secret key.
+ */
+const withAuthHeader = (generator: CodeUsageGenerator): CodeUsageGenerator => ({
   ...generator,
   generate(data, context) {
     const auth = data.header.Authorization;
-    if (auth?.value !== 'Bearer ') return generator.generate(data, context);
+    if (auth && auth.value !== 'Bearer ') return generator.generate(data, context);
 
     return generator.generate(
       { ...data, header: { ...data.header, Authorization: { value: 'Bearer <token>' } } },
@@ -31,7 +35,7 @@ const php: CodeUsageGenerator = { label: 'PHP', lang: 'php', generate: phpCodeSa
 
 // Same languages and order as Mintlify. Fumadocs has no PHP sample of its own.
 for (const [id, generator] of Object.entries({ curl, python, js: javascript, php, go, java })) {
-  codeUsages.add(id, withTokenPlaceholder(generator));
+  codeUsages.add(id, withAuthHeader(generator));
 }
 
 type SchemeWithDefault = { type: string; 'x-default'?: string };
