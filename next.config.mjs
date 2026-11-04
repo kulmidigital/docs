@@ -30,6 +30,9 @@ const redirects = [
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  // lib/source.ts reads the spec when a server function starts. Next can't see
+  // that read, so it would otherwise leave the file out of the deployed bundle.
+  outputFileTracingIncludes: { '/**': ['./openapi.yml'] },
   async redirects() {
     return redirects.map(([source, destination]) => ({
       source,
