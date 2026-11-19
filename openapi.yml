@@ -842,7 +842,9 @@ components:
     SecretAPIKeyScheme:
       type: http
       scheme: bearer
-      description: Use your KulmiPay secret key as the Bearer token.
+      description: Use your KulmiPay secret key as the Bearer token. A read-only
+        key (ISReadKey_) also works on the read endpoints listed under
+        Authentication, and is refused everywhere else with 403 read_only_key.
       x-default: ISSecretKey_test_xxxxxxxxxxxxxxxx
     PublicAPIKeyScheme:
       type: apiKey

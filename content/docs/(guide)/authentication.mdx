@@ -1,20 +1,21 @@
 ---
 title: "Authentication"
 sidebarTitle: "Authentication"
-description: "Authenticate KulmiPay API requests with your publishable public key or secret API key."
+description: "Authenticate KulmiPay API requests with your publishable public key, secret API key or a read-only key."
 ---
 
-Requests to KulmiPay are authenticated with API keys. KulmiPay provides two key types:
+Requests to KulmiPay are authenticated with API keys. KulmiPay provides three key types:
 
 - **Public / publishable key**: prefixed with `ISPubKey_`
 - **Secret key**: prefixed with `ISSecretKey_`
+- **Read-only key**: prefixed with `ISReadKey_`. It reads your account's data and can't move money or change anything.
 
 Keys are tied to an environment. Test keys include `test` and must be used with sandbox endpoints. Live keys include `live` and must be used with live endpoints.
 
-| Environment | Base URL | Public key prefix | Secret key prefix |
-|---|---|---|---|
-| Sandbox | `https://sandbox.kulmipay.com` | `ISPubKey_test_` | `ISSecretKey_test_` |
-| Live | `https://app.kulmipay.com` | `ISPubKey_live_` | `ISSecretKey_live_` |
+| Environment | Base URL | Public key prefix | Secret key prefix | Read-only key prefix |
+|---|---|---|---|---|
+| Sandbox | `https://sandbox.kulmipay.com` | `ISPubKey_test_` | `ISSecretKey_test_` | `ISReadKey_test_` |
+| Live | `https://app.kulmipay.com` | `ISPubKey_live_` | `ISSecretKey_live_` | `ISReadKey_live_` |
 
 <Callout type="warn">
   Never expose your secret key in frontend code, mobile apps, public repositories, logs, or browser requests. Use it only from your backend.
@@ -22,11 +23,11 @@ Keys are tied to an environment. Test keys include `test` and must be used with 
 
 ## How to get API keys
 
-Create or view your API keys in the KulmiPay dashboard under **API Applications**.
+Create or view your API keys in the KulmiPay dashboard under **Developers** > **API keys**.
 
-Your public key is used for browser-safe checkout and collection flows. Your secret key is used for protected server-to-server operations such as wallets, disbursements, payment sessions, webhooks management, and other account-level API calls.
+Your public key is used for browser-safe checkout and collection flows. Your secret key is used for protected server-to-server operations such as wallets, disbursements, payment sessions, webhooks management, and other account-level API calls. A read-only key is for another system that only needs to read your data, such as a finance dashboard showing your balances.
 
-Only generate and use a secret key when your integration needs backend access.
+Only generate and use a secret key when your integration needs backend access. If it only needs to read, give it a read-only key instead.
 
 ## Public key authentication
 
@@ -111,6 +112,80 @@ $wallet->init([
 ]);
 ```
 
+## Read-only key authentication
+
+Use a read-only key when another system needs to see your balances, transactions or payment results but should never move money. If someone gets hold of a read-only key, they can read your account's data but can't send money, approve payouts or change any settings.
+
+Send it exactly like a secret key, in the `Authorization` header with the `Bearer` prefix:
+
+```bash
+curl --request GET \
+  --url https://app.kulmipay.com/api/v1/wallets/ \
+  --header 'Authorization: Bearer ISReadKey_live_xxxxxxxxxxxxxxxx'
+```
+
+### Create, rotate and revoke read-only keys
+
+1. In the dashboard, go to **Developers** > **API keys**.
+2. Under **Read-only keys**, click **Create read-only key**.
+3. Name it after the system that will use it, then click **Create key**.
+4. Copy the key. It's shown once: KulmiPay keeps only a hash of it and can't show it again.
+
+You can have up to 10 read-only keys at once, one for each system that reads your data. Each one shows when it was created and when it was last used. The account owner gets an email whenever a read-only key is created or rotated.
+
+- **Rotate** gives you a new key with the same name. The old key stops working immediately.
+- **Revoke** stops a key immediately. This can't be undone.
+
+To switch keys without a gap, create a second key, move your system to it, then revoke the old one.
+
+Read-only keys follow the same rules as your secret key: sandbox keys only work on sandbox and live keys only on live, and if your account limits API access to one IP address, read-only keys are limited to it too.
+
+### What a read-only key can reach
+
+A read-only key works only on these endpoints. Every other endpoint refuses it, including any added to the API later.
+
+| Endpoint | What it returns |
+|---|---|
+| `GET /api/v1/wallets/` | Every wallet on the account, with balances |
+| `GET /api/v1/wallets/{wallet_id}/` | One wallet |
+| `GET /api/v1/wallets/{wallet_id}/transactions/` | A wallet's statement |
+| `GET /api/v1/transactions/`, `GET /api/v1/transactions/{id}/` | Wallet transactions across the account |
+| `GET /api/v1/invoices/`, `GET /api/v1/invoices/{id}/` | Payments collected |
+| `GET /api/v1/payment-sessions/`, `GET /api/v1/payment-sessions/{id}/` | Collection attempts |
+| `GET /api/v1/chargebacks/`, `GET /api/v1/chargebacks/{id}/` | Refunds |
+| `GET /api/v1/mpesa-paybill-accounts/`, `GET /api/v1/mpesa-paybill-accounts/{id}/` | M-Pesa paybill accounts |
+| `GET /api/v1/settlements/`, `GET /api/v1/settlements/{id}/` | Withdrawals to your bank account |
+| `GET /api/v1/send-money/files/`, `GET /api/v1/send-money/files/{id}/` | Payout batches |
+| `GET /api/v1/send-money/transactions/`, `GET /api/v1/send-money/transactions/{id}/` | Individual payouts |
+| `GET /api/v1/send-money/beneficiaries/`, `GET /api/v1/send-money/beneficiaries/{id}/`, `GET /api/v1/send-money/beneficiaries/frequently_used/` | Saved recipients |
+| `GET /api/v1/send-money/categories/`, `GET /api/v1/send-money/categories/{id}/` | Payout categories |
+| `GET /api/v1/send-money/bank-codes/ke/` | Kenyan bank codes |
+| `GET /api/v1/webhooks/`, `GET /api/v1/webhooks/{id}/`, `GET /api/v1/webhooks-events/`, `GET /api/v1/webhooks-events/{id}/` | Webhook endpoints and deliveries |
+| `POST /api/v1/payment/status/` | The status of a payment |
+| `POST /api/v1/send-money/status/` | The status of a payout |
+| `POST /api/v1/checkout/details/` | A checkout's details |
+
+The three `POST` endpoints only look a record up. They don't change anything.
+
+Real-time exchange rates (`GET /api/v1/realtime-fx-rates/`) are public and need no key.
+
+### When a read-only key is refused
+
+Any other request made with a read-only key is refused with `403 Forbidden` and the error code `read_only_key`. Nothing happens: no money moves, no payment starts and nothing is saved.
+
+```json title="403 response"
+{
+  "type": "client_error",
+  "errors": [
+    {
+      "code": "read_only_key",
+      "detail": "This is a read-only API key. It can read your data but can't move money or change anything. Use your secret key for this request.",
+      "attr": null
+    }
+  ]
+}
+```
+
 ## Choosing the right key
 
 | Use case | Key to use | Where to use it |
@@ -118,6 +193,7 @@ $wallet->init([
 | Hosted checkout with `kulmipay` SDK | Public key | Browser |
 | Create a checkout session directly | Public key | Browser or backend |
 | Check or list account resources | Secret key | Backend only |
+| Show balances or transactions in another system | Read-only key | Backend only |
 | Send money or approve payouts | Secret key | Backend only |
 | Manage webhooks | Secret key | Backend only |
 | Wallet operations | Secret key | Backend only |
@@ -131,10 +207,12 @@ $wallet->init([
 | `401 Unauthorized` | `No credentials provided` | The `Authorization` header is missing or incomplete. |
 | `401 Unauthorized` | `Bearer string should not contain spaces` | The Bearer token contains spaces or the header has too many parts. |
 | `403 Forbidden` | Account cannot transact | Your business account is not enabled for the requested operation. |
+| `403 Forbidden` | `read_only_key` | You used a read-only key for a request it can't make. Use your secret key, or check the list of endpoints a read-only key can reach. |
 
 ## Keeping credentials secure
 
 - Store secret keys in environment variables or a secrets manager.
+- Give a system that only reads your data a read-only key, not your secret key.
 - Do not commit `.env` files or hard-code credentials.
 - Rotate keys immediately if they are exposed.
 - Use HTTPS for all requests between your backend, frontend, and KulmiPay.
