@@ -29,8 +29,8 @@ curl --request GET \
 | `wallet_id` | Wallet alias ID. Supported on `GET /api/v1/transactions/`. |
 | `currency` | Wallet currency, such as `KES`. |
 | `trans_type` | Transaction type: `SALE`, `ADJUSTMENT`, `PAYOUT`, `WITHDRAWAL`, `CHARGE`, `AIRTIME`, `DEPOSIT`, `EXCHANGE`, or `UNMARKED`. |
-| `start_date` | Return transactions created on or after this date. |
-| `end_date` | Return transactions created on or before this date. |
+| `start_date` | Return transactions created on or after this date (`YYYY-MM-DD`, Nairobi time). |
+| `end_date` | Return transactions created on or before this date, the whole day included. |
 | `narrative` | Filter by transaction narrative. |
 
 ## Transaction object
@@ -50,4 +50,8 @@ curl --request GET \
 }
 ```
 
+`value` is positive for money into the wallet and negative for money out. `trans_type` says what kind of transaction it was, not which way the money moved.
+
 `invoice` is present when the wallet transaction came from a collection invoice.
+
+An archived wallet's statement returns `400 Invalid Wallet ID provided`.

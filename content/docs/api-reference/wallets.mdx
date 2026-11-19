@@ -12,7 +12,7 @@ Use these endpoints to retrieve your Kulmi Pay wallets and create new working wa
 
 **`GET /api/v1/wallets/`**
 
-Returns all wallets associated with your business, including both settlement and working wallets. To retrieve a single wallet, use `GET /api/v1/wallets/{wallet_id}/`.
+Returns all wallets associated with your business, including both settlement and working wallets, and archived ones (add `?archived=false` to leave those out). The list is paginated: wallets are under `results`, with `count`, `next` and `previous`. To retrieve a single wallet, use `GET /api/v1/wallets/{wallet_id}/`.
 
 
 ```bash tab="cURL"
@@ -99,7 +99,7 @@ Both the list and create endpoints return wallet objects in the following shape.
 </ResponseField>
 
 <ResponseField name="currency" type="string">
-  The currency this wallet holds. One of `KES`, `USD`, `EUR`, or `GBP`.
+  The currency this wallet holds. One of `KES`, `USD`, `EUR`, `GBP`, or `CNY`.
 </ResponseField>
 
 <ResponseField name="wallet_type" type="string">
@@ -126,6 +126,10 @@ Both the list and create endpoints return wallet objects in the following shape.
   ISO 8601 timestamp of the last time the wallet balance was updated.
 </ResponseField>
 
+<ResponseField name="archived" type="boolean">
+  `true` for a wallet that is no longer in use. Retrieving it, or its transactions, returns `400 Invalid Wallet ID provided`.
+</ResponseField>
+
 ## Example response
 
 ```json
@@ -137,7 +141,8 @@ Both the list and create endpoints return wallet objects in the following shape.
   "wallet_type": "WORKING",
   "current_balance": "50000.00",
   "available_balance": "50000.00",
-  "updated_at": "2024-04-16T09:30:00Z"
+  "updated_at": "2024-04-16T09:30:00Z",
+  "archived": false
 }
 ```
 

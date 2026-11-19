@@ -1613,6 +1613,12 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        archived:
+          title: Archived
+          type: boolean
+          readOnly: true
+          description: True for a wallet no longer in use. Retrieving it, or its
+            transactions, returns 400.
     TransactionsSer:
       required:
         - account

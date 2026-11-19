@@ -9,7 +9,7 @@ Use this endpoint to pull a full statement for a specific wallet. Results are re
 **Method:** `GET`  
 **URL:** `https://app.kulmipay.com/api/v1/wallets/{wallet_id}/transactions/`
 
-Replace `{wallet_id}` with the `wallet_id` (alias ID) of the wallet you want to query.
+Replace `{wallet_id}` with the `wallet_id` (alias ID) of the wallet you want to query. An archived wallet returns `400 Invalid Wallet ID provided`.
 
 ## Query parameters
 
@@ -26,14 +26,14 @@ Replace `{wallet_id}` with the `wallet_id` (alias ID) of the wallet you want to 
 </ParamField>
 
 <ParamField query="end_date" type="string">
-  Return only transactions on or before this date. Use `YYYY-MM-DD` format, for example `2024-01-31`.
+  Return only transactions on or before this date, the whole day included. Use `YYYY-MM-DD` format, for example `2024-01-31`.
 </ParamField>
 
 ## Code example
 
 ```bash title="cURL"
 curl --request GET \
-  --url "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/transactions/?start_date=2024-04-01&end_date=2024-04-30&trans_type=CREDIT" \
+  --url "https://app.kulmipay.com/api/v1/wallets/wlt_abc123/transactions/?start_date=2024-04-01&end_date=2024-04-30&trans_type=SALE" \
   --header "Authorization: Bearer YOUR_SECRET_KEY"
 ```
 
@@ -50,7 +50,7 @@ The endpoint returns a paginated list of transaction objects. Results appear und
 </ResponseField>
 
 <ResponseField name="value" type="string">
-  The transaction amount as a decimal string, for example `"1500.00"`.
+  The transaction amount, for example `"1500.00"`. Positive for money into the wallet, negative for money out.
 </ResponseField>
 
 <ResponseField name="running_balance" type="string">
